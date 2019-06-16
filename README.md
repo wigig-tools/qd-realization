@@ -11,7 +11,7 @@ This repository contains a MATLAB application which which computes multipath com
 
 Here is a sample snapshot for our Q-D realization software:
 
-![Snapshot for our Q-D realization app](qdRealizationSnapshot.png)
+![Snapshot for our Q-D realization app](qdRealizationSnapshot.PNG)
 
 # Download Information:
 We plan to release the App to the public around June 2019.
