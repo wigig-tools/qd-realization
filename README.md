@@ -18,7 +18,7 @@ Here is a sample snapshot for our Q-D realization software:
 The Q-D Realization software is developped by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi) and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
 
 
-# Downlad:
+# Download:
 Just clone or download the repository
 
 # Documentation:
