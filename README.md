@@ -19,7 +19,7 @@ The Q-D Realization software is developped by [Anuraag Bodi](https://www.nist.go
 
 
 # Downlad:
-Just clone the repository
+Just clone or download the repository
 
 # Documentation:
 The software architecture and functionnalities are described in the *"Documentation.pdf"* document located in the *"Source"* folder.
