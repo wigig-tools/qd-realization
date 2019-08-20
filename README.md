@@ -13,8 +13,6 @@ Here is a sample snapshot for our Q-D realization software:
 
 ![Snapshot for our Q-D realization app](qdRealizationSnapshot.PNG)
 
-# Download Information:
-We plan to release the App to the public around June 2019.
 
 # Author Information:
 The Q-D Realization software is maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
