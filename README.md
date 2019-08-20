@@ -17,5 +17,10 @@ Here is a sample snapshot for our Q-D realization software:
 # Author Information:
 The Q-D Realization software is maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
 
-# Release:
-The Q-D visualizer release date is August 2019
+
+# Downlad:
+Just clone the repository
+
+# Documentation:
+The software architecture and functionnalities are described in the Documentation.pdf document located in the "Source" folder.
+A readme file "Readme.txt" is located in the "Source" folder
