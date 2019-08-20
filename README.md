@@ -22,5 +22,6 @@ The Q-D Realization software is maintained by [Tanguy Ropitault](https://www.nis
 Just clone the repository
 
 # Documentation:
-The software architecture and functionnalities are described in the Documentation.pdf document located in the "Source" folder.
-A readme file "Readme.txt" is located in the "Source" folder
+The software architecture and functionnalities are described in the *"Documentation.pdf"* document located in the *"Source"* folder.
+
+A readme file *"Readme.txt"* is located in the *"Source"* folder
