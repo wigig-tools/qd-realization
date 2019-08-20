@@ -1,5 +1,5 @@
 # Q-D realization software
-This repository contains a MATLAB application which which computes multipath components between communicating nodesthanks to raytracing.
+This repository contains a MATLAB application which computes multipath components characteristics between communicating nodes thanks to raytracing and Q-D methodology.
 
 ## Features:
 
