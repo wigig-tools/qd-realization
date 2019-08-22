@@ -1,0 +1,21 @@
+# Ignore all subfolders in QDSoftware
+# Done to avoid saving custom results
+Source/QDSoftware/*/
+
+# Do NOT ignore important folders
+!Source/QDSoftware/Raytracer/
+!Source/QDSoftware/Input/
+
+# Do NOT ignore examples
+!Source/QDSoftware/Indoor1/
+!Source/QDSoftware/Indoor2/
+!Source/QDSoftware/L-Room/
+!Source/QDSoftware/Outdoor1/
+!Source/QDSoftware/SpatialSharing/
+
+
+## Useless/temporary files to ignore
+
+# MATLAB
+*.asv # tmp file on Windows
+*.m~ # tmp file on UNIX systems
