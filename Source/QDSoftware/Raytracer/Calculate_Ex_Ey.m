@@ -35,10 +35,10 @@
 
 function [Ex1,Ey1]=Calculate_Ex_Ey(Plane,vector,Ex,Ey)
 normal=[Plane(1),Plane(2),Plane(3)];
-Ex1=(crossproduct(vector,normal))/(magnitude(normal)*(magnitude(vector)));
+Ex1=(cross(vector,normal))/(magnitude(normal)*(magnitude(vector)));
 if magnitude(Ex1)==0
     Ex1=Ex;
     Ey1=Ey;
 else
-    Ey1=(crossproduct(vector,Ex1))/(magnitude(Ex1)*(magnitude(vector)));
+    Ey1=(cross(vector,Ex1))/(magnitude(Ex1)*(magnitude(vector)));
 end

@@ -45,7 +45,7 @@ dp=dot(velocityTx,vector);
 if dp~=0
     vectorAlongNormal=(-1*dp).*vector;
     theta=acos(dp/magnitude(velocityTx));
-    vectorOrthogonal=crossproduct(vector,crossproduct(velocityTx,vector));
+    vectorOrthogonal=cross(vector,cross(velocityTx,vector));
     if magnitude(vectorOrthogonal)~=0
         vectorOrthogonal=vectorOrthogonal./magnitude(vectorOrthogonal);
     end
