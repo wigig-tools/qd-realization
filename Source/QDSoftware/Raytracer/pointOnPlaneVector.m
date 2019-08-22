@@ -43,3 +43,5 @@ t=-(dot(point1,normal)+plane(4))/(dot(normal,vector));
 point(1)=point1(1)+(t*vector(1));
 point(2)=point1(2)+(t*vector(2));
 point(3)=point1(3)+(t*vector(3));
+
+end

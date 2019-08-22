@@ -39,3 +39,4 @@ plane(2)=normal(2);
 plane(3)=normal(3);
 plane(4)=-1*(dot(normal,point));
 
+end

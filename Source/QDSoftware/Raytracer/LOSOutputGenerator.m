@@ -176,3 +176,5 @@ if switch3==1 % if DoA exists
         output=output1;
     end
 end
+
+end

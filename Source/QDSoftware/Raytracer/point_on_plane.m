@@ -45,4 +45,4 @@ point_on_plane(1)=point(1)+(t*vector(1));
 point_on_plane(2)=point(2)+(t*vector(2));
 point_on_plane(3)=point(3)+(t*vector(3));
 
-
+end

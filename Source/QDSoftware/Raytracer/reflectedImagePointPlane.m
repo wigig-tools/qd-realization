@@ -41,3 +41,5 @@ t=-2*(dot(vector,point)+plane(4))/(dot(vector,vector));
 reflectedPoint(1)=point(1)+(t*vector(1));
 reflectedPoint(2)=point(2)+(t*vector(2));
 reflectedPoint(3)=point(3)+(t*vector(3));
+
+end

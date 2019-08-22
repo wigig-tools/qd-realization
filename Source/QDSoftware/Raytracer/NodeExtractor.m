@@ -132,3 +132,5 @@ if timeDivision>0 && ~(numberOfNodes>2 || switchRandomization==1)
         - NodePosition(timeDivision+2,:,2))./delt;
     
 end
+
+end

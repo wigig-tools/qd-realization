@@ -113,4 +113,3 @@ para.totalNumberOfReflections = str2double(paraStruct.totalNumberOfReflections);
 para.totalTimeDuration = str2double(paraStruct.totalTimeDuration);
 
 end
-
