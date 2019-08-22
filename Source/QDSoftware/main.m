@@ -32,14 +32,16 @@
 
 clear
 close all
+clc
+
+addpath("Raytracer")
 
 %% Initialization 
 rootFolderPath = pwd;
 fprintf('-------- NIST/CTL QD mmWave Channel Model --------\n');
 fprintf('Current root folder:\n\t%s\n',rootFolderPath);
-promptConfStr = 'Comfirm whether the current root folder ends with "...\QDSoftware"? (Y/N) or (y/n):';
-folderConfVal = input(promptConfStr,'s');
-if strcmp(folderConfVal,'Y') || strcmp(folderConfVal,'y')
+[path,folderName] = fileparts(rootFolderPath);
+if strcmp(folderName, 'QDSoftware')
     fprintf('Start to run.\n');
 else
     error('The root folder should be QDSoftware.\n');
