@@ -123,7 +123,7 @@ if indexMultipath<orderOfReflection
 %% For the last vector of Multipath (DoD)   
 else
     
-    directionOfDeparture=diffvector(ReflectedPoint,Tx);
+    directionOfDeparture=ReflectedPoint-Tx;
     %delay is the total length of multipath
     delay=magnitude(directionOfDeparture);
     velocityTxAlongDirectionofDeparture=dotproduct(velocityTx,-1.*directionOfDeparture)./magnitude(directionOfDeparture);
@@ -141,7 +141,7 @@ else
 end
 %% 
 if booleanMultipathExistance==1
-vector=diffvector(ReflectedPoint,Intersection1);
+vector=ReflectedPoint-Intersection1;
 Intersection=pointOnPlaneVector(ReflectedPoint,vector, plane);
 % corner case where the previous intersection (Intersection) is equal to
 % source (Intersection1)
@@ -159,7 +159,7 @@ end
     multipath(indexOrderOfReflection,indexMultipath*3+4)=Intersection(3);
 
     % Direction of arrival changes dynamically until the last recursion
-directionOfArrival=diffvector(Intersection1,Intersection);   % check sign
+directionOfArrival=Intersection1-Intersection;   % check sign
 
 % Extracting information from Array_of_points
 Point1(1)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-8);
@@ -173,8 +173,8 @@ Point3(2)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-1);
 Point3(3)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9);
 
 % To verify whether the intersection point is within triangle
-booleanMultipathExistance=booleanMultipathExistance && PointInTriangle(Intersection,Point1,Point2,Point3) && round(dotproduct(diffvector(ReflectedPoint,Intersection),...
-            diffvector(Intersection1,Intersection)),3)<0;
+booleanMultipathExistance=booleanMultipathExistance && PointInTriangle(Intersection,Point1,Point2,Point3) && round(dotproduct(ReflectedPoint-Intersection,...
+            Intersection1-Intersection),3)<0;
 
 
 if booleanMultipathExistance==1
@@ -217,7 +217,7 @@ end
 
 % To verify whether DoA vector exists
 if indexMultipath == 1 && booleanMultipathExistance==1
-    directionOfArrival=-1.*diffvector(Rx,Intersection);
+    directionOfArrival = -1 * (Rx-Intersection);
     condition1=-1;
     plane2=[0,0,0,0];
     [booleanMultipathExistance]=verifyPath(Rx,Intersection,directionOfArrival,plane,plane2,numberRowsCADOutput,CADOutput,condition1);

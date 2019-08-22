@@ -62,12 +62,12 @@
 
 function [switch3]=verifypathTreeTraversal(Point11,Point12,Point13,...
     Point21,Point22,Point23,Normal1,Normal2,Plane1,Plane2,condition1)
-vector1121=diffvector(Point11,Point21);
-vector2111=diffvector(Point21,Point11);
-vector1222=diffvector(Point12,Point22);
-vector2212=diffvector(Point22,Point12);
-vector1323=diffvector(Point13,Point23);
-vector2313=diffvector(Point23,Point13);
+vector1121=Point11-Point21;
+vector2111=Point21-Point11;
+vector1222=Point12-Point22;
+vector2212=Point22-Point12;
+vector1323=Point13-Point23;
+vector2313=Point23-Point13;
 switch3=1;
 
 switch3=switch3 && (dotproduct(vector1121,Normal1)<=0);

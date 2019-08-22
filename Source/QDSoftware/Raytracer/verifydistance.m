@@ -84,13 +84,13 @@ if switch1 ~= 1
         for iterator = 1:3
             v1 = Triangle_Vertices(iterator,:);
             v2 = Triangle_Vertices(iterator + 1,:);
-            t = -dotproduct(diffvector(v1,Point),diffvector(v1,v2))/...
-                dotproduct(diffvector(v1,v2),diffvector(v1,v2));
-            Point_on_side = v1 + (t.* diffvector(v1,v2));
-            d2 = (dotproduct(diffvector(Point_on_side,Point),...
-                diffvector(Point_on_side,Point)));
-            if (dotproduct(diffvector(v1,Point_on_side),...
-                    diffvector(v2,Point_on_side))) <= 0 && (d1^2) + (d2) <= r^2
+            t = -dotproduct(v1-Point,v1-v2)/...
+                dotproduct(v1-v2,v1-v2);
+            Point_on_side = v1 + (t.* (v1-v2));
+            d2 = (dotproduct(Point_on_side-Point,...
+                Point_on_side-Point));
+            if (dotproduct(v1-Point_on_side,...
+                    v2-Point_on_side)) <= 0 && (d1^2) + (d2) <= r^2
                 switch1 = 1;
                 break;
             end

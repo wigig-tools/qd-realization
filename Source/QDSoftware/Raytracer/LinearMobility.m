@@ -76,7 +76,7 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division==0
             Reflected=Tx_test;
             Intersection1=Tx;
             
-            vector=diffvector(Reflected,Intersection1);
+            vector=Reflected-Intersection1;
             [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],...
                 [0,0,0],number_rows_CADop,CADop,2);
             if switch3==0 && number_of_nodes>2
@@ -103,7 +103,7 @@ end
 %         Reflected=Tx_test;
 %         Intersection1=Tx;
 %         
-%         vector=diffvector(Reflected,Intersection1);
+%         vector=Reflected-Intersection1;
 %         [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
 %             number_rows_CADop,CADop,2);
 %         if switch3==0 && number_of_nodes>2
@@ -115,7 +115,7 @@ end
 %         Reflected=Rx_test;
 %         Intersection1=Rx;
 %         
-%         vector=diffvector(Reflected,Intersection1);
+%         vector=Reflected-Intersection1;
 %         [switch3]=verifyPathMobility(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
 %             number_rows_CADop,CADop,2);
 %         if switch3==0 && number_of_nodes>2
@@ -143,7 +143,7 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division>0
             Reflected = Tx_test;
             Intersection1 = Tx;
             
-            vector = diffvector(Reflected,Intersection1);
+            vector = Reflected-Intersection1;
             [switch3] = verifyPathMobility(Tx_test, Tx,vector, [0,0,0],...
                 [0,0,0], number_rows_CADop, CADop, 2);
             if switch3==0
@@ -170,7 +170,7 @@ end
 %         Reflected=Tx_test;
 %         Intersection1=Tx;
 %         
-%         vector=diffvector(Reflected,Intersection1);
+%         vector=Reflected-Intersection1;
 %         [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
 %             number_rows_CADop,CADop,2);
 %         if switch3==0
@@ -180,7 +180,7 @@ end
 %         Reflected=Rx_test;
 %         Intersection1=Rx;
 %         
-%         vector=diffvector(Reflected,Intersection1);
+%         vector=Reflected-Intersection1;
 %         [switch3]=verifyPathMobility(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
 %             number_rows_CADop,CADop,2);
 %         if switch3==0

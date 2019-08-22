@@ -125,8 +125,8 @@ for iterateVolume=1:size(volume)
         z3=str2num(s.amf.object.mesh.vertices.vertex{1,vertex3}.coordinates.z.Text);
         %% Calculating the plane equation of triangles
         
-        vector1=diffvector([x2,y2,z2],[x3,y3,z3]);
-        vector2=-diffvector([x2,y2,z2],[x1,y1,z1]);
+        vector1 = [x2,y2,z2] - [x3,y3,z3];
+        vector2 = -([x2,y2,z2] - [x1,y1,z1]);
         % Multiply with -1 for 'example.xml', 'sphere.xml','material_prism.xml'
         normal=1*crossproduct(vector2,vector1)*(1-(2*IndoorSwitch));
         normal=round(normal./(magnitudeOfThreePoints(normal(1),normal(2),normal(3))),4);

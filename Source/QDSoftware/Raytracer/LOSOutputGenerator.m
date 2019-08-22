@@ -64,7 +64,7 @@ function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
 
 %Direction of departure (DoD) is simple the difference of position vectors
 % of Tx and Rx
-dod=diffvector(Rx,Tx);
+dod=Rx-Tx;
 %delay is the total length of multipath
 delay=magnitude(dod);
 % Direction of arrival (DoA) is negative of DoD
@@ -75,7 +75,7 @@ velocityRxAlongDirectionOfDeparture=dotproduct(velocityRx,-1.*dod);
 c=3e8;
 dopplerFactor=(velocityRxAlongDirectionOfDeparture-velocityTxAlongDirectionOfDeparture)/(c);
 % To verify whether DoA vector exists
-vector=diffvector(Tx,Rx);
+vector=Tx-Rx;
 [switch3]=verifyPath(Tx,Rx,vector,[0,0,0],...
     [0,0,0],numberRowsCADoutput,CADoutput,2);
 switchLOS=switch3;
