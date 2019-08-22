@@ -34,13 +34,13 @@
 
 
 function [theta]=Calc_angle(V1,V2,Vector)
-theta_s=asin(magnitude(cross(V1,V2))/(magnitude(V2)*(magnitude(V1))));
+theta_s=asin(norm(cross(V1,V2))/(norm(V2)*(norm(V1))));
 
 switch1=1;
 if dot(cross(V1,V2),Vector)<0
     switch1=0;
 end
-theta_c=acos(dot(V1,V2)/(magnitude(V2)*(magnitude(V1))));
+theta_c=acos(dot(V1,V2)/(norm(V2)*(norm(V1))));
 switchc=(dot(V1,V2))>=0;
 theta=0;
 if switch1==1 && switchc==1

@@ -150,9 +150,9 @@ for i1 = 1:2
             output(count1+i-1,8) = tau_set(i+1)*1e-9;
             
             % output(count1,10)=180*atan(dod(2)/dod(1))/pi;
-            % output(count1,11)=180*acos(dod(3)/magnitude(dod))/pi;
+            % output(count1,11)=180*acos(dod(3)/norm(dod))/pi;
             % output(count1,12)=180*atan(doa(2)/doa(1))/pi;
-            % output(count1,13)=180*acos(doa(3)/magnitude(doa))/pi;
+            % output(count1,13)=180*acos(doa(3)/norm(doa))/pi;
             i=i+1;
         end
         
@@ -178,7 +178,7 @@ for i1 = 1:2
             end
         end
         
-        mu = acos(dod(3)/magnitude(dod))*180/pi;
+        mu = acos(dod(3)/norm(dod))*180/pi;
         
         % generates angular spread for Aod elevation
         
@@ -261,7 +261,7 @@ for i1 = 1:2
         % Aoa_az=Aoa_az.*s;
         Aoa_az=((Aoa_az-mu_1).*sqrt(s1))+(mu_1);
         
-        mu=acos(doa(3)/magnitude(doa))*180/pi;
+        mu=acos(doa(3)/norm(doa))*180/pi;
         
         % generates angular spread for Aoa elevation
         

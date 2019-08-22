@@ -46,8 +46,9 @@ switch1 = 0;
 % checks whether vertices are within the sphere
 
 for iterator = 1:3
-    d = magnitudeOfThreePoints(CADop(i,(iterator - 1) + 1) - Tx(1),...
-        CADop(i,(iterator - 1) + 2) - Tx(2),CADop(i,(iterator - 1) + 3) - Tx(3));
+    d = norm([CADop(i,(iterator - 1) + 1) - Tx(1),...
+        CADop(i,(iterator - 1) + 2) - Tx(2),...
+        CADop(i,(iterator - 1) + 3) - Tx(3)]);
     if d <= r
         switch1 = 1;
         break;

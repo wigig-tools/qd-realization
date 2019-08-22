@@ -34,4 +34,5 @@
 % ref: http://mathinsight.org/distance_point_plane
 
 function [distance]=distanceOfPointFromPlane(point, plane)
-distance=abs((point(1)*plane(1))+(point(2)*plane(2))+(point(3)*plane(3))+plane(4))/magnitudeOfThreePoints(plane(1),plane(2),plane(3));
+distance=abs((point(1)*plane(1))+(point(2)*plane(2))+(point(3)*plane(3))+plane(4)) /...
+    norm(plane(1:3));

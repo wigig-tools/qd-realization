@@ -228,7 +228,7 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         
         %Aod elevation
         
-        output(indexOutput,11) = rad2deg(acos(directionOfDeparture(3) / magnitude(directionOfDeparture)));
+        output(indexOutput,11) = rad2deg(acos(directionOfDeparture(3) / norm(directionOfDeparture)));
         
         %Aoa azimuth
         % doa(3)=-doa(3);
@@ -256,7 +256,7 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         end
         %Aoa elevation
         
-        output(indexOutput,13) = 180 * (acos(directionOfArrival(3) / magnitude(directionOfArrival))) / pi;
+        output(indexOutput,13) = 180 * (acos(directionOfArrival(3) / norm(directionOfArrival))) / pi;
 %-----------------Polarization Part Omitted------------------------------%
 %         %End Polarization information
 %         if PolarizationSwitchTemporary==1

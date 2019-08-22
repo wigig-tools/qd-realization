@@ -44,10 +44,10 @@ dp=dot(velocityTx,vector);
 
 if dp~=0
     vectorAlongNormal=(-1*dp).*vector;
-    theta=acos(dp/magnitude(velocityTx));
+    theta=acos(dp/norm(velocityTx));
     vectorOrthogonal=cross(vector,cross(velocityTx,vector));
-    if magnitude(vectorOrthogonal)~=0
-        vectorOrthogonal=vectorOrthogonal./magnitude(vectorOrthogonal);
+    if norm(vectorOrthogonal)~=0
+        vectorOrthogonal=vectorOrthogonal./norm(vectorOrthogonal);
     end
     vectorOrthogonal=(dp*tan(theta)).*vectorOrthogonal;
     velocityReflected=vectorOrthogonal+vectorAlongNormal;

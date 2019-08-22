@@ -125,9 +125,9 @@ else
     
     directionOfDeparture=ReflectedPoint-Tx;
     %delay is the total length of multipath
-    delay=magnitude(directionOfDeparture);
-    velocityTxAlongDirectionofDeparture=dot(velocityTx,-1.*directionOfDeparture)./magnitude(directionOfDeparture);
-    velocityRxAlongDirectionofDeparture=dot(velocityRx,-1.*directionOfDeparture)./magnitude(directionOfDeparture);
+    delay=norm(directionOfDeparture);
+    velocityTxAlongDirectionofDeparture=dot(velocityTx,-1.*directionOfDeparture)./norm(directionOfDeparture);
+    velocityRxAlongDirectionofDeparture=dot(velocityRx,-1.*directionOfDeparture)./norm(directionOfDeparture);
     velocityTemporary=velocityRx;
     c=3e8;
     dopplerFactor=(velocityRxAlongDirectionofDeparture-velocityTxAlongDirectionofDeparture)/(c);
@@ -195,7 +195,7 @@ end
 % Antenna orientation and Jones vector to be passed down as input
 %-----------------Polarization Part Omitted------------------------------%
 % if PolarizationSwitchTemporary == 1
-%     Thetai=acos((dot(-directionOfArrival,[plane(1),plane(2),plane(3)]))/(magnitude([plane(1),plane(2),plane(3)])*magnitude(directionOfArrival)));
+%     Thetai=acos((dot(-directionOfArrival,[plane(1),plane(2),plane(3)]))/(norm([plane(1),plane(2),plane(3)])*norm(directionOfArrival)));
 %     [PL_temp,PolarizationTx,phaseXDimension,phaseYDimension,AntennaOrientationTx]=Polarization(AntennaOrientationTx,PolarizationTx,plane,-directionOfArrival,Thetai,switchCP,nt_array(indexMultipath));
 %     if Intersection1 == Tx
 %         PathLoss=PL_temp;
@@ -224,7 +224,7 @@ if indexMultipath == 1 && booleanMultipathExistance==1
 %-----------------Polarization Part Omitted------------------------------%    
 %     if PolarizationSwitchTemporary == 1
 %         directionOfArrival=-directionOfArrival;
-%     Thetai=dot(directionOfArrival,[plane(1),plane(2),plane(3)]/(magnitude([plane(1),plane(2),plane(3)])*magnitude(directionOfArrival)));
+%     Thetai=dot(directionOfArrival,[plane(1),plane(2),plane(3)]/(norm([plane(1),plane(2),plane(3)])*norm(directionOfArrival)));
 % %      [PathLoss,PolarizationTx,phi_x,phi_y,AntennaOrientation]=Polarization(AntennaOrientationTx,PolarizationTx,plane,directionOfArrival,Thetai,y(orderOfReflection));
 %     Antenna_x=[AntennaOrientationTx(1,1),AntennaOrientationTx(1,2),AntennaOrientationTx(1,3)];
 % Antenna_y=[AntennaOrientationTx(2,1),AntennaOrientationTx(2,2),AntennaOrientationTx(2,3)];
