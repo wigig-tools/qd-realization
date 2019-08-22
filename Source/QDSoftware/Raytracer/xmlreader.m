@@ -133,7 +133,7 @@ for iterateVolume=1:size(volume)
         vector3=[x2,y2,z2];
         %for box. remove for others
         
-        D=-1*dotproduct(normal,vector3);
+        D=-1*dot(normal,vector3);
         %% Storing Material information in output if the material exists in the material database
         
         if switch1==1

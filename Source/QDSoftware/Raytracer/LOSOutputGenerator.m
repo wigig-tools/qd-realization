@@ -70,8 +70,8 @@ delay=magnitude(dod);
 % Direction of arrival (DoA) is negative of DoD
 doa=-dod;
 % Calculating Doppler factor for LOS
-velocityTxAlongDirectionOfDeparture=dotproduct(velocityTx,-1.*dod);
-velocityRxAlongDirectionOfDeparture=dotproduct(velocityRx,-1.*dod);
+velocityTxAlongDirectionOfDeparture=dot(velocityTx,-1.*dod);
+velocityRxAlongDirectionOfDeparture=dot(velocityRx,-1.*dod);
 c=3e8;
 dopplerFactor=(velocityRxAlongDirectionOfDeparture-velocityTxAlongDirectionOfDeparture)/(c);
 % To verify whether DoA vector exists

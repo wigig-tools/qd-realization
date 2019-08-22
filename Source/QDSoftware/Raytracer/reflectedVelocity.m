@@ -40,7 +40,7 @@ function [velocityReflected]=reflectedVelocity(velocityTx, plane)
 vector(1)=plane(1);
 vector(2)=plane(2);
 vector(3)=plane(3);
-dp=dotproduct(velocityTx,vector);
+dp=dot(velocityTx,vector);
 
 if dp~=0
     vectorAlongNormal=(-1*dp).*vector;

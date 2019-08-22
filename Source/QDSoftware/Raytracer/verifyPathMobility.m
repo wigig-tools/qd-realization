@@ -74,13 +74,13 @@ for i = 1:number_rows_CADop
     % This part checks whether the path intersects with a given plane
     pointIntersection = pointOnPlaneVector(Reflected,vector, plane1);
     switch1 = 0;
-    (dotproduct(Reflected-pointIntersection,...
+    (dot(Reflected-pointIntersection,...
         Intersection-pointIntersection));%>0
     
     % If condition checks whether path intersects with the plane and does the
     % intersection point lie between the point of origin (<) and destination or
     % pathis origin lies on plane (==)
-    if (dotproduct(Reflected-pointIntersection,...
+    if (dot(Reflected-pointIntersection,...
             Intersection-pointIntersection)) <= 0
         % Switch is boolean whether the intersection point lies within triangle described by CAD file
         switch1 = PointInTriangle(pointIntersection,Point1,Point2,Point3);

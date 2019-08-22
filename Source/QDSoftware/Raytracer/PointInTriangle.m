@@ -44,11 +44,11 @@ v0=c-a;
 v1=b-a;
 v2=point1-a;
 
-dot00=dotproduct(v0,v0);
-dot01=dotproduct(v0,v1);
-dot02=dotproduct(v0,v2);
-dot11=dotproduct(v1,v1);
-dot12=dotproduct(v1,v2);
+dot00=dot(v0,v0);
+dot01=dot(v0,v1);
+dot02=dot(v0,v2);
+dot11=dot(v1,v1);
+dot12=dot(v1,v2);
 
 invDenom=1/((dot00*dot11)-(dot01*dot01));
 u=((dot11 * dot02) - (dot01 * dot12)) * invDenom;

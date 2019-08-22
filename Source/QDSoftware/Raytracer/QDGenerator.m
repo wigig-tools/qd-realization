@@ -300,8 +300,8 @@ for i1 = 1:2
             vAngle_DoD=deg2rad(Aod_el1(i+1));
             hAngle_DoD=deg2rad(Aod_az1(i+1));
             dod_temp=[sin(vAngle_DoD)*cos(hAngle_DoD),sin(vAngle_DoD)*sin(hAngle_DoD),cos(vAngle_DoD)];
-            vtx_along_dod=dotproduct(vtx,-1.*dod_temp);
-            vrx_along_dod=dotproduct(v_temp,-1.*dod_temp);
+            vtx_along_dod=dot(vtx,-1.*dod_temp);
+            vrx_along_dod=dot(v_temp,-1.*dod_temp);
             c=3e8;
             %     vrx_along_dod
             doppler_factor=freq*(vrx_along_dod-vtx_along_dod)/(c);

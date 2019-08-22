@@ -33,4 +33,4 @@
 %this function returns the magnitude of a vector
 
 function [magnitude]=magnitude(vector)
-magnitude=sqrt(dotproduct(vector,vector));
+magnitude=sqrt(dot(vector,vector));

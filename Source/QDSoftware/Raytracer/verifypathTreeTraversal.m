@@ -70,11 +70,11 @@ vector1323=Point13-Point23;
 vector2313=Point23-Point13;
 switch3=1;
 
-switch3=switch3 && (dotproduct(vector1121,Normal1)<=0);
+switch3=switch3 && (dot(vector1121,Normal1)<=0);
 
-switch3=switch3 && (dotproduct(vector1222,Normal1)<=0);
+switch3=switch3 && (dot(vector1222,Normal1)<=0);
 
-switch3=switch3 && (dotproduct(vector1323,Normal1)<=0);
+switch3=switch3 && (dot(vector1323,Normal1)<=0);
 
 switch3=switch3 && ((distanceOfPointFromPlane(Point21, Plane1)~=0) ||...
     (distanceOfPointFromPlane(Point22, Plane1)~=0) ||...
@@ -82,9 +82,9 @@ switch3=switch3 && ((distanceOfPointFromPlane(Point21, Plane1)~=0) ||...
 
 
 if(condition1==0)
-    switch3=switch3 && (dotproduct(vector2111,Normal2)<=0);
-    switch3=switch3 && (dotproduct(vector2212,Normal2)<=0);
-    switch3=switch3 && (dotproduct(vector2313,Normal2)<=0);
+    switch3=switch3 && (dot(vector2111,Normal2)<=0);
+    switch3=switch3 && (dot(vector2212,Normal2)<=0);
+    switch3=switch3 && (dot(vector2313,Normal2)<=0);
     switch3=switch3 && ((distanceOfPointFromPlane(Point11, Plane2)~=0) ||...
         (distanceOfPointFromPlane(Point12, Plane2)~=0) ||...
         (distanceOfPointFromPlane(Point13, Plane2)~=0));

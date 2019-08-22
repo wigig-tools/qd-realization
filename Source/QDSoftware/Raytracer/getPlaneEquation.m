@@ -37,5 +37,5 @@ function [plane]=getPlaneEquation(normal, point)
 plane(1)=normal(1);
 plane(2)=normal(2);
 plane(3)=normal(3);
-plane(4)=-1*(dotproduct(normal,point));
+plane(4)=-1*(dot(normal,point));
 

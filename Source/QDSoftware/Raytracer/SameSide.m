@@ -34,7 +34,7 @@
 function [SameSide]=SameSide(point1,point2,a,b)
 cp1=crossproduct(a-b,a-point1);
 cp2=crossproduct(a-b,a-point2);
-if (dotproduct(cp1,cp2)>=0)
+if (dot(cp1,cp2)>=0)
     SameSide=1;
 else
     SameSide=0;

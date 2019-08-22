@@ -38,7 +38,7 @@ function [point]=pointOnPlaneVector(point1,vector, plane)
 normal(1)=plane(1);
 normal(2)=plane(2);
 normal(3)=plane(3);
-t=-(dotproduct(point1,normal)+plane(4))/(dotproduct(normal,vector));
+t=-(dot(point1,normal)+plane(4))/(dot(normal,vector));
 
 point(1)=point1(1)+(t*vector(1));
 point(2)=point1(2)+(t*vector(2));
