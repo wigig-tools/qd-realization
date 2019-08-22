@@ -141,7 +141,7 @@ try
 catch
 end
 mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'));
-mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/NS3'));
+mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3'));
 mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Visualizer'));
 
 cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'));
@@ -149,10 +149,10 @@ cd(rootFolderStr);
 sizeNode = size(nodeLoc);
 
 try
-    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/NS3/NodesPosition'));
+    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
 catch
-    mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/NS3/NodesPosition'));
-    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/NS3/NodesPosition'));
+    mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
+    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
 end
 
 csvwrite(strcat('NodesPosition.csv'), nodeLoc);
