@@ -36,10 +36,10 @@ function [para] = parameterCfg(rootFolderStr,scenarioNameStr)
 
 % Load Parameters
 try
-    para.cfgCustomPath = strcat(rootFolderStr,'\',scenarioNameStr,'\Input\paraCfgCurrent.txt');
+    para.cfgCustomPath = strcat(rootFolderStr,'/',scenarioNameStr,'/Input/paraCfgCurrent.txt');
     paraList = readtable(para.cfgCustomPath,'Delimiter','\t');
 catch
-    para.cfgDefaultPath = strcat(rootFolderStr,'\Input\paraCfgDefault.txt');
+    para.cfgDefaultPath = strcat(rootFolderStr,'/Input/paraCfgDefault.txt');
     paraList = readtable(para.cfgDefaultPath,'Delimiter','\t');
 end
 

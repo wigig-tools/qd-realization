@@ -316,13 +316,13 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     end
                 end
                 if switchLOS == 1 && iterateTx < iterateRx
-                    vis = strcat(RootFolderPath,'\',inputScenarioName,...
-                                '\Output\Visualizer\MpcCoordinates');
+                    vis = strcat(RootFolderPath,'/',inputScenarioName,...
+                                '/Output/Visualizer/MpcCoordinates');
                     try
                         cd(vis);
                     catch
-                        mkdir(strcat(RootFolderPath,'\',inputScenarioName,...
-                            '\Output\Visualizer\MpcCoordinates'));
+                        mkdir(strcat(RootFolderPath,'/',inputScenarioName,...
+                            '/Output/Visualizer/MpcCoordinates'));
                         cd(vis);
                     end
                     clear multipath1;
@@ -398,13 +398,13 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         %Plots channel model if material switch is 1
                         if iterateTx < iterateRx
                             
-                            vis = strcat(RootFolderPath,'\',inputScenarioName,...
-                                '\Output\Visualizer\MpcCoordinates');
+                            vis = strcat(RootFolderPath,'/',inputScenarioName,...
+                                '/Output/Visualizer/MpcCoordinates');
                             try
                                 cd(vis);
                             catch
-                                mkdir(strcat(RootFolderPath,'\',inputScenarioName,...
-                                    '\Output\Visualizer\MpcCoordinates'));
+                                mkdir(strcat(RootFolderPath,'/',inputScenarioName,...
+                                    '/Output/Visualizer/MpcCoordinates'));
                                 cd(vis);
                             end
                             sizeMultipathTemporary = size(multipathTemporary);
@@ -498,7 +498,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 %files whose names are TxiRxj.txt i,j is the link
                 %between ith node as Tx and jth as Rx.
                 
-                cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output'));
+                cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
                 
                 if iterateTimeDivision>0
                     
@@ -532,10 +532,10 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         mobilitySwitch == 0)
                     StringOutput = sprintf(StringOutput);
                     try
-                        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'));
+                        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
                     catch
-                        mkdir(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'));
-                        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'));
+                        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
+                        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
                     end
                     fid = fopen(strcat('Tx', num2str(iterateTx-1), 'Rx', ...
                         num2str(iterateRx-1), '.txt'), 'wt');
@@ -547,7 +547,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 end
                 
                 
-                cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output'));
+                cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
                 
                 %                     if Mobility_switch~=1
                 %                       savefig(f1,strcat('Rays',num2str(iter)));
@@ -559,34 +559,34 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
         end
     end
     
-    cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output'));
+    cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
     try
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
     catch
-        mkdir(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'));
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Ns3\QdFiles'))
+        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'))
     end
     try
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\NodePositions'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'));
     catch
-        mkdir(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\NodePositions'));
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\NodePositions'))
+        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'))
     end
     if mobilitySwitch >=0
         csvwrite(strcat('NodePositionsTrc', num2str(iterateTimeDivision), '.csv'), nodeLoc);
     end
     
-    cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output'));
+    cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
     if iterateTimeDivision == 0
         try
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\RoomCoordinates'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
         catch
-            mkdir(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\RoomCoordinates'));
-            cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output\Visualizer\RoomCoordinates'));
+            mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
+            cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
         end
         RoomCoordinates = CADop(:, 1:9);
         csvwrite('RoomCoordinates.csv', RoomCoordinates);
-        cd(strcat(RootFolderPath,'\',inputScenarioName,'\Output'));
+        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
         
     end
     %  set(0,'CurrentFigure',f3)
@@ -600,7 +600,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
     cd(currentFolder)
 end
 
-outputPath = strcat(RootFolderPath,'\',inputScenarioName,'\Output');
+outputPath = strcat(RootFolderPath,'/',inputScenarioName,'/Output');
 % close all
 %% Makes video of CAD model based multipath and channel model
 % %Changed

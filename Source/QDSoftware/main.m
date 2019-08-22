@@ -54,7 +54,7 @@ else
     scenarioNameStr = 'ScenarioTest';
     fprintf('Use default scenario: ScenarioTest.\n');
 end
-scenarioPathStr = strcat(rootFolderPath,'\',scenarioNameStr);
+scenarioPathStr = strcat(rootFolderPath,'/',scenarioNameStr);
 
 % Check Input Scenario File
 try
@@ -63,9 +63,9 @@ try
     cd(rootFolderPath);
 catch
     mkdir(scenarioPathStr);
-    scenarioInputPath = strcat(rootFolderPath,'\',scenarioNameStr,'\Input');
+    scenarioInputPath = strcat(rootFolderPath,'/',scenarioNameStr,'/Input');
     mkdir(scenarioInputPath);
-    copyfile(strcat(rootFolderPath,'\Input'), scenarioInputPath);
+    copyfile(strcat(rootFolderPath,'/Input'), scenarioInputPath);
     fprintf('%s folder does not exist, creating a new folder with default scenario from root Input folder.\n',scenarioNameStr);
 end
 
