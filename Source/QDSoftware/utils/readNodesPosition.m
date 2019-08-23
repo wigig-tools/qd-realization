@@ -1,16 +1,16 @@
 function out = readNodesPosition(path)
-fid = fopen(path,'r');
-
-assert(fid ~= -1,...
-    'File path ''%s'' not valid', path)
-
-i = 1;
-while ~feof(fid)
-    line = fgetl(fid);
-    out(i,:) = sscanf(line,'%f,%f,%f');
-    i = i+1;
-end
-
-fclose(fid);
+%READNODESPOSITION Function that extracts the Nodes Position from the 
+% output file, as described by the documentation).
+%
+% INPUTS:
+% - path: file path. This could be either and absolute path, or a relative
+% path, starting at least from the Output/ folder.
+%
+% OUTPUTS:
+% - out: matrix version of the csv file
+%
+% SEE ALSO: ISNODESPOSITION
+%
+% TODO license
 
 end

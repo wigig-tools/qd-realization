@@ -1,5 +1,25 @@
-%% Init
 function tests = exampleOutputsTest
+%EXAMPLEOUTPUTTEST Tests to check whether new fixes, improvements, or
+% changes affect the output of the ray-tracer. The example scenarios are
+% taken as baselines, specifically:
+% - DenserScenario
+% - Indoor1
+% - Indoor2
+% - L-Room
+% - Outdoor1
+% - SpatialSharing
+% The Output/ folders contain the results of the respective scenario run
+% using rng('default'). For the current MATLAB version, the documentation
+% states that: "This way, the same random numbers are produced as if you
+% restarted MATLAB. The default settings are the Mersenne Twister with
+% seed 0."
+% MATLAB's Unit Testing Framework is being used to efficiently and reliably
+% run all tests at once.
+%
+% SEE ALSO: TESTSUITE
+%
+% TODO license
+
 tests = functiontests(localfunctions);
 end
 

@@ -1,4 +1,27 @@
 function out = readQdFile(path)
+%READQDFILE Function that extracts the QD file from the 
+% output file, as described by the documentation).
+%
+% INPUTS:
+% - path: file path. This could be either and absolute path, or a relative
+% path, starting at least from the Output/ folder.
+%
+% OUTPUTS:
+% - out: struct. Each index corresponds to a timeframe. Each timeframe
+% contains:
+%    - numRays: number of rays between TX and RX. The following vectors
+%    will have size [1, numRays]
+%    - delay: absolute delay of each ray [s]
+%    - pathGain: path gain of each ray [dB]
+%    - phaseOffset: phase offset of each ray [rad]
+%    - aodEl: elevation of the angle of departure of each ray [deg]
+%    - aodAz: azimuth of the angle of departure of each ray [deg]
+%    - aoaEl: elevation of the angle of arrival of each ray [deg]
+%    - aoaAz: azimuth of the angle of arrival of each ray [deg]
+%
+% SEE ALSO: ISQDFILE
+%
+% TODO license
 fid = fopen(path,'r');
 
 assert(fid ~= -1,...
