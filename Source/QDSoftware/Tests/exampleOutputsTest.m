@@ -71,17 +71,17 @@ end
 
 % Indoor1
 function indoor1Test(testCase)
-% exampleName = 'Indoor1';
-% runRaytracer(testCase, exampleName);
-% checkOutput(testCase, exampleName);
+exampleName = 'Indoor1';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
 end
 
 
 % Indoor2
 function indoor2Test(testCase)
-% exampleName = 'Indoor2';
-% runRaytracer(testCase, exampleName);
-% checkOutput(testCase, exampleName);
+exampleName = 'Indoor2';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
 end
 
 
@@ -95,9 +95,9 @@ end
 
 % Outdoor1
 function outdoor1Test(testCase)
-% exampleName = 'Outdoor1';
-% runRaytracer(testCase, exampleName);
-% checkOutput(testCase, exampleName);
+exampleName = 'Outdoor1';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
 end
 
 
