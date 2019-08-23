@@ -5,6 +5,7 @@ Source/QDSoftware/*/
 # Do NOT ignore important folders
 !Source/QDSoftware/Raytracer/
 !Source/QDSoftware/Input/
+!Source/QDSoftware/utils/
 
 # Do NOT ignore examples
 !Source/QDSoftware/Indoor1/
