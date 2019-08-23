@@ -1,4 +1,4 @@
-function out = readNodePosition(path)
+function out = readNodesPosition(path)
 fid = fopen(path,'r');
 
 assert(fid ~= -1,...
