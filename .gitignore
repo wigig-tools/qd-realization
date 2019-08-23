@@ -9,11 +9,12 @@
 !/Source/QDSoftware/Tests/
 
 # Do NOT ignore examples
-!/Source/QDSoftware/Indoor1/
-!/Source/QDSoftware/Indoor2/
-!/Source/QDSoftware/L-Room/
-!/Source/QDSoftware/Outdoor1/
-!/Source/QDSoftware/SpatialSharing/
+!/Source/QDSoftware/DenserScenario/**
+!/Source/QDSoftware/Indoor1/**
+!/Source/QDSoftware/Indoor2/**
+!/Source/QDSoftware/L-Room/**
+!/Source/QDSoftware/Outdoor1/**
+!/Source/QDSoftware/SpatialSharing/**
 
 
 ## Useless/temporary files to ignore
