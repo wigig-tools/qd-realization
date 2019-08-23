@@ -12,5 +12,10 @@ function out = readNodesPosition(path)
 % SEE ALSO: ISNODESPOSITION
 %
 % TODO license
+out = readtable(path,...
+    'FileType', 'text',...
+    'ReadVariableNames', false,...
+    'Delimiter', ',');
+out = out{:,:}; % return matrix
 
 end
