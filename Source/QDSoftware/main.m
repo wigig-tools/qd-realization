@@ -75,11 +75,11 @@ else
 end
 
 % Input System Parameters
-paraCfg = parameterCfg(rootFolderPath,scenarioNameStr);
+paraCfg = parameterCfg(scenarioNameStr);
 % Input Node related parameters
-[paraCfg, nodeCfg] = nodeProfileCfg(rootFolderPath, paraCfg);
+[paraCfg, nodeCfg] = nodeProfileCfg(paraCfg);
 % Run raytracing function and generate outputs
-outputPath = Raytracer(rootFolderPath, paraCfg, nodeCfg);
+outputPath = Raytracer(paraCfg, nodeCfg);
 
 fprintf('Save output data to:\n%s\n',outputPath);
 fprintf('--------- Simulation Complete ----------\n');

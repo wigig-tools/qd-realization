@@ -71,8 +71,6 @@ rng('default')
 end
 
 function teardown(testCase)
-cd(testCase.TestData.mainFolderPath)
-
 status = rmdir(testCase.TestData.scenarioFolderPath,'s');
 assert(status,...
     'Errors found while deleting tmp scenario folder ''%s''',...
@@ -137,15 +135,11 @@ copyfile(sprintf('%s/%s/Input/',...
     sprintf('%s/Input/', testCase.TestData.scenarioFolderPath));
 
 % Input System Parameters
-paraCfg = parameterCfg(testCase.TestData.mainFolderPath,...
-    testCase.TestData.scenarioFolderPath);
+paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
 % Input Node related parameters
-[paraCfg, nodeCfg] = nodeProfileCfg(testCase.TestData.mainFolderPath,...
-    paraCfg);
+[paraCfg, nodeCfg] = nodeProfileCfg(paraCfg);
 % Run raytracing function and generate outputs
-Raytracer(testCase.TestData.mainFolderPath, paraCfg, nodeCfg);
-
-cd(testCase.TestData.mainFolderPath)
+Raytracer(paraCfg, nodeCfg);
 
 end
 

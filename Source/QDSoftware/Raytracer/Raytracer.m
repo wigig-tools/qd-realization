@@ -68,7 +68,7 @@
 % Outputs:
 % N/A
 
-function [outputPath] = Raytracer(RootFolderPath,paraCfgInput,nodeCfgInput)
+function [outputPath] = Raytracer(paraCfgInput,nodeCfgInput)
 
 %% Input Parameters Management
 environmentFileName = paraCfgInput.environmentFileName;
@@ -320,7 +320,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     end
                 end
                 if switchLOS == 1 && iterateTx < iterateRx
-                    vis = strcat(RootFolderPath,'/',inputScenarioName,...
+                    vis = strcat(inputScenarioName,...
                                 '/Output/Visualizer/MpcCoordinates');
                             
                     if ~isfolder(vis)
@@ -403,7 +403,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         %Plots channel model if material switch is 1
                         if iterateTx < iterateRx
                             
-                            vis = strcat(RootFolderPath,'/',inputScenarioName,...
+                            vis = strcat(inputScenarioName,...
                                 '/Output/Visualizer/MpcCoordinates');
                             
                             if ~isfolder(vis)

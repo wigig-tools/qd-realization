@@ -1,4 +1,4 @@
-function [paraCfg,nodeCfg] = nodeProfileCfg(rootFolderStr,paraCfg)
+function [paraCfg,nodeCfg] = nodeProfileCfg(paraCfg)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -13,7 +13,7 @@ numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
 switchRandomization = paraCfg.switchRandomization;
 paraCfg.referrencePoint = str2num(paraCfg.referrencePoint);
 
-inputPath = strcat(rootFolderStr,'/',scenarioNameStr, '/Input');
+inputPath = strcat(scenarioNameStr, '/Input');
 
 %% Code
 nodePosition = [];
@@ -65,7 +65,7 @@ if switchRandomization == 0 && numberOfNodes >= 2
         nodeVelocities = zeros(numberOfNodes, 3);
     end
     if mobilityType == 2
-        listing = dir(strcat(rootFolderStr,'/',scenarioNameStr, '/Input'));
+        listing = dir(strcat(scenarioNameStr, '/Input'));
         sizeListing = size(listing);
         countListing = 0; 
         for iterateSizeListing = 1:sizeListing(1)
@@ -133,15 +133,15 @@ end
 switchRandomization = 0;
 
 % Check Temp Output Folder
-status = rmdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'), 's');
+status = rmdir(strcat(scenarioNameStr,'/Output'), 's');
 
-mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'));
-mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3'));
-mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Visualizer'));
+mkdir(strcat(scenarioNameStr,'/Output'));
+mkdir(strcat(scenarioNameStr,'/Output/Ns3'));
+mkdir(strcat(scenarioNameStr,'/Output/Visualizer'));
 
 sizeNode = size(nodeLoc);
 
-nodesPositionPath = strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition');
+nodesPositionPath = strcat(scenarioNameStr,'/Output/Ns3/NodesPosition');
 if ~isfolder(nodesPositionPath)
     mkdir(nodesPositionPath)
 end

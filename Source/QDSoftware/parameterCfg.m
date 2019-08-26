@@ -30,16 +30,16 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-function [para] = parameterCfg(rootFolderStr,scenarioNameStr)
+function [para] = parameterCfg(scenarioNameStr)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
 % Load Parameters
 try
-    para.cfgCustomPath = strcat(rootFolderStr,'/',scenarioNameStr,'/Input/paraCfgCurrent.txt');
+    para.cfgCustomPath = strcat(scenarioNameStr,'/Input/paraCfgCurrent.txt');
     paraList = readtable(para.cfgCustomPath,'Delimiter','\t');
 catch
-    para.cfgDefaultPath = strcat(rootFolderStr,'/Input/paraCfgDefault.txt');
+    para.cfgDefaultPath = strcat('Input/paraCfgDefault.txt');
     paraList = readtable(para.cfgDefaultPath,'Delimiter','\t');
 end
 
