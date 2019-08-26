@@ -93,8 +93,16 @@ nodePolarization = nodeCfgInput.nodePolarization;
 nodePosition = nodeCfgInput.nodePosition;
 nodeVelocities = nodeCfgInput.nodeVelocities;
 
-% Paths
+% List of paths
 inputPath = strcat(inputScenarioName, '/Input');
+outputPath = strcat(inputScenarioName, '/Output');
+
+ns3Path = strcat(outputPath, '/Ns3');
+visualizerPath = strcat(outputPath, '/Visualizer');
+
+qdFilesPath = strcat(ns3Path, '/QdFiles');
+nodePositionsPath = strcat(visualizerPath, '/NodePositions');
+roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
 
 %% ------------ Original Raytracer --------------
 
@@ -535,7 +543,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         mobilitySwitch == 0)
                     StringOutput = sprintf(StringOutput);
                     
-                    qdFilesPath = strcat(inputScenarioName,'/Output/Ns3/QdFiles');
                     if ~isfolder(qdFilesPath)
                         mkdir(qdFilesPath)
                     end
@@ -550,8 +557,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     
                 end
                 
-                outputPath = strcat(inputScenarioName,'/Output');
-                
 %                 if Mobility_switch~=1
 %                     savefig(f1,strcat(outputPath, '/', 'Rays',num2str(iter)));
 %                     savefig(f2,strcat(outputPath, '/', 'Rays-QD',num2str(iter)));
@@ -561,12 +566,10 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
         end
     end
     
-    qdFilesPath = strcat(inputScenarioName,'/Output/Ns3/QdFiles');
     if ~isfolder(qdFilesPath)
         mkdir(qdFilesPath)
     end
     
-    nodePositionsPath = strcat(inputScenarioName,'/Output/Visualizer/NodePositions');
     if ~isfolder(nodePositionsPath)
         mkdir(nodePositionsPath)
     end
@@ -578,7 +581,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
     end
     
     if iterateTimeDivision == 0
-        roomCoordinatesPath = strcat(inputScenarioName,'/Output/Visualizer/RoomCoordinates');
         if ~isfolder(roomCoordinatesPath)
             mkdir(roomCoordinatesPath)
         end
@@ -599,7 +601,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
 
 end
 
-outputPath = strcat(inputScenarioName,'/Output');
 % close all
 %% Makes video of CAD model based multipath and channel model
 % %Changed

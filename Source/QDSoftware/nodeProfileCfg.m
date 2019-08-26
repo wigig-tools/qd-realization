@@ -13,7 +13,9 @@ numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
 switchRandomization = paraCfg.switchRandomization;
 paraCfg.referrencePoint = str2num(paraCfg.referrencePoint);
 
+% List of paths
 inputPath = strcat(scenarioNameStr, '/Input');
+nodesPositionPath = strcat(scenarioNameStr,'/Output/Ns3/NodesPosition');
 
 %% Code
 nodePosition = [];
@@ -141,7 +143,6 @@ mkdir(strcat(scenarioNameStr,'/Output/Visualizer'));
 
 sizeNode = size(nodeLoc);
 
-nodesPositionPath = strcat(scenarioNameStr,'/Output/Ns3/NodesPosition');
 if ~isfolder(nodesPositionPath)
     mkdir(nodesPositionPath)
 end
