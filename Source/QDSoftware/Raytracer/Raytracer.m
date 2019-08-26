@@ -93,6 +93,9 @@ nodePolarization = nodeCfgInput.nodePolarization;
 nodePosition = nodeCfgInput.nodePosition;
 nodeVelocities = nodeCfgInput.nodeVelocities;
 
+% Paths
+inputPath = strcat(inputScenarioName, '/Input');
+
 %% ------------ Original Raytracer --------------
 
 Tx = nodeLoc(1,:);
@@ -107,7 +110,6 @@ if switchVisuals == 1
     view([9 90]) % change view for f1 here
     hold on
 end
-currentFolder = pwd;
 
 colorArray = ['selectPlanesByDistInput', 'c', 'g', 'y', 'y', 'b', 'k'];
 lineArray = [1.8, 0.3];
@@ -159,21 +161,24 @@ MaterialLibrary = readtable('Material_library.txt');
 
 %% Extracting CAD file and storing in an XMl file, CADFile.xml
 
-
-copyfile(environmentFileName, 'demo.zip');
-
-try
-    unzip('demo.zip');
-    
-catch
-    
+[~,~,extension] = fileparts(environmentFileName);
+switch(extension(2:end))
+    case 'xml'
+        copyfile(strcat(inputPath, '/', environmentFileName),...
+            strcat(inputPath, '/CADFile.xml'));
+        
+    case 'amf'
+        copyfile(strcat(inputPath, '/', environmentFileName),...
+            strcat(inputPath, '/CADFile.xml'));
+        
+    otherwise
+        error('Cannot handle ''%s'' extension properly', extension)
+        
 end
-
-copyfile(environmentFileName, 'CADFile.xml');
 
 % Main function which extracts data from CAD file
 
-[CADop, numberRowsCADop, switchMaterial] = xmlreader('CADFile.xml', ...
+[CADop, numberRowsCADop, switchMaterial] = xmlreader(strcat(inputPath, '/CADFile.xml'), ...
     MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
 
 % channel model figure activates only when material data is present
@@ -296,7 +301,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 
                 %% LOS Path generation
                 % Plot the figure outside
-                cd(currentFolder)
                 [switchLOS, output] = LOSOutputGenerator(iterateTimeDivision, ...
                     numberRowsCADop, CADop, Rx, Tx, output, vtx, vrx, 0,...
                     [1, 0], switchMaterial, mobilitySwitch, numberOfNodes);
@@ -318,21 +322,22 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 if switchLOS == 1 && iterateTx < iterateRx
                     vis = strcat(RootFolderPath,'/',inputScenarioName,...
                                 '/Output/Visualizer/MpcCoordinates');
-                    try
-                        cd(vis);
-                    catch
-                        mkdir(strcat(RootFolderPath,'/',inputScenarioName,...
+                            
+                    if ~isfolder(vis)
+                        mkdir(strcat(inputScenarioName,...
                             '/Output/Visualizer/MpcCoordinates'));
-                        cd(vis);
                     end
+                                        
                     clear multipath1;
                     multipath1 = [Tx,Rx];
-                    csvwrite(strcat('MpcTx', ...
-                        num2str(iterateTx-1), 'Rx', num2str(iterateRx-1), ...
+                    csvwrite(strcat(vis, '/',...
+                        'MpcTx', num2str(iterateTx-1),...
+                        'Rx', num2str(iterateRx-1), ...
                         'Refl', num2str(0), ...
-                        'Trc', num2str(iterateTimeDivision), '.csv'), ...
+                        'Trc', num2str(iterateTimeDivision),...
+                        '.csv'), ...
                         multipath1); 
-                    cd(currentFolder)
+
                 end
                 
                 %% Higher order reflections (Non LOS)
@@ -400,24 +405,24 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                             
                             vis = strcat(RootFolderPath,'/',inputScenarioName,...
                                 '/Output/Visualizer/MpcCoordinates');
-                            try
-                                cd(vis);
-                            catch
-                                mkdir(strcat(RootFolderPath,'/',inputScenarioName,...
+                            
+                            if ~isfolder(vis)
+                                mkdir(strcat(inputScenarioName,...
                                     '/Output/Visualizer/MpcCoordinates'));
-                                cd(vis);
                             end
+                            
                             sizeMultipathTemporary = size(multipathTemporary);
                             if sizeMultipathTemporary(1) ~= 0
                                 multipath1 = multipathTemporary(1:count, 2:sizeMultipathTemporary(2));
-                                csvwrite(strcat('MpcTx', ...
-                                    num2str(iterateTx-1), 'Rx', num2str(iterateRx-1), ...
+                                csvwrite(strcat(vis, '/',...
+                                    'MpcTx', num2str(iterateTx-1),...
+                                    'Rx', num2str(iterateRx-1), ...
                                     'Refl', num2str(iterateOrderOfReflection), ...
-                                    'Trc', num2str(iterateTimeDivision), '.csv'), ...
+                                    'Trc', num2str(iterateTimeDivision),...
+                                    '.csv'), ...
                                     multipath1);
                             end
                         end
-                        cd(currentFolder)
                         
                         if size(output) > 0
                             output = [output;outputTemporary];
@@ -497,9 +502,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 %% The ouput from previous iterations is stored in file
                 %files whose names are TxiRxj.txt i,j is the link
                 %between ith node as Tx and jth as Rx.
-                
-                cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
-                
+                                
                 if iterateTimeDivision>0
                     
                     StringOutput = str(iterateTx, iterateRx);
@@ -522,7 +525,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 if iterateTimeDivision == 0
                     StringOutput = [];
                 end
-                cd (currentFolder);
+                
                 [StringOutput] = StringOutputGenerator(...
                     iterateTimeDivision, StringOutput, output);
                 
@@ -531,62 +534,58 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 if iterateTimeDivision == numberOfTimeDivisions || (iterateTimeDivision == 0 &&...
                         mobilitySwitch == 0)
                     StringOutput = sprintf(StringOutput);
-                    try
-                        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
-                    catch
-                        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
-                        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
+                    
+                    qdFilesPath = strcat(inputScenarioName,'/Output/Ns3/QdFiles');
+                    if ~isfolder(qdFilesPath)
+                        mkdir(qdFilesPath)
                     end
-                    fid = fopen(strcat('Tx', num2str(iterateTx-1), 'Rx', ...
-                        num2str(iterateRx-1), '.txt'), 'wt');
+                    
+                    fid = fopen(strcat(qdFilesPath, '/',...
+                        'Tx', num2str(iterateTx-1),...
+                        'Rx', num2str(iterateRx-1),...
+                        '.txt'), 'wt');
                     
                     fprintf(fid, StringOutput);
                     fclose(fid);
-                    cd(currentFolder);
                     
                 end
                 
+                outputPath = strcat(inputScenarioName,'/Output');
                 
-                cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
-                
-                %                     if Mobility_switch~=1
-                %                       savefig(f1,strcat('Rays',num2str(iter)));
-                %                       savefig(f2,strcat('Rays-QD',num2str(iter)));
-                %                     end
-                cd (currentFolder);
+%                 if Mobility_switch~=1
+%                     savefig(f1,strcat(outputPath, '/', 'Rays',num2str(iter)));
+%                     savefig(f2,strcat(outputPath, '/', 'Rays-QD',num2str(iter)));
+%                 end
                 
             end
         end
     end
     
-    cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
-    try
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
-    catch
-        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'));
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Ns3/QdFiles'))
-    end
-    try
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'));
-    catch
-        mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'));
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/NodePositions'))
-    end
-    if mobilitySwitch >=0
-        csvwrite(strcat('NodePositionsTrc', num2str(iterateTimeDivision), '.csv'), nodeLoc);
+    qdFilesPath = strcat(inputScenarioName,'/Output/Ns3/QdFiles');
+    if ~isfolder(qdFilesPath)
+        mkdir(qdFilesPath)
     end
     
-    cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
+    nodePositionsPath = strcat(inputScenarioName,'/Output/Visualizer/NodePositions');
+    if ~isfolder(nodePositionsPath)
+        mkdir(nodePositionsPath)
+    end
+    
+    if mobilitySwitch >=0
+        csvwrite(strcat(nodePositionsPath,...
+            '/NodePositionsTrc', num2str(iterateTimeDivision),...
+            '.csv'), nodeLoc);
+    end
+    
     if iterateTimeDivision == 0
-        try
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
-        catch
-            mkdir(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
-            cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output/Visualizer/RoomCoordinates'));
+        roomCoordinatesPath = strcat(inputScenarioName,'/Output/Visualizer/RoomCoordinates');
+        if ~isfolder(roomCoordinatesPath)
+            mkdir(roomCoordinatesPath)
         end
+        
         RoomCoordinates = CADop(:, 1:9);
-        csvwrite('RoomCoordinates.csv', RoomCoordinates);
-        cd(strcat(RootFolderPath,'/',inputScenarioName,'/Output'));
+        csvwrite(strcat(roomCoordinatesPath, '/',...
+            'RoomCoordinates.csv'), RoomCoordinates);
         
     end
     %  set(0,'CurrentFigure',f3)
@@ -597,10 +596,10 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
     %        v1.FrameRate=3;
     %       open(v1)
     %       writeVideo(v1,F)
-    cd(currentFolder)
+
 end
 
-outputPath = strcat(RootFolderPath,'/',inputScenarioName,'/Output');
+outputPath = strcat(inputScenarioName,'/Output');
 % close all
 %% Makes video of CAD model based multipath and channel model
 % %Changed

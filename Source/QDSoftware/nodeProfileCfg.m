@@ -12,6 +12,9 @@ numberOfNodes = paraCfg.numberOfNodes;
 numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
 switchRandomization = paraCfg.switchRandomization;
 paraCfg.referrencePoint = str2num(paraCfg.referrencePoint);
+
+inputPath = strcat(rootFolderStr,'/',scenarioNameStr, '/Input');
+
 %% Code
 nodePosition = [];
 
@@ -36,11 +39,9 @@ end
 % nodes.dat file contains nodes locations and nodeVelocities contains their
 % velocities
 if switchRandomization == 0 && numberOfNodes >= 2
-    cd(strcat(rootFolderStr,'/',scenarioNameStr, '/Input'));
     try
-        nodeLoc = csvread('nodes.dat');
-        nodeVelocities = csvread('nodeVelocities.dat');
-        sizeNode = size(nodeLoc);
+        nodeLoc = csvread(strcat(inputPath, '/nodes.dat'));
+        nodeVelocities = csvread(strcat(inputPath, '/nodeVelocities.dat'));
         sizeNodeVelocities = size(nodeVelocities);
     catch
         switchRandomization = 1;
@@ -50,10 +51,9 @@ if switchRandomization == 0 && numberOfNodes >= 2
         error('nodes.dat and nodeVelocities.dat donot have same number of rows. Please check the input files in the Input folder.')
     end
     if numberOfNodes ~= sizeNode(1)
-       disp('WARNING:');
-       disp('"numberOfNodes" parameter doesnot match the number of');
-       disp('nodes given in file. The "numberOfNodes" is adjusted to ');
-       disp('the number of nodes given in file'); 
+        warning(['"numberOfNodes" parameter doesnot match the number of',...
+            'nodes given in file. The "numberOfNodes" is adjusted to ',...
+            'the number of nodes given in file']);
     end
     numberOfNodes = sizeNode(1);
     if mobilitySwitch == 1
@@ -73,14 +73,13 @@ if switchRandomization == 0 && numberOfNodes >= 2
             %nodePosition = zeros(3, 3, numberOfNodes);
             for iterateNumberOfNodes = 1:numberOfNodes
                 if strcmp(ln, strcat('NodePosition', num2str(iterateNumberOfNodes), '.dat'))
-                    nodePositionTemp = load(ln);
+                    nodePositionTemp = load(strcat(inputPath, '/', ln));
                     try
                         nodePosition(:, :, iterateNumberOfNodes) = nodePositionTemp;
                         countListing = countListing + 1;
                     catch
-                        disp('WARNING:');
-                        disp('Node Position input incorrect. Linear');
-                        disp('mobility model is chosen');
+                        warning(['Node Position input incorrect. Linear',...
+                            'mobility model is chosen']);
                         mobilityType = 1;
                     end
                 end
@@ -88,9 +87,8 @@ if switchRandomization == 0 && numberOfNodes >= 2
         end
         sizeNodePosition = size(nodePosition);
         if mobilityType == 2 && countListing < numberOfNodes
-            disp('WARNING:');
-            disp('Node Position input incorrect. Linear mobility')
-            disp('model is chosen');
+            warning(['Node Position input incorrect. Linear mobility',...
+                'model is chosen']);
             mobilityType = 1;
         elseif mobilityType == 2 && countListing == numberOfNodes
             numberOfTimeDivisions = sizeNodePosition(1) - 2;
@@ -133,34 +131,24 @@ while iterateNumberOfNodes <= numberOfNodes
 end
 
 switchRandomization = 0;
-cd(rootFolderStr);
 
 % Check Temp Output Folder
-try
-    rmdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'), 's');
-catch
-end
+status = rmdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'), 's');
+
 mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'));
 mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3'));
 mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Visualizer'));
 
-cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output'));
-cd(rootFolderStr);
 sizeNode = size(nodeLoc);
 
-try
-    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
-catch
-    mkdir(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
-    cd(strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition'));
+nodesPositionPath = strcat(rootFolderStr,'/',scenarioNameStr,'/Output/Ns3/NodesPosition');
+if ~isfolder(nodesPositionPath)
+    mkdir(nodesPositionPath)
 end
 
-csvwrite(strcat('NodesPosition.csv'), nodeLoc);
-cd(strcat(rootFolderStr,'/',scenarioNameStr, '/Input'))
-copyfile(environmentFileName,strcat(rootFolderStr, '/Raytracer'));
+csvwrite(strcat(nodesPositionPath, '/',...
+    'NodesPosition.csv'), nodeLoc);
 
-cd(rootFolderStr);
-cd(strcat(rootFolderStr, '/Raytracer'))
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 
 paraCfg.mobilityType = mobilityType;

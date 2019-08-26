@@ -59,16 +59,19 @@ end
 scenarioPathStr = strcat(rootFolderPath,'/',scenarioNameStr);
 
 % Check Input Scenario File
-try
-    cd(scenarioPathStr);
-    fprintf('%s folder already exists and using this scenario to process.\n',scenarioNameStr);
-    cd(rootFolderPath);
-catch
-    mkdir(scenarioPathStr);
+if ~isfolder(scenarioPathStr)
     scenarioInputPath = strcat(rootFolderPath,'/',scenarioNameStr,'/Input');
     mkdir(scenarioInputPath);
+    
     copyfile(strcat(rootFolderPath,'/Input'), scenarioInputPath);
-    fprintf('%s folder does not exist, creating a new folder with default scenario from root Input folder.\n',scenarioNameStr);
+    
+    fprintf(['%s folder does not exist, creating a new folder with',...
+        ' default scenario from root Input folder.\n'],scenarioNameStr);
+    
+else
+    fprintf('%s folder already exists and using this scenario to process.\n',...
+        scenarioNameStr);
+    
 end
 
 % Input System Parameters
@@ -77,8 +80,6 @@ paraCfg = parameterCfg(rootFolderPath,scenarioNameStr);
 [paraCfg, nodeCfg] = nodeProfileCfg(rootFolderPath, paraCfg);
 % Run raytracing function and generate outputs
 outputPath = Raytracer(rootFolderPath, paraCfg, nodeCfg);
-cd(rootFolderPath);
+
 fprintf('Save output data to:\n%s\n',outputPath);
-
 fprintf('--------- Simulation Complete ----------\n');
-
