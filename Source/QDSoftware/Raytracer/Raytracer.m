@@ -168,26 +168,8 @@ MaterialLibrary = readtable('Material_library.txt');
 % selectPlanesByDistInput = 0;
 
 %% Extracting CAD file and storing in an XMl file, CADFile.xml
-
-[~,~,extension] = fileparts(environmentFileName);
-switch(extension(2:end))
-    case 'xml'
-        copyfile(strcat(inputPath, '/', environmentFileName),...
-            strcat(inputPath, '/CADFile.xml'));
-        
-    case 'amf'
-        copyfile(strcat(inputPath, '/', environmentFileName),...
-            strcat(inputPath, '/CADFile.xml'));
-        
-    otherwise
-        error('Cannot handle ''%s'' extension properly', extension)
-        
-end
-
-% Main function which extracts data from CAD file
-
-[CADop, numberRowsCADop, switchMaterial] = xmlreader(strcat(inputPath, '/CADFile.xml'), ...
-    MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
+[CADop, numberRowsCADop, switchMaterial] = getCadOutput(environmentFileName,...
+    inputPath, MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
 
 % channel model figure activates only when material data is present
 % if switchMaterial==1 && switchVisualsInput == 1

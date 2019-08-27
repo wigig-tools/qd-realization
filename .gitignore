@@ -16,6 +16,8 @@
 !/Source/QDSoftware/Outdoor1/**
 !/Source/QDSoftware/SpatialSharing/**
 
+# Ignore cached files
+**/cachedCadOutput.mat
 
 ## Useless/temporary files to ignore
 # MATLAB

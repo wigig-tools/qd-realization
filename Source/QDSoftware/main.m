@@ -34,7 +34,7 @@ clear
 close all
 clc
 
-addpath("Raytracer")
+addpath('Raytracer', 'utils')
 
 %% Initialization 
 rootFolderPath = pwd;
