@@ -35,13 +35,9 @@
 % ref: http://www.ambrsoft.com/TrigoCalc/Plan3D/PlaneLineIntersection_.htm
 
 function [point]=pointOnPlaneVector(point1,vector, plane)
-normal(1)=plane(1);
-normal(2)=plane(2);
-normal(3)=plane(3);
-t=-(dot(point1,normal)+plane(4))/(dot(normal,vector));
+normal = plane(1:3);
+t = -(dot(point1,normal) + plane(4)) / dot(normal,vector);
 
-point(1)=point1(1)+(t*vector(1));
-point(2)=point1(2)+(t*vector(2));
-point(3)=point1(3)+(t*vector(3));
+point = point1 + t*vector;
 
 end

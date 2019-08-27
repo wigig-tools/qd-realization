@@ -90,26 +90,22 @@ function [booleanMultipathExistance,Intersection,directionOfDeparture,directionO
     nt_array,switchCP)
 velocityTemporary=0;
 dopplerFactor=1;
-    PathLoss=0;
-    phaseXDimension=0;
-    phaseYDimension=0;
+PathLoss=0;
+phaseXDimension=0;
+phaseYDimension=0;
 %     Antenna_orientation=[];
 %     Polarization_tx=[];
 % order_of_i
 %Extracting plane equations from Array_of_planes
 
-plane(1)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-2);
-plane(2)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-1);
-plane(3)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,indexMultipath*4);
-plane(4)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)+1);
+plane = ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,...
+    indexMultipath*4 + (-2:1));
 
 %For Higher order refelctions 
 
 if indexMultipath >1
-plane2(1)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-6);
-plane2(2)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-5);
-plane2(3)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-4);
-plane2(4)=ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,(indexMultipath*4)-3);
+    plane2 = ArrayOfPlanes(iterateNumberOfRowsArraysOfPlanes,...
+        (indexMultipath*4) + (-6:-3));
 end
 % Finding image in a particular plane
 ReflectedPoint=reflectedImagePointPlane(ReflectedPoint, plane);
@@ -126,16 +122,14 @@ else
     directionOfDeparture=ReflectedPoint-Tx;
     %delay is the total length of multipath
     delay=norm(directionOfDeparture);
-    velocityTxAlongDirectionofDeparture=dot(velocityTx,-1.*directionOfDeparture)./norm(directionOfDeparture);
-    velocityRxAlongDirectionofDeparture=dot(velocityRx,-1.*directionOfDeparture)./norm(directionOfDeparture);
+    velocityTxAlongDirectionofDeparture=dot(velocityTx, -directionOfDeparture) / norm(directionOfDeparture);
+    velocityRxAlongDirectionofDeparture=dot(velocityRx, -directionOfDeparture) / norm(directionOfDeparture);
     velocityTemporary=velocityRx;
     c=3e8;
     dopplerFactor=(velocityRxAlongDirectionofDeparture-velocityTxAlongDirectionofDeparture)/(c);
     % Source of multipath
     Intersection1=Tx;
-    multipath(indexOrderOfReflection,indexMultipath*3+5)=Tx(1);
-    multipath(indexOrderOfReflection,indexMultipath*3+6)=Tx(2);
-    multipath(indexOrderOfReflection,indexMultipath*3+7)=Tx(3);
+    multipath(indexOrderOfReflection,indexMultipath*3 + (5:7)) = Tx;
     
     booleanMultipathExistance=1;
 end
@@ -154,27 +148,23 @@ end
 
 % intersection of planes are stored in multipath. This will be used to
 % construct maultipath
-    multipath(indexOrderOfReflection,indexMultipath*3+2)=Intersection(1);
-    multipath(indexOrderOfReflection,indexMultipath*3+3)=Intersection(2);
-    multipath(indexOrderOfReflection,indexMultipath*3+4)=Intersection(3);
+multipath(indexOrderOfReflection,indexMultipath*3 + (2:4)) = Intersection;
 
     % Direction of arrival changes dynamically until the last recursion
 directionOfArrival=Intersection1-Intersection;   % check sign
 
 % Extracting information from Array_of_points
-Point1(1)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-8);
-Point1(2)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-7);
-Point1(3)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-6);
-Point2(1)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-5);
-Point2(2)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-4);
-Point2(3)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-3);
-Point3(1)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-2);
-Point3(2)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9-1);
-Point3(3)=ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,indexMultipath*9);
+Point1 = ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,...
+    indexMultipath*9 - (8:-1:6));
+Point2 = ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,...
+    indexMultipath*9 - (5:-1:3));
+Point3 = ArrayOfPoints(iterateNumberOfRowsArraysOfPlanes,...
+    indexMultipath*9 - (2:-1:0));
 
 % To verify whether the intersection point is within triangle
-booleanMultipathExistance=booleanMultipathExistance && PointInTriangle(Intersection,Point1,Point2,Point3) && round(dot(ReflectedPoint-Intersection,...
-            Intersection1-Intersection),3)<0;
+booleanMultipathExistance = booleanMultipathExistance &&...
+    PointInTriangle(Intersection,Point1,Point2,Point3) &&...
+    round(dot(ReflectedPoint-Intersection, Intersection1-Intersection),3) < 0;
 
 
 if booleanMultipathExistance==1

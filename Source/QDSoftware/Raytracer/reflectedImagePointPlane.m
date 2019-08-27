@@ -34,12 +34,8 @@
 %ref: https://math.stackexchange.com/questions/1013230/how-to-find-coordinates-of-reflected-point
 
 function [reflectedPoint]=reflectedImagePointPlane(point, plane)
-vector(1)=plane(1);
-vector(2)=plane(2);
-vector(3)=plane(3);
-t=-2*(dot(vector,point)+plane(4))/(dot(vector,vector));
-reflectedPoint(1)=point(1)+(t*vector(1));
-reflectedPoint(2)=point(2)+(t*vector(2));
-reflectedPoint(3)=point(3)+(t*vector(3));
+vector = plane(1:3);
+t = -2 * (dot(vector,point) + plane(4)) / dot(vector,vector);
+reflectedPoint = point + t*vector;
 
 end

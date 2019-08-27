@@ -103,6 +103,7 @@ visualizerPath = strcat(outputPath, '/Visualizer');
 qdFilesPath = strcat(ns3Path, '/QdFiles');
 nodePositionsPath = strcat(visualizerPath, '/NodePositions');
 roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
+mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
 
 %% ------------ Original Raytracer --------------
 
@@ -250,19 +251,11 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
             if iterateTx ~= iterateRx
                 output = [];
                 if (numberOfNodes >= 2 || switchRandomization == 1)
-                    Tx(1) = nodeLoc(iterateTx, 1);
-                    Tx(2) = nodeLoc(iterateTx, 2);
-                    Tx(3) = nodeLoc(iterateTx, 3);
-                    Rx(1) = nodeLoc(iterateRx, 1);
-                    Rx(2) = nodeLoc(iterateRx, 2);
-                    Rx(3) = nodeLoc(iterateRx, 3);
+                    Tx = nodeLoc(iterateTx, :);
+                    Rx = nodeLoc(iterateRx, :);
                     
-                    vtx(1) = nodeVelocities(iterateTx, 1);
-                    vtx(2) = nodeVelocities(iterateTx, 2);
-                    vtx(3) = nodeVelocities(iterateTx, 3);
-                    vrx(1) = nodeVelocities(iterateRx, 1);
-                    vrx(2) = nodeVelocities(iterateRx, 2);
-                    vrx(3) = nodeVelocities(iterateRx, 3);
+                    vtx = nodeVelocities(iterateTx, :);
+                    vrx = nodeVelocities(iterateRx, :);
 %                 elseif (numberOfNodesInput == 2 && iterateTx == 2)
 %                     RxTemp = Rx;
 %                     Rx = Tx;
@@ -310,17 +303,13 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     end
                 end
                 if switchLOS == 1 && iterateTx < iterateRx
-                    vis = strcat(inputScenarioName,...
-                                '/Output/Visualizer/MpcCoordinates');
-                            
-                    if ~isfolder(vis)
-                        mkdir(strcat(inputScenarioName,...
-                            '/Output/Visualizer/MpcCoordinates'));
+                    if ~isfolder(mpcCoordinatesPath)
+                        mkdir(mpcCoordinatesPath);
                     end
                                         
                     clear multipath1;
                     multipath1 = [Tx,Rx];
-                    csvwrite(strcat(vis, '/',...
+                    csvwrite(strcat(mpcCoordinatesPath, '/',...
                         'MpcTx', num2str(iterateTx-1),...
                         'Rx', num2str(iterateRx-1), ...
                         'Refl', num2str(0), ...
@@ -392,19 +381,14 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         
                         %Plots channel model if material switch is 1
                         if iterateTx < iterateRx
-                            
-                            vis = strcat(inputScenarioName,...
-                                '/Output/Visualizer/MpcCoordinates');
-                            
-                            if ~isfolder(vis)
-                                mkdir(strcat(inputScenarioName,...
-                                    '/Output/Visualizer/MpcCoordinates'));
+                            if ~isfolder(mpcCoordinatesPath)
+                                mkdir(mpcCoordinatesPath);
                             end
                             
                             sizeMultipathTemporary = size(multipathTemporary);
                             if sizeMultipathTemporary(1) ~= 0
                                 multipath1 = multipathTemporary(1:count, 2:sizeMultipathTemporary(2));
-                                csvwrite(strcat(vis, '/',...
+                                csvwrite(strcat(mpcCoordinatesPath, '/',...
                                     'MpcTx', num2str(iterateTx-1),...
                                     'Rx', num2str(iterateRx-1), ...
                                     'Refl', num2str(iterateOrderOfReflection), ...
@@ -416,7 +400,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         
                         if size(output) > 0
                             output = [output;outputTemporary];
-                            multipath1 = [multipathTemporary];
+                            multipath1 = multipathTemporary;
                         elseif size(outputTemporary) > 0
                             output = outputTemporary;
                             multipath1 = multipathTemporary;
@@ -521,8 +505,8 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 
                 
                 str(iterateTx, iterateRx) = StringOutput;
-                if iterateTimeDivision == numberOfTimeDivisions || (iterateTimeDivision == 0 &&...
-                        mobilitySwitch == 0)
+                if iterateTimeDivision == numberOfTimeDivisions ||...
+                        (iterateTimeDivision == 0 && mobilitySwitch == 0)
                     StringOutput = sprintf(StringOutput);
                     
                     if ~isfolder(qdFilesPath)
@@ -533,7 +517,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         'Tx', num2str(iterateTx-1),...
                         'Rx', num2str(iterateRx-1),...
                         '.txt'), 'wt');
-                    
                     fprintf(fid, StringOutput);
                     fclose(fid);
                     

@@ -102,10 +102,8 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
     
     
     indexOrderOfReflection = 1;
-    multipath(indexMultipath,indexOrderOfReflection * 3 - 2) = orderOfReflection;
-    multipath(indexMultipath,indexOrderOfReflection * 3 - 1) = Rx(1);
-    multipath(indexMultipath,indexOrderOfReflection * 3) = Rx(2);
-    multipath(indexMultipath,indexOrderOfReflection * 3 + 1) = Rx(3);
+    multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1) = orderOfReflection;
+    multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1 + (1:3)) = Rx;
     Reflected = Rx;
     
     % a single row of ArrayOfPlanes,ArrayOfPoints is fed to
@@ -116,9 +114,9 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
     PolarizationSwitchTemporary = 1;
     if PolarizationSwitch == 1 && switchMaterial == 1
         for orderOfReflectionTemporary = 1:orderOfReflection
-            if str2num(char(MaterialLibrary{...
+            if str2double(char(MaterialLibrary{...
                     arrayOfMaterials(indexMultipath,orderOfReflectionTemporary),19})) ~= 0
-                nt_array(orderOfReflectionTemporary) = str2num(...
+                nt_array(orderOfReflectionTemporary) = str2double(...
                     char(MaterialLibrary{...
                     arrayOfMaterials(indexMultipath,orderOfReflectionTemporary),19}));
             else
@@ -156,25 +154,13 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
     if  switch1 == 1
         
         output(indexOutput,1) = indexMultipath;
-        
-        %dod - direction of departure
-        
-        output(indexOutput,2) = directionOfDeparture(1);
-        output(indexOutput,3) = directionOfDeparture(2);
-        output(indexOutput,4) = directionOfDeparture(3);
-        
-        %doa - direction of arrival
-        
-        output(indexOutput,5) = directionOfArrival(1);
-        output(indexOutput,6) = directionOfArrival(2);
-        output(indexOutput,7) = directionOfArrival(3);
-        
-        %Time delay
-        
+        % dod - direction of departure
+        output(indexOutput,2:4) = directionOfDeparture;
+        % doa - direction of arrival
+        output(indexOutput,5:7) = directionOfArrival;
+        % Time delay
         output(indexOutput,8) = delay / LIGHTVELOCITY;
-        
-        %Friis transmission loss
-        
+        % Friis transmission loss
         if PathLoss(1) < 0
             output(indexOutput,9) = (20 * log10(wavelength / (4 * pi * delay))) + ((PathLoss(1)));
         else
@@ -204,7 +190,7 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
 %         end
 %-----------------Polarization Part Omitted------------------------------%
 
-        %Aod azimuth
+        % Aod azimuth
         if directionOfDeparture(1) == 0
                 directionOfDeparture(1) = 0;
         end

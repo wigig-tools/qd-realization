@@ -56,26 +56,17 @@ switch3 = 1;
 
 % Loop which iterates through all the planes of the CAD file
 for i = 1:number_rows_CADop
-    plane1(1) = CADop(i,10);
-    plane1(2) = CADop(i,11);
-    plane1(3) = CADop(i,12);
-    plane1(4) = CADop(i,13);
+    plane1 = CADop(i,10:13);
     
-    Point1(1) = CADop(i,1);
-    Point1(2) = CADop(i,2);
-    Point1(3) = CADop(i,3);
-    Point2(1) = CADop(i,4);
-    Point2(2) = CADop(i,5);
-    Point2(3) = CADop(i,6);
-    Point3(1) = CADop(i,7);
-    Point3(2) = CADop(i,8);
-    Point3(3) = CADop(i,9);
+    Point1 = CADop(i,1:3);
+    Point2 = CADop(i,4:6);
+    Point3 = CADop(i,7:9);
     
     % This part checks whether the path intersects with a given plane
     pointIntersection = pointOnPlaneVector(Reflected,vector, plane1);
     switch1 = 0;
-    (dot(Reflected-pointIntersection,...
-        Intersection-pointIntersection));%>0
+%     (dot(Reflected-pointIntersection,...
+%         Intersection-pointIntersection));%>0
     
     % If condition checks whether path intersects with the plane and does the
     % intersection point lie between the point of origin (<) and destination or
@@ -94,13 +85,11 @@ for i = 1:number_rows_CADop
             switch3 = (~switch1);
         end
     elseif (condition1 == -1)
-        if (plane(4) ~= plane1(4) || plane(1) ~= plane1(1) ||...
-                plane(2) ~= plane1(2) || plane(3) ~= plane1(3))
+        if any(plane ~= plane1)
             switch3 = (~switch1);
         end
     elseif (condition1 == 1)
-        if (plane(4) ~= plane2(4) || plane(1) ~= plane2(1) ||...
-                plane(2) ~= plane2(2) || plane(3) ~= plane2(3))
+        if any(plane ~= plane2)
             switch3 = (~switch1);
         end
     elseif (condition1 == 2)

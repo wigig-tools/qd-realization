@@ -37,10 +37,8 @@
 %v_reflected: Reflected velocity of Tx
 %ref - https://www.youtube.com/watch?annotation_id=annotation_1975598373&feature=iv&src_vid=o5tXemaDpnI&v=4tAd2dGrj70
 function [velocityReflected]=reflectedVelocity(velocityTx, plane)
-vector(1)=plane(1);
-vector(2)=plane(2);
-vector(3)=plane(3);
-dp=dot(velocityTx,vector);
+vector = plane(1:3);
+dp = dot(velocityTx,vector);
 
 if dp~=0
     vectorAlongNormal=(-1*dp).*vector;

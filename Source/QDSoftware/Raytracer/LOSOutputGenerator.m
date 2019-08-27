@@ -80,39 +80,33 @@ vector=Tx-Rx;
     [0,0,0],numberRowsCADoutput,CADoutput,2);
 switchLOS=switch3;
 if switch3==1 % if DoA exists
-    c=3e8;
+    output1 = nan(1,21);
+    
     freq=60e9;
     lambda=c/freq;
-    output1(1,1)=1;
+    output1(1) = 1;
     %dod - direction of departure
-    output1(1,2)=dod(1);
-    output1(1,3)=dod(2);
-    output1(1,4)=dod(3);
+    output1(2:4) = dod;
     %doa - direction of arrival
-    output1(1,5)=doa(1);
-    output1(1,6)=doa(2);
-    output1(1,7)=doa(3);
+    output1(5:7) = doa;
     %Time delay
     output1(1,8)=delay/c;
     %Path gain
-    output1(1,9)=20*log10(lambda/(4*pi*delay));
+    output1(1,9) = 20*log10(lambda/(4*pi*delay));
     %Aod azimuth
     if dod(2)==dod(1) && dod(1)==0
-        output1(1,10)=90;
+        output1(10) = 90;
     elseif dod(2)<0 && dod(1)>=0
-        output1(1,10)=360+(180*(atan(dod(2)/dod(1)))...
-            /pi);
+        output1(10) = 360+(180*(atan(dod(2)/dod(1)))/pi);
     elseif dod(2)<=0 && dod(1)<0
-        output1(1,10)=(180*(atan(dod(2)/dod(1)))/pi)...
-            +180;
+        output1(10) = (180*(atan(dod(2)/dod(1)))/pi) + 180;
     elseif dod(2)>0 && dod(1)<0
-        output1(1,10)=(180*(atan(dod(2)/dod(1)))/pi)...
-            +180;
+        output1(10) = (180*(atan(dod(2)/dod(1)))/pi) + 180;
     else
-        output1(1,10)=(180*(atan(dod(2)/dod(1)))/pi);
+        output1(10) = (180*(atan(dod(2)/dod(1)))/pi);
     end
     %Aod elevation
-    output1(1,11)=180*(acos(dod(3)/norm(dod)))/pi;
+    output1(11) = 180*(acos(dod(3)/norm(dod)))/pi;
     % doa(3)=-doa(3);
     % doa(2)=-doa(2);
     % doa(1)=-doa(1);
@@ -121,59 +115,54 @@ if switch3==1 % if DoA exists
         doa(1) = 0;
     end
     if doa(2)==doa(1) && doa(1)==0
-        output1(1,12)=90;
+        output1(12) = 90;
     elseif doa(2)<0 && doa(1)>=0
-        output1(1,12)=360+(180*(atan(doa(2)/doa(1)))...
-            /pi);
+        output1(12) = 360+(180*(atan(doa(2)/doa(1)))/pi);
     elseif doa(2)<=0 && doa(1)<0
-        output1(1,12)=(180*(atan(doa(2)/doa(1)))/pi)...
-            +180;
+        output1(12) = (180*(atan(doa(2)/doa(1)))/pi) + 180;
     elseif doa(2)>0 && doa(1)<0
-        output1(1,12)=(180*(atan(doa(2)/doa(1)))/pi)...
-            +180;
+        output1(12) = (180*(atan(doa(2)/doa(1)))/pi) + 180;
     else
-        output1(1,12)=180*(atan(doa(2)/doa(1)))/pi;
+        output1(12) = 180*(atan(doa(2)/doa(1)))/pi;
     end
     %Aoa elevation
-    output1(1,13)=180*(acos(doa(3)/norm(doa)))/pi;
+    output1(13)=180*(acos(doa(3)/norm(doa)))/pi;
     %Polarization Jones vector
-    output1(1,14)=PolarizationTx(1,1);
-    output1(1,15)=PolarizationTx(1,2);
+    output1(14:15) = PolarizationTx(1,:);
     %Cross polarization Jones vector
     if switchCP==1
-        output1(1,16)=PolarizationTx(2,1);
-        output1(1,17)=PolarizationTx(2,2);
+        output1(16:17) = PolarizationTx(2,:);
     end
-    output1(1,18)=0;
+    output1(18) = 0;
     %Doppler Factor
-    output1(1,20)=dopplerFactor*freq;
-    output1(1,21)=0;
+    output1(20) = dopplerFactor*freq;
+    output1(21) = 0;
     %Cross polarization path gain
     if switchCP==1
-        output1(1,19)=20*log10(lambda/(4*pi*delay));
+        output1(19) = 20*log10(lambda/(4*pi*delay));
     else
-        output1(1,19)=0;
+        output1(19) = 0;
     end
     % QD plot(f2) parameters 
     if dod(1) == 0
         dod(1) = 0;
     end
-    output2(1,1,timeDivision+1)=delay/c;
-    output2(1,2,timeDivision+1)=20*log10(lambda/...
-        (4*pi*delay));
-    output2(1,3,timeDivision+1)=180*atan(dod(2)...
-        /dod(1))/pi;
-    output2(1,4,timeDivision+1)=180*acos(dod(3)/...
-        norm(dod))/pi;
-    output2(1,5,timeDivision+1)=180*atan(doa(2)/...
-        doa(1))/pi;
-    output2(1,6,timeDivision+1)=180*acos(doa(3)/...
-        norm(doa))/pi;
+%     output2(1,1,timeDivision+1)=delay/c;
+%     output2(1,2,timeDivision+1)=20*log10(lambda/...
+%         (4*pi*delay));
+%     output2(1,3,timeDivision+1)=180*atan(dod(2)...
+%         /dod(1))/pi;
+%     output2(1,4,timeDivision+1)=180*acos(dod(3)/...
+%         norm(dod))/pi;
+%     output2(1,5,timeDivision+1)=180*atan(doa(2)/...
+%         doa(1))/pi;
+%     output2(1,6,timeDivision+1)=180*acos(doa(3)/...
+%         norm(doa))/pi;
     
     if size(output)>0
-        output=[output;output1];
+        output = [output; output1];
     else
-        output=output1;
+        output = output1;
     end
 end
 

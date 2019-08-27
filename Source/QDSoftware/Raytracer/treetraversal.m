@@ -232,13 +232,13 @@ for iterateNumberofRows = 1:numberOfRows
         % Extracting information of vertices of triangle from CADop and storing
         % it as 3 distinct arrays, point11, point12, point13
         
-        Point11 = CADop(iterateNumberofRows,1:3);
-        Point12 = CADop(iterateNumberofRows,4:6);
-        Point13 = CADop(iterateNumberofRows,7:9);
+        Point11 = CADop(iterateNumberofRows, 1:3);
+        Point12 = CADop(iterateNumberofRows, 4:6);
+        Point13 = CADop(iterateNumberofRows, 7:9);
         
         % Extracting information of plane equations from CADop and storing
         % it as an array, plane1
-        plane1 = CADop(iterateNumberofRows,10:13);
+        plane1 = CADop(iterateNumberofRows, 10:13);
         
         %In case the total order of reflection is 1, we have plane2=plane1
         %else we extract previous plane equation and store it in plane2
