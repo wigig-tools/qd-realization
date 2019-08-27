@@ -38,24 +38,26 @@
 %(count_rows), and a boolean to know whether the material information is
 %present in the CAD file (switch1)
 
-function [CADOutput,countRows,switch1]=xmlreader(filename,MaterialLibrary,referencePoint,r,IndoorSwitch)
+function [CADOutput, countRows, materialSwitch] = ...
+    xmlreader(filename, MaterialLibrary, referencePoint, r, IndoorSwitch)
+
 [ s ] = xml2struct( filename );
-switch1=1;
+
 %% Probing whether material information is present or not
 
-try
-    materials=s.amf.material;
-catch
-    switch1=0;
-end
-
-if switch1==1
-    sizeMaterials1=size(s.amf.material');
+if isfield(s.amf,'material')
+    materialSwitch = 1;
+    
+    sizeMaterials1 = size(s.amf.material');
     if sizeMaterials1(2)>1 &&  sizeMaterials1(1)==1
         sizeMaterials = sizeMaterials1;
     else
         sizeMaterials = sizeMaterials1(1);
     end
+    
+else
+    materialSwitch = 0;
+    
 end
 %% Iterating through all the subdivisions (volumes) and extracting the triangle information
 
@@ -69,7 +71,7 @@ for iterateVolume=1:size(volume)
         triangles=s.amf.object.mesh.volume.triangle';
     end
     % vertices=s.amf.mesh.vertices.vertex;
-    if switch1==1
+    if materialSwitch==1
         if sizeVolume(1)~=1
             materialid=s.amf.object.mesh.volume{1,iterateVolume}.Attributes.materialid;
         else
@@ -78,11 +80,11 @@ for iterateVolume=1:size(volume)
         % materialid=s.amf.object.mesh.volume{1,j}.Attributes.materialid;
         for iterateMaterials=1:sizeMaterials
             if sizeMaterials~=1
-                if str2num(materialid)==str2num(s.amf.material{1,iterateMaterials}.Attributes.id)
+                if str2double(materialid)==str2double(s.amf.material{1,iterateMaterials}.Attributes.id)
                     Material=s.amf.material{1,iterateMaterials}.metadata.Text;
                 end
             elseif sizeVolume(1)==1 && sizeMaterials == 1
-                if str2num(materialid)==str2num(s.amf.material.Attributes.id)
+                if str2double(materialid)==str2double(s.amf.material.Attributes.id)
                     Material=s.amf.material.metadata.Text;
                     
                 end
@@ -94,54 +96,29 @@ for iterateVolume=1:size(volume)
     sizeTriangle=size(triangles);
     for iterateTriangles=1:sizeTriangle(1)
         indexCADOutput=countRows;%((j-1)*size_triangle(1))+i;
-        if sizeVolume(1)~=1
-            vertex1=str2num(s.amf.object.mesh.volume{1,iterateVolume}.triangle{1,iterateTriangles}.v1.Text)+1;
-        else
-            vertex1=str2num(s.amf.object.mesh.volume.triangle{1,iterateTriangles}.v1.Text)+1;
-        end
-        %     vertex1=str2num(s.amf.object.mesh.volume{1,j}.triangle{1,i}.v1.Text)+1;
-        x1=str2num(s.amf.object.mesh.vertices.vertex{1,vertex1}.coordinates.x.Text);
-        y1=str2num(s.amf.object.mesh.vertices.vertex{1,vertex1}.coordinates.y.Text);
-        z1=str2num(s.amf.object.mesh.vertices.vertex{1,vertex1}.coordinates.z.Text);
         
-        if sizeVolume(1)~=1
-            vertex2=str2num(s.amf.object.mesh.volume{1,iterateVolume}.triangle{1,iterateTriangles}.v2.Text)+1;
-        else
-            vertex2=str2num(s.amf.object.mesh.volume.triangle{1,iterateTriangles}.v2.Text)+1;
-        end
-        %     vertex2=str2num(s.amf.object.mesh.volume{1,j}.triangle{1,i}.v2.Text)+1;
-        x2=str2num(s.amf.object.mesh.vertices.vertex{1,vertex2}.coordinates.x.Text);
-        y2=str2num(s.amf.object.mesh.vertices.vertex{1,vertex2}.coordinates.y.Text);
-        z2=str2num(s.amf.object.mesh.vertices.vertex{1,vertex2}.coordinates.z.Text);
+        v1 = getTriangleVertex(s,iterateVolume,iterateTriangles,'v1',sizeVolume);
+        v2 = getTriangleVertex(s,iterateVolume,iterateTriangles,'v2',sizeVolume);
+        v3 = getTriangleVertex(s,iterateVolume,iterateTriangles,'v3',sizeVolume);
         
-        if sizeVolume(1)~=1
-            vertex3=str2num(s.amf.object.mesh.volume{1,iterateVolume}.triangle{1,iterateTriangles}.v3.Text)+1;
-        else
-            vertex3=str2num(s.amf.object.mesh.volume.triangle{1,iterateTriangles}.v3.Text)+1;
-        end
-        %     vertex3=str2num(s.amf.object.mesh.volume{1,j}.triangle{1,i}.v3.Text)+1;
-        x3=str2num(s.amf.object.mesh.vertices.vertex{1,vertex3}.coordinates.x.Text);
-        y3=str2num(s.amf.object.mesh.vertices.vertex{1,vertex3}.coordinates.y.Text);
-        z3=str2num(s.amf.object.mesh.vertices.vertex{1,vertex3}.coordinates.z.Text);
-        %% Calculating the plane equation of triangles
+        % Calculating the plane equation of triangles
         
-        vector1 = [x2,y2,z2] - [x3,y3,z3];
-        vector2 = -([x2,y2,z2] - [x1,y1,z1]);
+        vector1 = v2 - v3;
+        vector2 = -(v2 - v1);
         % Multiply with -1 for 'example.xml', 'sphere.xml','material_prism.xml'
-        normal=1*cross(vector2,vector1)*(1-(2*IndoorSwitch));
-        normal=round(normal/norm(normal),4);
-        vector3=[x2,y2,z2];
+        normal = cross(vector2,vector1) * (1-(2*IndoorSwitch));
+        normal = round(normal/norm(normal),4);
+        vector3 = v2;
         %for box. remove for others
+        D = -dot(normal,vector3);
         
-        D=-1*dot(normal,vector3);
-        %% Storing Material information in output if the material exists in the material database
-        
-        if switch1==1
+        % Storing Material information in output if the material exists in the material database
+        if materialSwitch==1
             sizeMaterialLibrary=size(MaterialLibrary);
             switch2=0;
             for iterateMaterials=1:sizeMaterialLibrary(1)
-                if strcmp(lower(char(MaterialLibrary{iterateMaterials,2})),lower(Material))
-                    CADOutput(indexCADOutput,14)=str2num(char(MaterialLibrary{iterateMaterials,1}));
+                if strcmpi(char(MaterialLibrary{iterateMaterials,2}),Material)
+                    CADOutput(indexCADOutput,14)=str2double(char(MaterialLibrary{iterateMaterials,1}));
                     switch2=1;
                 end
             end
@@ -159,24 +136,17 @@ for iterateVolume=1:size(volume)
             %in first nine columns, plane equations in the next four columns
             
             if switch2==0
-                switch1=0;
+                materialSwitch=0;
             end
             
             
         end
-        CADOutput(indexCADOutput,1)=round(x1,6);
-        CADOutput(indexCADOutput,2)=round(y1,6);
-        CADOutput(indexCADOutput,3)=round(z1,6);
-        CADOutput(indexCADOutput,4)=round(x2,6);
-        CADOutput(indexCADOutput,5)=round(y2,6);
-        CADOutput(indexCADOutput,6)=round(z2,6);
-        CADOutput(indexCADOutput,7)=round(x3,6);
-        CADOutput(indexCADOutput,8)=round(y3,6);
-        CADOutput(indexCADOutput,9)=round(z3,6);
-        CADOutput(indexCADOutput,10)=round(normal(1),4);
-        CADOutput(indexCADOutput,11)=round(normal(2),4);
-        CADOutput(indexCADOutput,12)=round(normal(3),4);
-        CADOutput(indexCADOutput,13)=round(D,4);
+        
+        CADOutput(indexCADOutput,1:3) = round(v1,6);
+        CADOutput(indexCADOutput,4:6) = round(v2,6);
+        CADOutput(indexCADOutput,7:9) = round(v3,6);
+        CADOutput(indexCADOutput,10:12) = round(normal,4);
+        CADOutput(indexCADOutput,13) = round(D,4);
 
         %We are using distance limitation at this step
         
@@ -193,6 +163,23 @@ for iterateVolume=1:size(volume)
         end
     end
 end
-countRows=countRows-1;
+countRows = size(CADOutput, 1);
+
+end
+
+
+%% Utils
+function v = getTriangleVertex(s,volumeIdx,triangIdx,vertexIdx,sizeVolume)
+
+if sizeVolume(1)~=1
+    vertex = str2double(s.amf.object.mesh.volume{1,volumeIdx}.triangle{1,triangIdx}.(vertexIdx).Text)+1;
+else
+    vertex = str2double(s.amf.object.mesh.volume.triangle{1,triangIdx}.(vertexIdx).Text)+1;
+end
+
+x = str2double(s.amf.object.mesh.vertices.vertex{1,vertex}.coordinates.x.Text);
+y = str2double(s.amf.object.mesh.vertices.vertex{1,vertex}.coordinates.y.Text);
+z = str2double(s.amf.object.mesh.vertices.vertex{1,vertex}.coordinates.z.Text);
+v = [x,y,z];
 
 end
