@@ -44,82 +44,57 @@ function [StringOutput] = StringOutputGenerator(time_division,...
     StringOutput, output)
 sizeOutput = size(output);
 count1 = sizeOutput(1);
+StringOutput = char(StringOutput);
 % Stores number of multipath
 if time_division == 0
-    StringOutput = strcat(num2str(count1), '\n');
-else
-    StringOutput = strcat(StringOutput, num2str(count1), '\n');
+    StringOutput = [];
 end
+
+% Number of rays in this time step
+numRays = [num2str(count1), '\n'];
 
 % Stores delay (secs)
-for i = 1:count1
-    
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,8)), '\n');
-    else
-        StringOutput = strcat(StringOutput, num2str(output(i,8)), ',');
-    end
-end
+delay = col2str(output,8,count1);
 
 % Stores  path gain (dB)
-for i = 1:count1
-    
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,9)), '\n');
-    else
-        StringOutput = strcat(StringOutput, num2str(output(i,9)), ',');
-    end
-end
+pathGain = col2str(output,9,count1);
 
 % Stores  phase (radians)
-for i = 1:count1
-    
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,18)), '\n');
-        %StringOutput = strcat(StringOutput, num2str(0), '\n');
-    else
-        StringOutput=strcat(StringOutput,...
-            num2str(output(i,18)),',');
-            %StringOutput=strcat(StringOutput,num2str(0),',');
-    end
-end
+phase = col2str(output,18,count1);
 
 % Stores Angle of departure elevation
-for i = 1:count1
-    
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,11)), '\n');
-    else
-        StringOutput = strcat(StringOutput, num2str(output(i,11)), ',');
-    end
-end
+aodEl = col2str(output,11,count1);
 
 % Stores Angle of departure azimuth
-for i = 1:count1
-    
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,10)), '\n');
-    else
-        StringOutput = strcat(StringOutput, num2str(output(i,10)), ',');
-    end
-end
+aodAz = col2str(output,10,count1);
 
 % Stores Angle of arrival elevation
+aoaEl = col2str(output,13,count1);
+
+% Stores Angle of arrival azimuth
+aoaAz = col2str(output,12,count1);
+
+% Concatenate
+StringOutput = [StringOutput,...
+    numRays,delay,pathGain,phase,aodEl,aodAz,aoaEl,aoaAz];
+
+end
+
+function s = col2str(output,col,count1)
+
+s = cell(1,count1);
 for i = 1:count1
     if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,13)), '\n');
+        s{i} = [num2str(output(i,col)), '\n'];
     else
-        StringOutput = strcat(StringOutput, num2str(output(i,13)), ',');
+        s{i} = [num2str(output(i,col)), ','];
     end
 end
 
-% Stores Angle of arrival azimuth
-for i = 1:count1
-    if i == count1
-        StringOutput = strcat(StringOutput, num2str(output(i,12)), '\n');
-    else
-        StringOutput = strcat(StringOutput, num2str(output(i,12)), ',');
-    end
+if isempty(s)
+    s = [];
+else
+    s = strcat(s{:});
 end
 
 end
