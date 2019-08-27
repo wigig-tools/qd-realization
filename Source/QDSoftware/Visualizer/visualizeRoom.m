@@ -4,15 +4,26 @@ clc
 
 addpath('../utils')
 
-%%
-path = '../L-Room/Output/Visualizer/RoomCoordinates/RoomCoordinates.csv';
-roomCoords = readRoomCoordinates(path);
+%% data loading
+scenario = 'SpatialSharing'; % select the scenario to visualize. Must respect the folder structure
+path = ['../',scenario];
+visualizerPath = strcat(path,'/Output/Visualizer');
 
-[Tri,X,Y,Z] = roomCoords2triangles(roomCoords);
+roomCoordPath = strcat(visualizerPath,'/RoomCoordinates/RoomCoordinates.csv');
+roomCoords = readRoomCoordinates(roomCoordPath);
 
-trisurf(Tri,X,Y,Z,'FaceColor',[0.9,0.9,0.9],'FaceAlpha',0.9,'EdgeColor','k')
+%% visualization
+[Tri,X,Y,Z] = roomCoords2triangles(roomCoords); % triangle vertices
 
-axis equal
-xlabel('x')
-ylabel('y')
-zlabel('z')
+saveGif=true;
+orderColor=true;
+visualizeRays(Tri,X,Y,Z,visualizerPath,0,3,saveGif,orderColor)
+
+% color selection
+% boxTriangles = xml2struct(strcat(path,'/Input/BoxTriangles.xml'));
+
+%
+% axis equal
+% xlabel('x')
+% ylabel('y')
+% zlabel('z')
