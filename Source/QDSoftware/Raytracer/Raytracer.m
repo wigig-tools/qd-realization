@@ -182,8 +182,7 @@ MaterialLibrary = readtable('Material_library.txt');
 % node_map is a 2D matrix which holds the permutations of different pairs
 % of Tx and Rx.
 
-nodeMap = ones(numberOfNodes, numberOfNodes);
-str = string(nodeMap);
+str = cell(numberOfNodes, numberOfNodes);
 
 
 %% Randomization
@@ -479,7 +478,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                                 
                 if iterateTimeDivision>0
                     
-                    StringOutput = str(iterateTx, iterateRx);
+                    StringOutput = str{iterateTx, iterateRx};
                     
                 end
                 
@@ -504,7 +503,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     iterateTimeDivision, StringOutput, output);
                 
                 
-                str(iterateTx, iterateRx) = StringOutput;
+                str{iterateTx, iterateRx} = StringOutput;
                 if iterateTimeDivision == numberOfTimeDivisions ||...
                         (iterateTimeDivision == 0 && mobilitySwitch == 0)
                     StringOutput = sprintf(StringOutput);

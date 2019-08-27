@@ -44,7 +44,7 @@ function [StringOutput] = StringOutputGenerator(time_division,...
     StringOutput, output)
 sizeOutput = size(output);
 count1 = sizeOutput(1);
-StringOutput = char(StringOutput);
+
 % Stores number of multipath
 if time_division == 0
     StringOutput = [];
