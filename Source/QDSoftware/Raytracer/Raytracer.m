@@ -105,6 +105,20 @@ nodePositionsPath = strcat(visualizerPath, '/NodePositions');
 roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
 mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
 
+% Subfolders creation
+if ~isfolder(qdFilesPath)
+    mkdir(qdFilesPath)
+end
+if ~isfolder(nodePositionsPath)
+    mkdir(nodePositionsPath)
+end
+if ~isfolder(roomCoordinatesPath)
+    mkdir(roomCoordinatesPath)
+end
+if ~isfolder(mpcCoordinatesPath)
+    mkdir(mpcCoordinatesPath)
+end
+
 %% ------------ Original Raytracer --------------
 
 Tx = nodeLoc(1,:);
@@ -172,6 +186,11 @@ MaterialLibrary = readtable('Material_library.txt');
 [CADop, numberRowsCADop, switchMaterial] = getCadOutput(environmentFileName,...
     inputPath, MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
 
+% Save output file with room coordinates for visualization
+RoomCoordinates = CADop(:, 1:9);
+csvwrite(strcat(roomCoordinatesPath, '/',...
+    'RoomCoordinates.csv'), RoomCoordinates);
+
 % channel model figure activates only when material data is present
 % if switchMaterial==1 && switchVisualsInput == 1
 %     f2=figure;
@@ -222,7 +241,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
         
     end
     
-    
     if mobilityType == 1
         if numberOfNodes == 2
             [nodeLoc,Tx,Rx,vtx, vrx, nodeVelocities] = LinearMobility...
@@ -237,24 +255,34 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                 [], [], TxInitial, RxInitial, timeDivisionValue, ...
                 numberRowsCADop, CADop, Tx, Rx);
         end
+        
     elseif mobilityType == 2
         [nodeLoc, nodeVelocities] = NodeExtractor...
             (numberOfNodes,  switchRandomization, ...
             iterateTimeDivision, nodeLoc, nodeVelocities, nodePosition, timeDivisionValue);
     end
     
+    if mobilitySwitch >=0
+        csvwrite(strcat(nodePositionsPath,...
+            '/NodePositionsTrc', num2str(iterateTimeDivision),...
+            '.csv'), nodeLoc);
+    end
+    
     % Iterates through all the nodes
     
     for iterateTx = 1:numberOfNodes
         for iterateRx = 1:numberOfNodes
-            if iterateTx ~= iterateRx
-                output = [];
-                if (numberOfNodes >= 2 || switchRandomization == 1)
-                    Tx = nodeLoc(iterateTx, :);
-                    Rx = nodeLoc(iterateRx, :);
-                    
-                    vtx = nodeVelocities(iterateTx, :);
-                    vrx = nodeVelocities(iterateRx, :);
+            if iterateTx == iterateRx
+                continue
+            end
+            
+            output = [];
+            if (numberOfNodes >= 2 || switchRandomization == 1)
+                Tx = nodeLoc(iterateTx, :);
+                Rx = nodeLoc(iterateRx, :);
+
+                vtx = nodeVelocities(iterateTx, :);
+                vrx = nodeVelocities(iterateRx, :);
 %                 elseif (numberOfNodesInput == 2 && iterateTx == 2)
 %                     RxTemp = Rx;
 %                     Rx = Tx;
@@ -279,72 +307,60 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
 %                     end
 %-----------------Polarization Part Omitted------------------------------%
 
-                end
+            end
                 
-                %% LOS Path generation
-                % Plot the figure outside
-                [switchLOS, output] = LOSOutputGenerator(iterateTimeDivision, ...
-                    numberRowsCADop, CADop, Rx, Tx, output, vtx, vrx, 0,...
-                    [1, 0], switchMaterial, mobilitySwitch, numberOfNodes);
-                if switchVisuals == 1 && switchLOS == 1
+            %% LOS Path generation
+            % Plot the figure outside
+            [switchLOS, output] = LOSOutputGenerator(iterateTimeDivision, ...
+                numberRowsCADop, CADop, Rx, Tx, output, vtx, vrx, 0,...
+                [1, 0], switchMaterial, mobilitySwitch, numberOfNodes);
+            if switchVisuals == 1 && switchLOS == 1
+                set(0, 'CurrentFigure', f1)
+                % Plotting QD graph
+                if switchMaterial == 1
                     set(0, 'CurrentFigure', f1)
-                    % Plotting QD graph
-                    if switchMaterial == 1
-                        set(0, 'CurrentFigure', f1)
-                        if mobilitySwitch == 1 && numberOfNodes == 2
-                            %clf
-                            view([9 90])
-                        end
-                        pts = [Tx; Rx];
-                        % Plot LOS for raytracing visuals (f1)
-                        plot3(pts(:, 1), pts(:, 2), pts(:, 3),'k',...
-                            'LineStyle', '-.', 'LineWidth', 3.5);
+                    if mobilitySwitch == 1 && numberOfNodes == 2
+                        %clf
+                        view([9 90])
                     end
+                    pts = [Tx; Rx];
+                    % Plot LOS for raytracing visuals (f1)
+                    plot3(pts(:, 1), pts(:, 2), pts(:, 3),'k',...
+                        'LineStyle', '-.', 'LineWidth', 3.5);
                 end
-                if switchLOS == 1 && iterateTx < iterateRx
-                    if ~isfolder(mpcCoordinatesPath)
-                        mkdir(mpcCoordinatesPath);
-                    end
-                                        
-                    clear multipath1;
-                    multipath1 = [Tx,Rx];
-                    csvwrite(strcat(mpcCoordinatesPath, '/',...
-                        'MpcTx', num2str(iterateTx-1),...
-                        'Rx', num2str(iterateRx-1), ...
-                        'Refl', num2str(0), ...
-                        'Trc', num2str(iterateTimeDivision),...
-                        '.csv'), ...
-                        multipath1); 
+            end
+            if switchLOS == 1 && iterateTx < iterateRx
+                clear multipath1;
+                multipath1 = [Tx,Rx];
+                csvwrite(strcat(mpcCoordinatesPath, '/',...
+                    'MpcTx', num2str(iterateTx-1),...
+                    'Rx', num2str(iterateRx-1), ...
+                    'Refl', num2str(0), ...
+                    'Trc', num2str(iterateTimeDivision),...
+                    '.csv'), ...
+                    multipath1); 
 
-                end
+            end
                 
-                %% Higher order reflections (Non LOS)
-                if totalNumberOfReflections >= 0
-                    
-                    for iterateOrderOfReflection = 1:totalNumberOfReflections
-                        ArrayOfPoints = [];
-                        ArrayOfPlanes = [];
-                        numberOfReflections = iterateOrderOfReflection;
+            %% Higher order reflections (Non LOS)
+            for iterateOrderOfReflection = 1:totalNumberOfReflections
+                numberOfReflections = iterateOrderOfReflection;
                         
-                        [ArrayOfPoints, ArrayOfPlanes, number,...
-                            index, indexPlanes, arrayOfMaterials,...
-                            indexMaterials] = treetraversal(CADop,...
-                            numberRowsCADop, numberOfReflections,...
-                            numberOfReflections, 0, 1, 1, 1, Rx, Tx, [], [],...
-                            MaterialLibrary, switchMaterial, [], 1,generalizedScenario);
+                [ArrayOfPoints, ArrayOfPlanes, number,...
+                    index, indexPlanes, arrayOfMaterials,...
+                    indexMaterials] = treetraversal(CADop,...
+                    numberRowsCADop, numberOfReflections,...
+                    numberOfReflections, 0, 1, 1, 1, Rx, Tx, [], [],...
+                    MaterialLibrary, switchMaterial, [], 1,generalizedScenario);
                         
+                number = number - 1;
                         
-                        number = number - 1;
-                        
-                        
-                        outputTemporary = [];
-                        multipathTemporary = [];
-                        if mobilitySwitch == -1
-                            vtx = [0, 0, 0];
-                            vrx = vtx;
-                        end
+                if mobilitySwitch == -1
+                    vtx = [0, 0, 0];
+                    vrx = vtx;
+                end
 %-----------------Polarization Part Omitted------------------------------%
-                        %  See multipath for more info
+                %  See multipath for more info
 %                         if Polarization_switch==1 && switch_cp==0 &&...
 %                                 switchRandomizationInput==1
 %                             Polarization_tx = [...
@@ -368,192 +384,153 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
 %                         end
 %-----------------Polarization Part Omitted------------------------------%
 
-                        [QD, switchQD, outputTemporary, multipathTemporary,...
-                            count, countQD] = multipath(...
-                            ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
-                            numberRowsCADop, CADop, number, ...
-                            MaterialLibrary, arrayOfMaterials, ...
-                            switchMaterial, vtx, vrx, ...
-                            0, [1, 0], ...
-                            AntennaOrientationTx, [1, 0], ...
-                            AntennaOrientationRx, 0, switchQDGenerator);
+                [QD, switchQD, outputTemporary, multipathTemporary,...
+                    count, countQD] = multipath(...
+                    ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
+                    numberRowsCADop, CADop, number, ...
+                    MaterialLibrary, arrayOfMaterials, ...
+                    switchMaterial, vtx, vrx, ...
+                    0, [1, 0], ...
+                    AntennaOrientationTx, [1, 0], ...
+                    AntennaOrientationRx, 0, switchQDGenerator);
                         
-                        %Plots channel model if material switch is 1
-                        if iterateTx < iterateRx
-                            if ~isfolder(mpcCoordinatesPath)
-                                mkdir(mpcCoordinatesPath);
-                            end
-                            
-                            sizeMultipathTemporary = size(multipathTemporary);
-                            if sizeMultipathTemporary(1) ~= 0
-                                multipath1 = multipathTemporary(1:count, 2:sizeMultipathTemporary(2));
-                                csvwrite(strcat(mpcCoordinatesPath, '/',...
-                                    'MpcTx', num2str(iterateTx-1),...
-                                    'Rx', num2str(iterateRx-1), ...
-                                    'Refl', num2str(iterateOrderOfReflection), ...
-                                    'Trc', num2str(iterateTimeDivision),...
-                                    '.csv'), ...
-                                    multipath1);
-                            end
+                %Plots channel model if material switch is 1
+                if iterateTx < iterateRx
+                    sizeMultipathTemporary = size(multipathTemporary);
+                    if sizeMultipathTemporary(1) ~= 0
+                        multipath1 = multipathTemporary(1:count, 2:sizeMultipathTemporary(2));
+                        csvwrite(strcat(mpcCoordinatesPath, '/',...
+                            'MpcTx', num2str(iterateTx-1),...
+                            'Rx', num2str(iterateRx-1), ...
+                            'Refl', num2str(iterateOrderOfReflection), ...
+                            'Trc', num2str(iterateTimeDivision),...
+                            '.csv'), ...
+                            multipath1);
+                    end
+                end
+                        
+                if size(output) > 0
+                    output = [output;outputTemporary];
+                    multipath1 = multipathTemporary;
+                elseif size(outputTemporary) > 0
+                    output = outputTemporary;
+                    multipath1 = multipathTemporary;
+                end
+                if switchVisuals == 1
+                    set(0, 'CurrentFigure', f1)
+
+
+                    %Plots CAD file from CADop
+                    if iterateTx == 1 && iterateRx == 2 
+                        for i = 1:numberRowsCADop
+
+                            hold on
+                            v1 = [CADop(i, 1), CADop(i, 2), CADop(i, 3)];...
+                                v2=[CADop(i, 4), CADop(i, 5), CADop(i, 6)...
+                                ]; v3=[CADop(i, 7), CADop(i, 8), ...
+                                CADop(i, 9)];
+
+                            triangle = 1. * [v1(:), v2(:), v3(:), v1(:)];
+
+                            h=fill3(triangle(1, :), triangle(2, :),...
+                                triangle(3, :), [0.5 0.5 0.5]);
+                            h.FaceAlpha = 0.1;
+                            h.EdgeAlpha = 0.5;
+                            set(h, 'edgecolor', [1 1 1], 'LineWidth', 0.5);
+
                         end
-                        
-                        if size(output) > 0
-                            output = [output;outputTemporary];
-                            multipath1 = multipathTemporary;
-                        elseif size(outputTemporary) > 0
-                            output = outputTemporary;
-                            multipath1 = multipathTemporary;
-                        end
-                        if switchVisuals == 1
-                            set(0, 'CurrentFigure', f1)
-                        
-                        
-                        %Plots CAD file from CADop
-                            if iterateTx == 1 && iterateRx == 2 
-                                for i = 1:numberRowsCADop
+                    end
 
-                                    hold on
-                                    v1 = [CADop(i, 1), CADop(i, 2), CADop(i, 3)];...
-                                        v2=[CADop(i, 4), CADop(i, 5), CADop(i, 6)...
-                                        ]; v3=[CADop(i, 7), CADop(i, 8), ...
-                                        CADop(i, 9)];
+                    % plots multipath function output on to CAD model
+                    sizeMultipath1 = size(multipath1);
+                    if sizeMultipath1(1) >0
+                        for i = 1:count
 
-                                    triangle = 1. * [v1(:), v2(:), v3(:), v1(:)];
+                            iterateOrderOfReflection = multipath1(i, 1);
+                            for j = 1:iterateOrderOfReflection + 1
+                                P1 = [multipath1(i, j * 3 - 1),...
+                                    multipath1(i, j * 3),...
+                                    multipath1(i, j * 3 + 1)];
+                                P2 = [multipath1(i, j * 3 + 2),...
+                                    multipath1(i, j * 3 + 3),...
+                                    multipath1(i, j * 3 + 4)];
 
-                                    h=fill3(triangle(1, :), triangle(2, :),...
-                                        triangle(3, :), [0.5 0.5 0.5]);
-                                    h.FaceAlpha = 0.1;
-                                    h.EdgeAlpha = 0.5;
-                                    set(h, 'edgecolor', [1 1 1], 'LineWidth', 0.5);
+                                % Their vertial concatenation is what you want
+                                pts = [P1; P2];
+
+                                % Alternatively, you could use plot3:
+                                hold on
+
+                                if iterateOrderOfReflection<4
+                                    plot3(pts(:, 1),  pts(:, 2), ...
+                                        pts(:, 3), 'k', 'LineWidth', ...
+                                        lineArray(iterateOrderOfReflection))
+                                else
+                                    plot3(pts(:, 1), pts(:, 2),...
+                                        pts(:, 3), colorArray(4), ...
+                                        'LineWidth', 0.8)
 
                                 end
                             end
-
-                            % plots multipath function output on to CAD model
-                            sizeMultipath1 = size(multipath1);
-                            if sizeMultipath1(1) >0
-                                for i = 1:count
-    
-                                    iterateOrderOfReflection = multipath1(i, 1);
-                                    for j = 1:iterateOrderOfReflection + 1
-                                        P1 = [multipath1(i, j * 3 - 1),...
-                                            multipath1(i, j * 3),...
-                                            multipath1(i, j * 3 + 1)];
-                                        P2 = [multipath1(i, j * 3 + 2),...
-                                            multipath1(i, j * 3 + 3),...
-                                            multipath1(i, j * 3 + 4)];
-    
-                                        % Their vertial concatenation is what you want
-                                        pts = [P1; P2];
-    
-                                        % Alternatively, you could use plot3:
-                                        hold on
-    
-                                        if iterateOrderOfReflection<4
-                                            plot3(pts(:, 1),  pts(:, 2), ...
-                                                pts(:, 3), 'k', 'LineWidth', ...
-                                                lineArray(iterateOrderOfReflection))
-                                        else
-                                            plot3(pts(:, 1), pts(:, 2),...
-                                                pts(:, 3), colorArray(4), ...
-                                                'LineWidth', 0.8)
-    
-                                        end
-                                    end
-                                end
-                                view([9 90])
-                            end
-
-                            % Plots nodes
-                            scatter3(Tx(1), Tx(2), Tx(3), 100, 'k', '.');
-                            text(Tx(1), Tx(2), Tx(3), 'Tx', 'Fontsize', 6);
-                            rx1 = scatter3(Rx(1), Rx(2), Rx(3), 100, 'k', '.');
-                            text(Rx(1), Rx(2), Rx(3), 'Rx', 'Fontsize', 6);
-                        end                     
+                        end
+                        view([9 90])
                     end
-                end
-                %% The ouput from previous iterations is stored in file
-                %files whose names are TxiRxj.txt i,j is the link
-                %between ith node as Tx and jth as Rx.
-                                
-                if iterateTimeDivision>0
-                    
-                    StringOutput = str{iterateTx, iterateRx};
-                    
-                end
-                
-                count1 = count;
-                if switchQD == 1
-                    sizeQD = size(output);
-                    count1 = sizeQD(1);
-                end
-                if switchLOS == 1 && switchQD ~= 1
-                    count1 = count1 + 1;
-                end
-                if count1 == 1
-                   ioi = 1; 
-                end
-                
-                %n = 1;
-                if iterateTimeDivision == 0
-                    StringOutput = [];
-                end
-                
-                [StringOutput] = StringOutputGenerator(...
-                    iterateTimeDivision, StringOutput, output);
-                
-                
-                str{iterateTx, iterateRx} = StringOutput;
-                if iterateTimeDivision == numberOfTimeDivisions ||...
-                        (iterateTimeDivision == 0 && mobilitySwitch == 0)
-                    StringOutput = sprintf(StringOutput);
-                    
-                    if ~isfolder(qdFilesPath)
-                        mkdir(qdFilesPath)
-                    end
-                    
-                    fid = fopen(strcat(qdFilesPath, '/',...
-                        'Tx', num2str(iterateTx-1),...
-                        'Rx', num2str(iterateRx-1),...
-                        '.txt'), 'wt');
-                    fprintf(fid, StringOutput);
-                    fclose(fid);
-                    
-                end
-                
+
+                    % Plots nodes
+                    scatter3(Tx(1), Tx(2), Tx(3), 100, 'k', '.');
+                    text(Tx(1), Tx(2), Tx(3), 'Tx', 'Fontsize', 6);
+                    rx1 = scatter3(Rx(1), Rx(2), Rx(3), 100, 'k', '.');
+                    text(Rx(1), Rx(2), Rx(3), 'Rx', 'Fontsize', 6);
+                end                     
+            end
+            %% The ouput from previous iterations is stored in file
+            %files whose names are TxiRxj.txt i,j is the link
+            %between ith node as Tx and jth as Rx.
+%             count1 = count;
+%             if switchQD == 1
+%                 sizeQD = size(output);
+%                 count1 = sizeQD(1);
+%             end
+%             if switchLOS == 1 && switchQD ~= 1
+%                 count1 = count1 + 1;
+%             end
+%             if count1 == 1
+%                ioi = 1; 
+%             end
+
+            %n = 1;
+            if iterateTimeDivision == 0
+                StringOutput = [];
+            else
+                StringOutput = str{iterateTx, iterateRx};
+            end
+
+            [StringOutput] = StringOutputGenerator(...
+                iterateTimeDivision, StringOutput, output);
+
+
+            str{iterateTx, iterateRx} = StringOutput;
+            if iterateTimeDivision == numberOfTimeDivisions ||...
+                    (iterateTimeDivision == 0 && mobilitySwitch == 0)
+                StringOutput = sprintf(StringOutput);
+
+                fid = fopen(strcat(qdFilesPath, '/',...
+                    'Tx', num2str(iterateTx-1),...
+                    'Rx', num2str(iterateRx-1),...
+                    '.txt'), 'wt');
+                fprintf(fid, StringOutput);
+                fclose(fid);
+
+            end
+
 %                 if Mobility_switch~=1
 %                     savefig(f1,strcat(outputPath, '/', 'Rays',num2str(iter)));
 %                     savefig(f2,strcat(outputPath, '/', 'Rays-QD',num2str(iter)));
 %                 end
-                
-            end
+
         end
     end
     
-    if ~isfolder(qdFilesPath)
-        mkdir(qdFilesPath)
-    end
-    
-    if ~isfolder(nodePositionsPath)
-        mkdir(nodePositionsPath)
-    end
-    
-    if mobilitySwitch >=0
-        csvwrite(strcat(nodePositionsPath,...
-            '/NodePositionsTrc', num2str(iterateTimeDivision),...
-            '.csv'), nodeLoc);
-    end
-    
-    if iterateTimeDivision == 0
-        if ~isfolder(roomCoordinatesPath)
-            mkdir(roomCoordinatesPath)
-        end
-        
-        RoomCoordinates = CADop(:, 1:9);
-        csvwrite(strcat(roomCoordinatesPath, '/',...
-            'RoomCoordinates.csv'), RoomCoordinates);
-        
-    end
     %  set(0,'CurrentFigure',f3)
     %  F(time_division+1)=getframe(gcf);
     %  movie(f3,F,1);
