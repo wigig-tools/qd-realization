@@ -40,7 +40,7 @@ testCase.TestData.mainFolderPath = pwd;
 assert(strcmp(folderName, 'QDSoftware'),...
     'The root folder should be QDSoftware');
 
-testCase.TestData.examplesFolderPath = pwd;
+testCase.TestData.examplesFolderPath = 'examples';
 end
 
 function teardownOnce(testCase)

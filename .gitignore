@@ -1,23 +1,18 @@
 # Ignore all subfolders in QDSoftware
 # Done to avoid saving custom results
-/Source/QDSoftware/**/
+/src/*/
 
 # Do NOT ignore important folders
-!/Source/QDSoftware/Raytracer/
-!/Source/QDSoftware/Input/
-!/Source/QDSoftware/utils/
-!/Source/QDSoftware/Tests/
-
-# Do NOT ignore examples
-!/Source/QDSoftware/DenserScenario/**
-!/Source/QDSoftware/Indoor1/**
-!/Source/QDSoftware/Indoor2/**
-!/Source/QDSoftware/L-Room/**
-!/Source/QDSoftware/Outdoor1/**
-!/Source/QDSoftware/SpatialSharing/**
+!/src/raytracer/
+!/src/input/
+!/src/utils/
+!/src/examples/
 
 # Ignore cached files
 **/cachedCadOutput.mat
+
+# Ignore profile results
+**/profile_results*
 
 ## Useless/temporary files to ignore
 # MATLAB

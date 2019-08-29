@@ -6,5 +6,5 @@ close all
 clc
 
 %% Run test suite
-testResults = runtests("exampleOutputsTest");
+testResults = runtests("exampleOutputsTest",'OutputDetail',3);
 disp(testResults)
