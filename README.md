@@ -18,8 +18,9 @@ Here is a sample snapshot for our Q-D realization software:
 Just clone or download the repository
 
 # Documentation:
-The software architecture and functionnalities are described in the *"Documentation.pdf"* document located in the *"Source"* folder.
-A readme file *"Readme.txt"* is located in the *"Source"* folder
+The software architecture and functionnalities are described in `docs/Documentation.pdf`.
+
+For further information please read `Readme.txt`.
 
 # Author Information:
-The Q-D Realization software is developped by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi) and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
+The Q-D Realization software is developed by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi) and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
