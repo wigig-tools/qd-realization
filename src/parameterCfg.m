@@ -51,23 +51,19 @@ para = fieldToNum(para, 'indoorSwitch', [0,1], 1);
 
 % Input Scenario Filename 
 % = 'Case1'
-% para.inputScenarioName = paraStruct.inputScenarioName;
 para.inputScenarioName = scenarioNameStr;
 
 % This is switch to turn on or off mobility.
 % 1 = mobility ON, 0 = mobility OFF (Default)
 % TODO: can be made smart checking if file exists
-para = fieldToNum(para, 'mobilitySwitch', [0,1], 1);
+defaultMobilitySwitch = getDefaultMobilitySwitch(scenarioNameStr);
+para = fieldToNum(para, 'mobilitySwitch', [0,1], defaultMobilitySwitch);
 
 % This switch lets the user to decide the input to mobility
 % 1 = Linear (Default), 2 = input from File
 % TODO: make it smart: is a valid mobility file is present, set 2
-para = fieldToNum(para, 'mobilityType', [0,1,2], 1); % TODO: 0 should not be valid
-
-% This parameter denotes the number of nodes
-% = 2  (Default)
-% TODO: make it smart (removing it)
-para = fieldToNum(para, 'numberOfNodes', [], 2);
+defaultMobilityType = getDefaultMobilityType(scenarioNameStr, para.mobilitySwitch);
+para = fieldToNum(para, 'mobilityType', [0,1,2], defaultMobilityType); % TODO: 0 should not be valid
 
 % n is the total number of time divisions. If n  = 100 and t  = 10, then we
 % have 100 time divisions for 10 seconds. Each time division is 0.1 secs in
@@ -95,6 +91,18 @@ para = fieldToNum(para, 'switchQDGenerator', [0,1], 0);
 % This is switch to turn ON or OFF randomization.
 % 1 = random (Default), 0 = Tx,Rx are determined by Tx,Rx paramters
 para = fieldToNum(para, 'switchRandomization', [0,1], 1);
+
+% This parameter denotes the number of nodes
+% = 2  (Default)
+switch(para.switchRandomization)
+    case 0
+        defaultNumberOfNodes = []; % specified by nodes.dat
+    case 1
+        defaultNumberOfNodes = 2;
+    otherwise
+        error('Cannot handle switchRandomization=%f',para.switchRandomization)
+end
+para = fieldToNum(para, 'numberOfNodes', [], defaultNumberOfNodes);
 
 % Switch to enable or disable the visuals
 % = 0 (Default)
@@ -138,4 +146,36 @@ end
 
 assert(any(para.(field) == validValues),...
     'Invalid value %d for field ''%s''', para.(field), field)
+end
+
+
+function defaultMobilitySwitch = getDefaultMobilitySwitch(scenarioNameStr)
+if isNodePositionPresent(scenarioNameStr)
+    defaultMobilitySwitch = 1;
+else
+    defaultMobilitySwitch = 0;
+end
+
+end
+
+
+function defaultMobilityType = getDefaultMobilityType(scenarioNameStr, mobilitySwitch)
+if ~mobilitySwitch
+    defaultMobilityType = 1;
+    return
+end
+
+% Mobility switch activated
+if isNodePositionPresent(scenarioNameStr)
+    defaultMobilityType = 1;
+else
+    defaultMobilityType = 0;
+end
+
+end
+
+function b = isNodePositionPresent(path)
+files = dir(sprintf('%s/Input',path));
+
+b = any(startsWith({files.name},'NodePosition'));
 end

@@ -30,33 +30,32 @@ if switchRandomization == 1
     yCoordinateRandomizer = rand * 17 + 1;
     zCoordinateRandomizer = 1.6;
     Rx = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-end
 
-if switchRandomization == 1
    mobilityType = 1; 
 end
 
 %% Extracting data from nodes.dat and nodeVelocities.dat file.
 % nodes.dat file contains nodes locations and nodeVelocities contains their
 % velocities
-if switchRandomization == 0 && numberOfNodes >= 2
+if switchRandomization == 0
     try
         nodeLoc = csvread(strcat(inputPath, '/nodes.dat'));
         nodeVelocities = csvread(strcat(inputPath, '/nodeVelocities.dat'));
-        sizeNodeVelocities = size(nodeVelocities);
     catch
         switchRandomization = 1;
     end
-    sizeNode = size(nodeLoc);
-    if sizeNode(1) ~= sizeNodeVelocities(1) && mobilitySwitch == 1
-        error('nodes.dat and nodeVelocities.dat donot have same number of rows. Please check the input files in the Input folder.')
+    
+    if size(nodeLoc,1) ~= size(nodeVelocities,1) && mobilitySwitch == 1
+        error(['nodes.dat and nodeVelocities.dat donot have same number ',...
+            'of rows. Please check the input files in the Input folder.'])
     end
-    if numberOfNodes ~= sizeNode(1)
-        warning(['"numberOfNodes" parameter doesnot match the number of',...
+    if ~isempty(numberOfNodes) && numberOfNodes ~= size(nodeLoc,1)
+        warning(['"numberOfNodes" parameter doesnot match the number of ',...
             'nodes given in file. The "numberOfNodes" is adjusted to ',...
             'the number of nodes given in file']);
     end
-    numberOfNodes = sizeNode(1);
+    numberOfNodes = size(nodeLoc,1);
+    
     if mobilitySwitch == 1
         nodeVelocitiesTemp = nodeVelocities;
         clear nodeVelocities;
