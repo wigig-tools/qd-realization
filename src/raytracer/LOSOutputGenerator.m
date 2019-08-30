@@ -94,39 +94,16 @@ if switch3==1 % if DoA exists
     %Path gain
     output1(1,9) = 20*log10(lambda/(4*pi*delay));
     %Aod azimuth
-    if dod(2)==dod(1) && dod(1)==0
-        output1(10) = 90;
-    elseif dod(2)<0 && dod(1)>=0
-        output1(10) = 360+(180*(atan(dod(2)/dod(1)))/pi);
-    elseif dod(2)<=0 && dod(1)<0
-        output1(10) = (180*(atan(dod(2)/dod(1)))/pi) + 180;
-    elseif dod(2)>0 && dod(1)<0
-        output1(10) = (180*(atan(dod(2)/dod(1)))/pi) + 180;
-    else
-        output1(10) = (180*(atan(dod(2)/dod(1)))/pi);
-    end
+    output1(10) = mod(atan2d(dod(2),dod(1)), 360);
     %Aod elevation
-    output1(11) = 180*(acos(dod(3)/norm(dod)))/pi;
+    output1(11) = acosd(dod(3)/norm(dod));
     % doa(3)=-doa(3);
     % doa(2)=-doa(2);
     % doa(1)=-doa(1);
     %Aoa azimuth
-    if doa(1) == 0
-        doa(1) = 0;
-    end
-    if doa(2)==doa(1) && doa(1)==0
-        output1(12) = 90;
-    elseif doa(2)<0 && doa(1)>=0
-        output1(12) = 360+(180*(atan(doa(2)/doa(1)))/pi);
-    elseif doa(2)<=0 && doa(1)<0
-        output1(12) = (180*(atan(doa(2)/doa(1)))/pi) + 180;
-    elseif doa(2)>0 && doa(1)<0
-        output1(12) = (180*(atan(doa(2)/doa(1)))/pi) + 180;
-    else
-        output1(12) = 180*(atan(doa(2)/doa(1)))/pi;
-    end
+    output1(12) = mod(atan2d(doa(2),doa(1)), 360);
     %Aoa elevation
-    output1(13)=180*(acos(doa(3)/norm(doa)))/pi;
+    output1(13)=acosd(doa(3)/norm(doa));
     %Polarization Jones vector
     output1(14:15) = PolarizationTx(1,:);
     %Cross polarization Jones vector
@@ -143,10 +120,7 @@ if switch3==1 % if DoA exists
     else
         output1(19) = 0;
     end
-    % QD plot(f2) parameters 
-    if dod(1) == 0
-        dod(1) = 0;
-    end
+    % QD plot(f2) parameters
 %     output2(1,1,timeDivision+1)=delay/c;
 %     output2(1,2,timeDivision+1)=20*log10(lambda/...
 %         (4*pi*delay));

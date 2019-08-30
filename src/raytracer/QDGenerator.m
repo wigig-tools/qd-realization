@@ -178,7 +178,7 @@ for i1 = 1:2
             end
         end
         
-        mu = acos(dod(3)/norm(dod))*180/pi;
+        mu = acosd(dod(3)/norm(dod));
         
         % generates angular spread for Aod elevation
         
@@ -261,7 +261,7 @@ for i1 = 1:2
         % Aoa_az=Aoa_az.*s;
         Aoa_az=((Aoa_az-mu_1).*sqrt(s1))+(mu_1);
         
-        mu=acos(doa(3)/norm(doa))*180/pi;
+        mu=acosd(doa(3)/norm(doa));
         
         % generates angular spread for Aoa elevation
         

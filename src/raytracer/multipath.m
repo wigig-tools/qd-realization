@@ -191,58 +191,17 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
 %-----------------Polarization Part Omitted------------------------------%
 
         % Aod azimuth
-        if directionOfDeparture(1) == 0
-                directionOfDeparture(1) = 0;
-        end
-        if directionOfDeparture(2) == directionOfDeparture(1) && directionOfDeparture(1)==0
-            output(indexOutput,10) = 90;
-        elseif directionOfDeparture(2) < 0 && directionOfDeparture(1) >= 0
-            if directionOfDeparture(1) == 0
-                directionOfDeparture(1) = 0;
-            end
-            output(indexOutput,10) = 360 + (180 * (atan(directionOfDeparture(2) / directionOfDeparture(1))) / pi);
-        elseif directionOfDeparture(2) < 0 && directionOfDeparture(1) < 0
-            output(indexOutput,10) = (180 * (atan(directionOfDeparture(2) / directionOfDeparture(1))) / pi) + 180;
-        elseif directionOfDeparture(2) >= 0 && directionOfDeparture(1) < 0
-            if directionOfDeparture(1) == 0
-                directionOfDeparture(1) = 0;
-            end
-            output(indexOutput,10) = (180 * (atan(directionOfDeparture(2) / directionOfDeparture(1))) / pi) + 180;
-        else
-            output(indexOutput,10) = (180 * (atan(directionOfDeparture(2) / directionOfDeparture(1))) / pi);
-        end
-        
+        output(indexOutput,10) = mod(atan2d(directionOfDeparture(2),directionOfDeparture(1)), 360);
         %Aod elevation
-        
-        output(indexOutput,11) = rad2deg(acos(directionOfDeparture(3) / norm(directionOfDeparture)));
+        output(indexOutput,11) = acosd(directionOfDeparture(3) / norm(directionOfDeparture));
         
         %Aoa azimuth
         % doa(3)=-doa(3);
         % doa(2)=-doa(2);
         % doa(1)=-doa(1);
-        if directionOfArrival(1) == 0
-                directionOfArrival(1) = 0;
-        end
-        if directionOfArrival(2) == directionOfArrival(1) && directionOfArrival(1) == 0
-            output(indexOutput,12) = 90;
-        elseif directionOfArrival(2) < 0 && directionOfArrival(1) >= 0
-            if directionOfArrival(1) == 0
-                directionOfArrival(1) = 0;
-            end
-            output(indexOutput,12) = 360 + (180 * (atan(directionOfArrival(2) / directionOfArrival(1))) / pi);
-        elseif directionOfArrival(2) < 0 && directionOfArrival(1) < 0
-            output(indexOutput,12) = (180 * (atan(directionOfArrival(2) / directionOfArrival(1))) / pi) + 180;
-        elseif directionOfArrival(2) >= 0 && directionOfArrival(1) < 0
-            if directionOfArrival(2) == 0
-                directionOfArrival(2) = 0;
-            end
-            output(indexOutput,12) = (180 * (atan(directionOfArrival(2) / directionOfArrival(1))) / pi) + 180;
-        else
-            output(indexOutput,12) = 180 * (atan(directionOfArrival(2) / directionOfArrival(1))) / pi;
-        end
+        output(indexOutput,12) = mod(atan2d(directionOfArrival(2),directionOfArrival(1)), 360);
         %Aoa elevation
-        
-        output(indexOutput,13) = 180 * (acos(directionOfArrival(3) / norm(directionOfArrival))) / pi;
+        output(indexOutput,13) = acosd(directionOfArrival(3) / norm(directionOfArrival));
 %-----------------Polarization Part Omitted------------------------------%
 %         %End Polarization information
 %         if PolarizationSwitchTemporary==1
