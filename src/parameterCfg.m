@@ -35,30 +35,19 @@ function [para] = parameterCfg(scenarioNameStr)
 %   Detailed explanation goes here
 
 % Load Parameters
-try
-    para.cfgCustomPath = strcat(scenarioNameStr,'/Input/paraCfgCurrent.txt');
-    paraList = readtable(para.cfgCustomPath,'Delimiter','\t');
-catch
-    para.cfgDefaultPath = strcat('Input/paraCfgDefault.txt');
-    paraList = readtable(para.cfgDefaultPath,'Delimiter','\t');
-end
+cfgPath = sprintf('%s/Input/paraCfgCurrent.txt',scenarioNameStr);
+paraList = readtable(cfgPath,'Delimiter','\t');
 
-% numPara = size(paraList,1);
 paraCell = (table2cell(paraList))';
-paraNameList = paraCell(1,:);
-paraStruct = cell2struct(paraCell(2,:),paraNameList,2);
-
-% Environment file name
-% = 'Box.xml';       % courtesy - http://amf.wikispaces.com/AMF+test+files
-para.environmentFileName = paraStruct.environmentFileName;
+para = cell2struct(paraCell(2,:), paraCell(1,:), 2);
 
 % Generalized Scenario
 % = 1 (Default)
-para.generalizedScenario = str2double(paraStruct.generalizedScenario);
+para = fieldToNum(para, 'generalizedScenario', [0,1], 1);
 
 % Switch Indoor
 % = 1;
-para.indoorSwitch = str2double(paraStruct.indoorSwitch);
+para = fieldToNum(para, 'indoorSwitch', [0,1], 1);
 
 % Input Scenario Filename 
 % = 'Case1'
@@ -67,49 +56,82 @@ para.inputScenarioName = scenarioNameStr;
 
 % This is switch to turn on or off mobility.
 % 1 = mobility ON, 0 = mobility OFF (Default)
-para.mobilitySwitch = str2double(paraStruct.mobilitySwitch);
+% TODO: can be made smart checking if file exists
+para = fieldToNum(para, 'mobilitySwitch', [0,1], 1);
 
 % This switch lets the user to decide the input to mobility
 % 1 = Linear (Default), 2 = input from File
-para.mobilityType = str2double(paraStruct.mobilityType);
+% TODO: make it smart: is a valid mobility file is present, set 2
+para = fieldToNum(para, 'mobilityType', [0,1,2], 1); % TODO: 0 should not be valid
 
 % This parameter denotes the number of nodes
 % = 2  (Default)
-para.numberOfNodes = str2double(paraStruct.numberOfNodes);
+% TODO: make it smart (removing it)
+para = fieldToNum(para, 'numberOfNodes', [], 2);
 
 % n is the total number of time divisions. If n  = 100 and t  = 10, then we
 % have 100 time divisions for 10 seconds. Each time division is 0.1 secs in
 % length
 % = 10 (Default)
-para.numberOfTimeDivisions = str2double(paraStruct.numberOfTimeDivisions);
+para = fieldToNum(para, 'numberOfTimeDivisions', [], 10);
 
 %Reference point is the center of limiting sphere. 
 % = [3,3,2] (Default)
-para.referencePoint = char(paraStruct.referencePoint);
+% TODO: default value is arbitrary and not generic at all
+if isfield(para,'referencePoint')
+    para.referencePoint = str2num(para.referencePoint); %#ok<ST2NM>
+else
+    para.referencePoint = [3,3,2];
+end
 
 % This is selection of planes/nodes by distance. r = 0 means that there is
 % no limitation (Default). 
-para.selectPlanesByDist = str2double(paraStruct.selectPlanesByDist);
+para = fieldToNum(para, 'selectPlanesByDist', [], 0);
 
 % Switch to turn ON or OFF the Qausi dterministic module
 % 1 = ON, 0 = OFF (Default)
-para.switchQDGenerator = str2double(paraStruct.switchQDGenerator);
+para = fieldToNum(para, 'switchQDGenerator', [0,1], 0);
 
 % This is switch to turn ON or OFF randomization.
 % 1 = random (Default), 0 = Tx,Rx are determined by Tx,Rx paramters
-para.switchRandomization = str2double(paraStruct.switchRandomization);
+para = fieldToNum(para, 'switchRandomization', [0,1], 1);
 
 % Switch to enable or disable the visuals
 % = 0 (Default)
-para.switchVisuals = str2double(paraStruct.switchVisuals);
+para = fieldToNum(para, 'switchVisuals', [0,1], 0);
 
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
-para.totalNumberOfReflections = str2double(paraStruct.totalNumberOfReflections);
+para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
 
 % t is the time period in seconds. The time period for which the simulation
 % has to run when mobility is ON
 % = 1 (Default)
-para.totalTimeDuration = str2double(paraStruct.totalTimeDuration);
+para = fieldToNum(para, 'totalTimeDuration', [], 1);
 
+end
+
+
+%% Utils
+function para = fieldToNum(para, field, validValues, defaultValue)
+% INPUTS:
+% - para: structure to convert numeric fields in-place
+% - field: field name of the target numeric field
+% - validValues: set of valid numerical values on which assert is done
+% - defaultValue: if field not found, set value to this default
+% OUTPUT: para, in-place update
+
+if isfield(para, field)
+    para.(field) = str2double(para.(field));
+else
+    para.(field) = defaultValue;
+end
+
+if isempty(validValues)
+    % No defined set of valid values
+    return
+end
+
+assert(any(para.(field) == validValues),...
+    'Invalid value %d for field ''%s''', para.(field), field)
 end
