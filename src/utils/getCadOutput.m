@@ -1,6 +1,6 @@
 function [CADop, numberRowsCADop, switchMaterial] =...
     getCadOutput(environmentFileName, inputPath, MaterialLibrary,...
-    referrencePoint, selectPlanesByDist, indoorSwitch)
+    referencePoint, selectPlanesByDist, indoorSwitch)
 %GETCADOUTPUT Function to handle smart CAD file import. It tries to create
 % a .mat cache file containing the preprocessed CAD file, as importing a
 % raw CAD can be vary time consuming.
@@ -13,7 +13,7 @@ function [CADop, numberRowsCADop, switchMaterial] =...
 % - environmentFileName: file name of CAD environment
 % - inputPath: input path of selected scenario, containing environmentFileName
 % - MaterialLibrary: see XMLREADER
-% - referrencePoint: see XMLREADER
+% - referencePoint: see XMLREADER
 % - selectPlanesByDist: see XMLREADER
 % - indoorSwitch: see XMLREADER
 %
@@ -59,7 +59,7 @@ switch(extension(2:end))
 end
 
 [CADop, numberRowsCADop, switchMaterial] = xmlreader(tmpXmlFilePath,...
-    MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
+    MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
 
 delete(tmpXmlFilePath);
 save(cacheFilePath, 'CADop', 'numberRowsCADop', 'switchMaterial');

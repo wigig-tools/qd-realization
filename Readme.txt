@@ -75,8 +75,8 @@ indicates linear mobility and mobilityType = 2 indicates custom mobility.
 numberOfTimeDivisions = 100 and totalTimeDuration = 10, then we have 100 time divisions 
 for 10 seconds. Each time division is 0.1 secs in length.
 
-9) referrencePoint - This parameter defines the referrence point of the center of limiting
- sphere. The default setting is referrencePoint = [3,3,2].
+9) referencePoint - This parameter defines the reference point of the center of limiting
+ sphere. The default setting is referencePoint = [3,3,2].
 
 10)selectPlanesByDist - This parameter defines the selection of planes/nodes by distance. 
 selectPlanesByDist = 0 means that there is no limitation (Default). 

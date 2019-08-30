@@ -63,7 +63,7 @@
 % general scenario.
 % selectPlanesByDist - This is selection of planes/nodes by distance. 
 % r = 0 means that there is no limitation.  
-% referrencePoint - Referrence point is the center of limiting sphere 
+% referencePoint - Reference point is the center of limiting sphere 
 
 % Outputs:
 % N/A
@@ -80,7 +80,7 @@ mobilityType = paraCfgInput.mobilityType;
 numberOfNodes = paraCfgInput.numberOfNodes;
 numberOfTimeDivisions = paraCfgInput.numberOfTimeDivisions;
 selectPlanesByDist = paraCfgInput.selectPlanesByDist;
-referrencePoint = paraCfgInput.referrencePoint;
+referencePoint = paraCfgInput.referencePoint;
 switchQDGenerator = paraCfgInput.switchQDGenerator;
 switchRandomization = paraCfgInput.switchRandomization;
 switchVisuals = paraCfgInput.switchVisuals;
@@ -175,8 +175,8 @@ MaterialLibrary = readtable('Material_library.txt');
 
 % environmentFileName = 'Box.xml';       % courtesy - http://amf.wikispaces.com/AMF+test+files
 
-%Referrence point is the center of limiting sphere. 
-% referrencePoint = Tx;
+%Reference point is the center of limiting sphere. 
+% referencePoint = Tx;
 
 % This is selection of planes/nodes by distance. selectPlanesByDistInput = 0 means that there is
 % no limitation. 
@@ -184,7 +184,7 @@ MaterialLibrary = readtable('Material_library.txt');
 
 %% Extracting CAD file and storing in an XMl file, CADFile.xml
 [CADop, numberRowsCADop, switchMaterial] = getCadOutput(environmentFileName,...
-    inputPath, MaterialLibrary, referrencePoint, selectPlanesByDist, indoorSwitch);
+    inputPath, MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
 
 % Save output file with room coordinates for visualization
 RoomCoordinates = CADop(:, 1:9);

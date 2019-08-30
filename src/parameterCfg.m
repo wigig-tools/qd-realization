@@ -83,9 +83,9 @@ para.numberOfNodes = str2double(paraStruct.numberOfNodes);
 % = 10 (Default)
 para.numberOfTimeDivisions = str2double(paraStruct.numberOfTimeDivisions);
 
-%Referrence point is the center of limiting sphere. 
+%Reference point is the center of limiting sphere. 
 % = [3,3,2] (Default)
-para.referrencePoint = char(paraStruct.referrencePoint);
+para.referencePoint = char(paraStruct.referencePoint);
 
 % This is selection of planes/nodes by distance. r = 0 means that there is
 % no limitation (Default). 

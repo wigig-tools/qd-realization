@@ -11,7 +11,7 @@ mobilityType = paraCfg.mobilityType;
 numberOfNodes = paraCfg.numberOfNodes;
 numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
 switchRandomization = paraCfg.switchRandomization;
-paraCfg.referrencePoint = str2num(paraCfg.referrencePoint);
+paraCfg.referencePoint = str2num(paraCfg.referencePoint);
 
 % List of paths
 inputPath = strcat(scenarioNameStr, '/Input');
