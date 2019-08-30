@@ -109,6 +109,10 @@ para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
 % = 1 (Default)
 para = fieldToNum(para, 'totalTimeDuration', [], 1);
 
+% Switch to enable or disable csv outputs in Output/Visualizer folder
+% = 0 (Default)
+para = fieldToNum(para, 'switchSaveVisualizerFiles', [0,1], 0);
+
 end
 
 

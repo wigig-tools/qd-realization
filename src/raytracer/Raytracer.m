@@ -98,25 +98,33 @@ inputPath = strcat(inputScenarioName, '/Input');
 outputPath = strcat(inputScenarioName, '/Output');
 
 ns3Path = strcat(outputPath, '/Ns3');
-visualizerPath = strcat(outputPath, '/Visualizer');
-
 qdFilesPath = strcat(ns3Path, '/QdFiles');
-nodePositionsPath = strcat(visualizerPath, '/NodePositions');
-roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
-mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
+
+if paraCfgInput.switchSaveVisualizerFiles == 1
+    visualizerPath = strcat(outputPath, '/Visualizer');
+    
+    nodePositionsPath = strcat(visualizerPath, '/NodePositions');
+    roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
+    mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
+end
 
 % Subfolders creation
 if ~isfolder(qdFilesPath)
     mkdir(qdFilesPath)
 end
-if ~isfolder(nodePositionsPath)
-    mkdir(nodePositionsPath)
-end
-if ~isfolder(roomCoordinatesPath)
-    mkdir(roomCoordinatesPath)
-end
-if ~isfolder(mpcCoordinatesPath)
-    mkdir(mpcCoordinatesPath)
+
+if paraCfgInput.switchSaveVisualizerFiles == 1
+    
+    if ~isfolder(nodePositionsPath)
+        mkdir(nodePositionsPath)
+    end
+    if ~isfolder(roomCoordinatesPath)
+        mkdir(roomCoordinatesPath)
+    end
+    if ~isfolder(mpcCoordinatesPath)
+        mkdir(mpcCoordinatesPath)
+    end
+    
 end
 
 %% ------------ Original Raytracer --------------
@@ -186,11 +194,12 @@ MaterialLibrary = readtable('Material_library.txt');
 [CADop, numberRowsCADop, switchMaterial] = getCadOutput(environmentFileName,...
     inputPath, MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
 
-% Save output file with room coordinates for visualization
-RoomCoordinates = CADop(:, 1:9);
-csvwrite(strcat(roomCoordinatesPath, '/',...
-    'RoomCoordinates.csv'), RoomCoordinates);
-
+if paraCfgInput.switchSaveVisualizerFiles == 1
+    % Save output file with room coordinates for visualization
+    RoomCoordinates = CADop(:, 1:9);
+    csvwrite(sprintf('%s/RoomCoordinates.csv',roomCoordinatesPath),...
+        RoomCoordinates);
+end
 % channel model figure activates only when material data is present
 % if switchMaterial==1 && switchVisualsInput == 1
 %     f2=figure;
@@ -262,10 +271,10 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
             iterateTimeDivision, nodeLoc, nodeVelocities, nodePosition, timeDivisionValue);
     end
     
-    if mobilitySwitch >=0
-        csvwrite(strcat(nodePositionsPath,...
-            '/NodePositionsTrc', num2str(iterateTimeDivision),...
-            '.csv'), nodeLoc);
+    if paraCfgInput.switchSaveVisualizerFiles == 1 && mobilitySwitch >=0
+        csvwrite(sprintf('%s/NodePositionsTrc%d.csv',...
+            nodePositionsPath, iterateTimeDivision),...
+            nodeLoc);
     end
     
     % Iterates through all the nodes
@@ -329,15 +338,13 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                         'LineStyle', '-.', 'LineWidth', 3.5);
                 end
             end
-            if switchLOS == 1 && iterateTx < iterateRx
-                clear multipath1;
+            if paraCfgInput.switchSaveVisualizerFiles == 1 &&...
+                    switchLOS == 1 &&...
+                    iterateTx < iterateRx
+                
                 multipath1 = [Tx,Rx];
-                csvwrite(strcat(mpcCoordinatesPath, '/',...
-                    'MpcTx', num2str(iterateTx-1),...
-                    'Rx', num2str(iterateRx-1), ...
-                    'Refl', num2str(0), ...
-                    'Trc', num2str(iterateTimeDivision),...
-                    '.csv'), ...
+                csvwrite(sprintf('%s/MpcTx%dRx%dRefl%dTrc%d.csv',...
+                    mpcCoordinatesPath, iterateTx-1, iterateRx-1, 0, iterateTimeDivision),...
                     multipath1); 
 
             end
@@ -395,18 +402,15 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     AntennaOrientationRx, 0, switchQDGenerator);
                         
                 %Plots channel model if material switch is 1
-                if iterateTx < iterateRx
-                    sizeMultipathTemporary = size(multipathTemporary);
-                    if sizeMultipathTemporary(1) ~= 0
-                        multipath1 = multipathTemporary(1:count, 2:sizeMultipathTemporary(2));
-                        csvwrite(strcat(mpcCoordinatesPath, '/',...
-                            'MpcTx', num2str(iterateTx-1),...
-                            'Rx', num2str(iterateRx-1), ...
-                            'Refl', num2str(iterateOrderOfReflection), ...
-                            'Trc', num2str(iterateTimeDivision),...
-                            '.csv'), ...
-                            multipath1);
-                    end
+                if paraCfgInput.switchSaveVisualizerFiles == 1 &&...
+                        iterateTx < iterateRx &&...
+                        size(multipathTemporary,1) ~= 0
+                    
+                    multipath1 = multipathTemporary(1:count, 2:size(multipathTemporary,2));
+                    csvwrite(sprintf('%s/MpcTx%dRx%dRefl%dTrc%d.csv',...
+                        mpcCoordinatesPath, iterateTx-1, iterateRx-1,...
+                        iterateOrderOfReflection, iterateTimeDivision),...
+                        multipath1);
                 end
                         
                 if size(output) > 0

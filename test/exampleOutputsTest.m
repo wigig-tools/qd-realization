@@ -138,6 +138,9 @@ copyfile(sprintf('%s/%s/Input/',...
 paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
 % Input Node related parameters
 [paraCfg, nodeCfg] = nodeProfileCfg(paraCfg);
+% Force settings
+paraCfg.switchSaveVisualizerFiles = 1;
+paraCfg.switchVisuals = 0;
 % Run raytracing function and generate outputs
 Raytracer(paraCfg, nodeCfg);
 
