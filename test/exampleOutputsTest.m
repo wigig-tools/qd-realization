@@ -28,17 +28,17 @@ end
 % Called once at beginning and end of ALL tests
 
 function setupOnce(testCase)
-% Setup path
-addpath('..', '../Raytracer', '../utils')
-
-% Save important folders
+% Save important folders & move to src folder
 testCase.TestData.testFolderPath = pwd;
 
-cd('..')
+cd('../src')
+
+addpath('raytracer', 'utils')
 testCase.TestData.mainFolderPath = pwd;
+
 [~,folderName] = fileparts(testCase.TestData.mainFolderPath);
-assert(strcmp(folderName, 'QDSoftware'),...
-    'The root folder should be QDSoftware');
+assert(strcmp(folderName, 'src'),...
+    'The root folder should be ''src''');
 
 testCase.TestData.examplesFolderPath = 'examples';
 end
