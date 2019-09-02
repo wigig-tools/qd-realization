@@ -41,7 +41,6 @@
 %Rx - Rx position
 %Tx - Tx position
 %CADop - CAD output
-%numberRowsCADOutput - number of rows of CAD output
 %number1 -
 %MaterialLibrary - Similar to Array of points. Each triangle occupies 1
 %triangle. The data is the row number of material from Material library

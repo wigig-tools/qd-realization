@@ -34,7 +34,6 @@
 
 %Inputs:
 % timeDivision - it is the time instance number
-%numberRowsCADoutput - number of rows of CAD output
 %CADoutput - CAD output
 %Tx and Rx locations if using two nodes
 %velocityTx, velocityRx are velocities of tx and rx respectively

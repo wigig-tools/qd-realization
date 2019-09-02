@@ -41,7 +41,6 @@
 % Tx_initial and Rx_initial - these are locations of Rx/Tx in first time
 % instance
 % delt - it is the time interval between consecutive time instances
-% number_rows_CADop - number of rows of CAD output
 % CADop - CAD output
 % Tx and Rx - these are locations of Rx/Tx in current time instance
 % OUTPUT:

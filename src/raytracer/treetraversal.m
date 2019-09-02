@@ -49,7 +49,6 @@
 
 %Inputs:
 % CADop- points and plane equations from CAD file
-%number_of_rows- number of rows in the CADop array
 %number_of_R- order of reflection
 %switch1- row of CADop from previous recursion. For the first traversal the
 %value is zero.

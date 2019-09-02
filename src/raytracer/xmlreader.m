@@ -34,8 +34,8 @@
 %XML redaer extracts the information of CAD file (AMF). The input of the
 %function is filename, the material database with all the material
 %parameters (Material_library), reference point (referencePoint) and distance limitation(r)
-%The output is extracted triangles (CADop), number of rows in CADop
-%(count_rows), and a boolean to know whether the material information is
+%The output is extracted triangles (CADop),
+%and a boolean to know whether the material information is
 %present in the CAD file (switch1)
 
 function [CADOutput, materialSwitch] = ...

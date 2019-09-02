@@ -41,7 +41,7 @@
 %          Reflected - point of destination of vector
 %          Plane - plane where point of origin is present on
 %          plane2 - plane where point of destination is present
-%          CADop, number_rows_CADop - output of xmlreader (see xml reader for more information)
+%          CADop - output of xmlreader (see xml reader for more information)
 %          Condition1 - describes the scenario where the path has to be verified
 %                     case 0 = when the path reflects from a plane and is going impede on another plane
 %                     case 1 = when the path reflects from a plane and is moving towards Rx

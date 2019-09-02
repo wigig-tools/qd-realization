@@ -50,7 +50,6 @@
 %Rx - Rx position
 %Tx - Tx position
 %CADop - CAD output
-%number_rows_CADop - number of rows of CAD output
 %multipath - vectors and points of intersection of multipath
 %count - number of rows of Array_of_planes/Array_of_points (o/p of
 %treetraversal) 
