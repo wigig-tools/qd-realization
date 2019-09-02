@@ -93,6 +93,13 @@ nodePolarization = nodeCfgInput.nodePolarization;
 nodePosition = nodeCfgInput.nodePosition;
 nodeVelocities = nodeCfgInput.nodeVelocities;
 
+% Input checking
+if paraCfgInput.switchQDGenerator == 1 &&...
+        paraCfgInput.carrierFrequency ~= 60e9
+    warning(['Please, note that diffuse scattering model is only ',...
+        'valid for fc=60 GHz'])
+end
+
 % List of paths
 inputPath = strcat(inputScenarioName, '/Input');
 outputPath = strcat(inputScenarioName, '/Output');
@@ -319,7 +326,8 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
             % Plot the figure outside
             [switchLOS, output] = LOSOutputGenerator(iterateTimeDivision, ...
                 CADop, Rx, Tx, output, vtx, vrx, 0,...
-                [1, 0], switchMaterial, mobilitySwitch, numberOfNodes);
+                [1, 0], switchMaterial, mobilitySwitch, numberOfNodes,...
+                paraCfgInput.carrierFrequency);
             if switchVisuals == 1 && switchLOS == 1
                 set(0, 'CurrentFigure', f1)
                 % Plotting QD graph
@@ -396,7 +404,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     switchMaterial, vtx, vrx, ...
                     0, [1, 0], ...
                     AntennaOrientationTx, [1, 0], ...
-                    AntennaOrientationRx, 0, switchQDGenerator);
+                    AntennaOrientationRx, 0, switchQDGenerator,paraCfgInput.carrierFrequency);
                         
                 %Plots channel model if material switch is 1
                 if paraCfgInput.switchSaveVisualizerFiles == 1 &&...

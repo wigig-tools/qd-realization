@@ -49,6 +49,7 @@
 %output - multipath parameters
 %MobilitySwitch is boolean to either have mobility or not
 %numberOfNodes - total number of nodes
+% frequency: the carrier frequency at which the system operates
 
 %Outputs:
 %f1 - figure that displays multipath
@@ -59,7 +60,7 @@
 
 function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
     CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
-    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes)
+    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes,frequency)
 
 %Direction of departure (DoD) is simple the difference of position vectors
 % of Tx and Rx
@@ -81,8 +82,7 @@ switchLOS=switch3;
 if switch3==1 % if DoA exists
     output1 = nan(1,21);
     
-    freq=60e9;
-    lambda=c/freq;
+    lambda=c/frequency;
     output1(1) = 1;
     %dod - direction of departure
     output1(2:4) = dod;
@@ -111,7 +111,7 @@ if switch3==1 % if DoA exists
     end
     output1(18) = 0;
     %Doppler Factor
-    output1(20) = dopplerFactor*freq;
+    output1(20) = dopplerFactor*frequency;
     output1(21) = 0;
     %Cross polarization path gain
     if switchCP==1

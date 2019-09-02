@@ -121,6 +121,9 @@ para = fieldToNum(para, 'totalTimeDuration', [], 1);
 % = 0 (Default)
 para = fieldToNum(para, 'switchSaveVisualizerFiles', [0,1], 0);
 
+% Carrier frequency [Hz]
+para = fieldToNum(para, 'carrierFrequency', [], 60e9);
+
 end
 
 

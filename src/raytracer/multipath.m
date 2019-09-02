@@ -57,6 +57,7 @@
 %polarization
 % QDGeneratorSwitch - Switch to turn ON or OFF the Qausi dterministic module
 % 1 = ON, 0 = OFF
+% frequency: the carrier frequency at which the system operates
 
 
 %OUTPUT -
@@ -75,7 +76,7 @@ function [QD,switchQD,output,multipath,indexMultipath,indexQD] = multipath(...
     ArrayOfPlanes,ArrayOfPoints,Rx,Tx,CADOutput,...
     numberOfRowsArraysOfPlanes,MaterialLibrary,arrayOfMaterials,switchMaterial,velocityTx,velocityRx,...
     PolarizationSwitch,PolarizationTx,AntennaOrientationTx,...
-    PolarizationRx,AntennaOrientationRx,switchCrossPolarization,QDGeneratorSwitch)
+    PolarizationRx,AntennaOrientationRx,switchCrossPolarization,QDGeneratorSwitch,frequency)
 switchQD = 0;
 QD = [];
 indexMultipath = 1;
@@ -86,7 +87,6 @@ sizeArrayOfPlanes = size(ArrayOfPlanes);
 output = zeros(sizeArrayOfPlanes(1),21); 
 multipath = [];
 LIGHTVELOCITY = 3e8;
-frequency = 60e9;
 wavelength = LIGHTVELOCITY / frequency;
 if numberOfRowsArraysOfPlanes>0
 orderOfReflection = ArrayOfPlanes(1,1);
