@@ -134,6 +134,9 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
     
 end
 
+% Init output files
+fids = getQdFilesIds(qdFilesPath,numberOfNodes);
+
 %% ------------ Original Raytracer --------------
 
 Tx = nodeLoc(1,:);
@@ -496,30 +499,11 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
             % The ouput from previous iterations is stored in files
             % whose names are TxiRxj.txt. i,j is the link
             % between ith node as Tx and jth as Rx.
-            
-            str{iterateTx, iterateRx} = StringOutputGenerator(...
-                iterateTimeDivision, str{iterateTx, iterateRx},...
-                output);
-            str{iterateRx, iterateTx} = StringOutputGenerator(...
-                iterateTimeDivision, str{iterateRx, iterateTx},...
-                reverseOutputTxRx(output));
+            writeQdFileOutput(output, fids(iterateTx,iterateRx),...
+                paraCfgInput.qdFilesFloatPrecision);
+            writeQdFileOutput(reverseOutputTxRx(output), fids(iterateRx,iterateTx),...
+                paraCfgInput.qdFilesFloatPrecision);
 
-            if iterateTimeDivision == numberOfTimeDivisions ||...
-                    (iterateTimeDivision == 0 && mobilitySwitch == 0)
-
-                fid = fopen(sprintf('%s/Tx%dRx%d.txt',...
-                    qdFilesPath,iterateTx-1,iterateRx-1),...
-                    'wt');
-                fprintf(fid, str{iterateTx, iterateRx});
-                fclose(fid);
-                
-                fid = fopen(sprintf('%s/Tx%dRx%d.txt',...
-                    qdFilesPath,iterateRx-1,iterateTx-1),...
-                    'wt');
-                fprintf(fid, str{iterateRx, iterateTx});
-                fclose(fid);
-
-            end
 
 %                 if Mobility_switch~=1
 %                     savefig(f1,strcat(outputPath, '/', 'Rays',num2str(iter)));
@@ -571,5 +555,7 @@ end
 %  clearvars -except number_of_iteration wb
 
 %  close all
+
+closeQdFilesIds(fids);
 
 end

@@ -122,7 +122,12 @@ para = fieldToNum(para, 'totalTimeDuration', [], 1);
 para = fieldToNum(para, 'switchSaveVisualizerFiles', [0,1], 0);
 
 % Carrier frequency [Hz]
+% Default: 60 GHz
 para = fieldToNum(para, 'carrierFrequency', [], 60e9);
+
+% Precision of QdFiles output, used as %.(precision)g
+% Default: 6 digits
+para = fieldToNum(para, 'qdFilesFloatPrecision', [], 6);
 
 end
 

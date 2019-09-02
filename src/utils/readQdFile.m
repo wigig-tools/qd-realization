@@ -133,5 +133,5 @@ end
 
 function out = getNextRowFloats(fid,numRays)
 line = fgetl(fid);
-out = sscanf(line,'%f,',[1,numRays]);
+out = sscanf(line,'%g,',[1,numRays]);
 end
