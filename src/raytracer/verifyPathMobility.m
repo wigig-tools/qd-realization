@@ -37,7 +37,7 @@
 %  triangle and on triangle cases).
 
 
-% Inputs  =  vector - vectorial representation of the path that has to be verified
+% Inputs = vector - vectorial representation of the path that has to be verified
 %          Intersection - point of origin of vector
 %          Reflected - point of destination of vector
 %          Plane - plane where point of origin is present on
@@ -51,50 +51,45 @@
 
 % Outputs = switch3 - boolean which has information whether the path exists or not
 
-function [switch3] = verifyPathMobility(Intersection,Reflected,vector,plane,plane2,number_rows_CADop,CADop,condition1)
+function [switch3] = verifyPathMobility(Intersection,Reflected,vector,plane,...
+    plane2,numberRowsCADOutput,CADOutput,condition1)
 switch3 = 1;
 
 % Loop which iterates through all the planes of the CAD file
-for i = 1:number_rows_CADop
-    plane1 = CADop(i,10:13);
-    
-    Point1 = CADop(i,1:3);
-    Point2 = CADop(i,4:6);
-    Point3 = CADop(i,7:9);
+for i = 1:numberRowsCADOutput
+    plane1 = CADOutput(i,10:13);
+    Point1 = CADOutput(i,1:3);
+    Point2 = CADOutput(i,4:6);
+    Point3 = CADOutput(i,7:9);
     
     % This part checks whether the path intersects with a given plane
     pointIntersection = pointOnPlaneVector(Reflected,vector, plane1);
     switch1 = 0;
-%     (dot(Reflected-pointIntersection,...
-%         Intersection-pointIntersection));%>0
     
     % If condition checks whether path intersects with the plane and does the
     % intersection point lie between the point of origin (<) and destination or
-    % pathis origin lies on plane (==)
-    if (dot(Reflected-pointIntersection,...
-            Intersection-pointIntersection)) <= 0
-        % Switch is boolean whether the intersection point lies within triangle described by CAD file
+    % path's origin lies on plane (==)
+    if round(dot(Reflected-pointIntersection,...
+            Intersection-pointIntersection),3) <= 0
+        % Switch is boolean whether the intersection point lies within
+        % triangle described by CAD file
         switch1 = PointInTriangle(pointIntersection,Point1,Point2,Point3);
     end
-    if (condition1 == 0)
-        %checking the condition
-        if (plane(4) ~= plane1(4) || plane(1) ~= plane1(1) || ...
-                plane(2) ~= plane1(2) || plane(3) ~= plane1(3)...
-                && plane(4) ~= plane2(4) || plane(1) ~= plane2(1) ||...
-                plane(2) ~= plane2(2) || plane(3) ~= plane2(3))
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == -1)
-        if any(plane ~= plane1)
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == 1)
-        if any(plane ~= plane2)
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == 2)
-        switch3 = (~switch1);
+    
+    if condition1 == 0 && any(plane ~= plane1) && any(plane ~= plane2)
+        switch3 = ~switch1;
+        
+    elseif condition1 == -1 && any(plane ~= plane1)
+        switch3 = ~switch1;
+        
+    elseif condition1 == 1 && any(plane ~= plane2)
+        switch3 = ~switch1;
+        
+    elseif condition1 == 2
+        switch3 = ~switch1;
+        
     end
+    
     if switch3 == 0
         break;
     end

@@ -53,6 +53,7 @@
 function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
     plane2,numberRowsCADOutput,CADOutput,condition1)
 switch3 = 1;
+
 % Loop which iterates through all the planes of the CAD file
 for i = 1:numberRowsCADOutput
     plane1 = CADOutput(i,10:13);
@@ -61,42 +62,32 @@ for i = 1:numberRowsCADOutput
     Point3 = CADOutput(i,7:9);
     
     % This part checks whether the path intersects with a given plane
-    point_intersection = pointOnPlaneVector(Reflected,vector, plane1);
+    pointIntersection = pointOnPlaneVector(Reflected,vector, plane1);
     switch1 = 0;
-%     (dot(Reflected-point_intersection,...
-%         Intersection-point_intersection));%>0
     
     % If condition checks whether path intersects with the plane and does the
-    %intersection point lie between the point of origin and destination
-    if round(dot(Reflected-point_intersection,...
-            Intersection-point_intersection),3)<0
-        % Switch is boolean whether the intersection point lies within triangle
-        %described by CAD file
-        switch1 = PointInTriangle(point_intersection,Point1,Point2,Point3);
+    % intersection point lie between the point of origin and destination
+    if round(dot(Reflected-pointIntersection,...
+            Intersection-pointIntersection),3) < 0
+        % Switch is boolean whether the intersection point lies within
+        % triangle described by CAD file
+        switch1 = PointInTriangle(pointIntersection,Point1,Point2,Point3);
     end
-    if (condition1 == 0)
-        %check the condition
-        if (plane(4) ~= plane1(4) ||...
-                plane(1) ~= plane1(1) ||...
-                plane(2) ~= plane1(2) ||...
-                plane(3) ~= plane1(3) &&...
-                plane(4) ~= plane2(4) ||...
-                plane(1) ~= plane2(1) ||...
-                plane(2) ~= plane2(2) ||...
-                plane(3) ~= plane2(3))
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == -1)
-        if any(plane ~= plane1)
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == 1)
-        if any(plane ~= plane2)
-            switch3 = (~switch1);
-        end
-    elseif (condition1 == 2)
-        switch3 = (~switch1);
+    
+    if condition1 == 0 && any(plane ~= plane1) && any(plane ~= plane2)
+        switch3 = ~switch1;
+        
+    elseif condition1 == -1 && any(plane ~= plane1)
+        switch3 = ~switch1;
+        
+    elseif condition1 == 1 && any(plane ~= plane2)
+        switch3 = ~switch1;
+        
+    elseif condition1 == 2
+        switch3 = ~switch1;
+        
     end
+    
     if switch3 == 0
         break;
     end
