@@ -52,11 +52,11 @@
 % Outputs = switch3 - boolean which has information whether the path exists or not
 
 function [switch3] = verifyPathMobility(Intersection,Reflected,vector,plane,...
-    plane2,numberRowsCADOutput,CADOutput,condition1)
+    plane2,CADOutput,condition1)
 switch3 = 1;
 
 % Loop which iterates through all the planes of the CAD file
-for i = 1:numberRowsCADOutput
+for i = 1:size(CADOutput,1)
     plane1 = CADOutput(i,10:13);
     Point1 = CADOutput(i,1:3);
     Point2 = CADOutput(i,4:6);

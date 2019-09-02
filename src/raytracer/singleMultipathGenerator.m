@@ -84,7 +84,7 @@
 function [booleanMultipathExistance,Intersection,directionOfDeparture,directionOfArrival,multipath,delay,dopplerFactor,...
     PathLoss,PolarizationTx,phaseXDimension,phaseYDimension,AntennaOrientationTx,velocityTemporary]...
     =singleMultipathGenerator(iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexMultipath,ArrayOfPlanes,...
-    ArrayOfPoints,ReflectedPoint,Rx,Tx,numberRowsCADOutput,CADOutput,...
+    ArrayOfPoints,ReflectedPoint,Rx,Tx,CADOutput,...
     multipath,indexOrderOfReflection,velocityTx,velocityRx,PolarizationSwitchTemporary,PolarizationTx,...
     AntennaOrientationTx,PolarizationRx,AntennaOrientationRx,...
     nt_array,switchCP)
@@ -114,7 +114,7 @@ ReflectedPoint=reflectedImagePointPlane(ReflectedPoint, plane);
 %% For Higher order reflection recursion is applied
 if indexMultipath<orderOfReflection
     %order_of_i=order_of_i+1;
-    [booleanMultipathExistance,Intersection1,directionOfDeparture,directionOfArrival,multipath,delay,dopplerFactor,PathLoss,PolarizationTx,phaseXDimension,phaseYDimension,AntennaOrientationTx,velocityTemporary]=singleMultipathGenerator(iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexMultipath+1,ArrayOfPlanes,ArrayOfPoints,ReflectedPoint,Rx,Tx,numberRowsCADOutput,CADOutput,multipath,indexOrderOfReflection,velocityTx,velocityRx,PolarizationSwitchTemporary,PolarizationTx,AntennaOrientationTx,PolarizationRx,AntennaOrientationRx,nt_array,switchCP);
+    [booleanMultipathExistance,Intersection1,directionOfDeparture,directionOfArrival,multipath,delay,dopplerFactor,PathLoss,PolarizationTx,phaseXDimension,phaseYDimension,AntennaOrientationTx,velocityTemporary]=singleMultipathGenerator(iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexMultipath+1,ArrayOfPlanes,ArrayOfPoints,ReflectedPoint,Rx,Tx,CADOutput,multipath,indexOrderOfReflection,velocityTx,velocityRx,PolarizationSwitchTemporary,PolarizationTx,AntennaOrientationTx,PolarizationRx,AntennaOrientationRx,nt_array,switchCP);
     %[switch1,Intersection1,dod,doa,multipath]=Path(number,order_of_R,Array_of_planes,Array_of_points,Reflected,Rx,Tx,count); %Angle/path loss/clustering needed to be added in output
 %% For the last vector of Multipath (DoD)   
 else
@@ -180,7 +180,7 @@ else
     
     
 end
-[booleanMultipathExistance]=verifyPath(Intersection,Intersection1,directionOfArrival,plane,plane2,numberRowsCADOutput,CADOutput,condition1);
+[booleanMultipathExistance]=verifyPath(Intersection,Intersection1,directionOfArrival,plane,plane2,CADOutput,condition1);
 % Polarization raytracing (yet to be tested)
 % Antenna orientation and Jones vector to be passed down as input
 %-----------------Polarization Part Omitted------------------------------%
@@ -210,7 +210,7 @@ if indexMultipath == 1 && booleanMultipathExistance==1
     directionOfArrival = -1 * (Rx-Intersection);
     condition1=-1;
     plane2=[0,0,0,0];
-    [booleanMultipathExistance]=verifyPath(Rx,Intersection,directionOfArrival,plane,plane2,numberRowsCADOutput,CADOutput,condition1);
+    [booleanMultipathExistance]=verifyPath(Rx,Intersection,directionOfArrival,plane,plane2,CADOutput,condition1);
 %-----------------Polarization Part Omitted------------------------------%    
 %     if PolarizationSwitchTemporary == 1
 %         directionOfArrival=-directionOfArrival;

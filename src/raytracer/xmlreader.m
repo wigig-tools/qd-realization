@@ -38,7 +38,7 @@
 %(count_rows), and a boolean to know whether the material information is
 %present in the CAD file (switch1)
 
-function [CADOutput, countRows, materialSwitch] = ...
+function [CADOutput, materialSwitch] = ...
     xmlreader(filename, MaterialLibrary, referencePoint, r, IndoorSwitch)
 
 [ s ] = xml2struct( filename );
@@ -163,7 +163,6 @@ for iterateVolume=1:size(volume)
         end
     end
 end
-countRows = size(CADOutput, 1);
 
 end
 

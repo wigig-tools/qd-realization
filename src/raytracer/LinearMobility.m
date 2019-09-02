@@ -54,7 +54,7 @@
 
 
 function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes, switch_randomization,...
-    time_division, node, node_v, vtx, vrx,Tx_initial,Rx_initial,delt,number_rows_CADop,CADop,Tx,Rx)
+    time_division, node, node_v, vtx, vrx,Tx_initial,Rx_initial,delt,CADop,Tx,Rx)
 % node= []; vtx =[];
 % vrx =[]; node_v =[];
 
@@ -78,7 +78,7 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division==0
             
             vector=Reflected-Intersection1;
             [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],...
-                [0,0,0],number_rows_CADop,CADop,2);
+                [0,0,0],CADop,2);
             if switch3==0 && number_of_nodes>2
                 node_v(Tx_i,:)=-node_v(Tx_i,:);
             elseif switch3==0 && number_of_nodes==2
@@ -145,7 +145,7 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division>0
             
             vector = Reflected-Intersection1;
             [switch3] = verifyPathMobility(Tx_test, Tx,vector, [0,0,0],...
-                [0,0,0], number_rows_CADop, CADop, 2);
+                [0,0,0], CADop, 2);
             if switch3==0
                 
                 node_v(Tx_i,:)=-node_v(Tx_i,:);

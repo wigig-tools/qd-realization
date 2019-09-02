@@ -1,4 +1,4 @@
-function [CADop, numberRowsCADop, switchMaterial] =...
+function [CADop, switchMaterial] =...
     getCadOutput(environmentFileName, inputPath, MaterialLibrary,...
     referencePoint, selectPlanesByDist, indoorSwitch)
 %GETCADOUTPUT Function to handle smart CAD file import. It tries to create
@@ -36,7 +36,7 @@ if exist(cacheFilePath, 'file')
     % Load it only if cache is recent
     if cacheAttribs.datenum >= envirnomentAttribs.datenum
         load(cacheFilePath,...
-            'CADop', 'numberRowsCADop', 'switchMaterial');
+            'CADop', 'switchMaterial');
         return
         
     else
@@ -58,10 +58,10 @@ switch(extension(2:end))
         
 end
 
-[CADop, numberRowsCADop, switchMaterial] = xmlreader(tmpXmlFilePath,...
+[CADop, switchMaterial] = xmlreader(tmpXmlFilePath,...
     MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
 
 delete(tmpXmlFilePath);
-save(cacheFilePath, 'CADop', 'numberRowsCADop', 'switchMaterial');
+save(cacheFilePath, 'CADop', 'switchMaterial');
 
 end

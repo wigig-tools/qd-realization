@@ -59,7 +59,7 @@
 %output - multipath parameters
 
 function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
-    numberRowsCADoutput, CADoutput ,Rx, Tx, output, velocityTx, velocityRx, switchCP,...
+    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
     PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes)
 
 %Direction of departure (DoD) is simple the difference of position vectors
@@ -77,7 +77,7 @@ dopplerFactor=(velocityRxAlongDirectionOfDeparture-velocityTxAlongDirectionOfDep
 % To verify whether DoA vector exists
 vector=Tx-Rx;
 [switch3]=verifyPath(Tx,Rx,vector,[0,0,0],...
-    [0,0,0],numberRowsCADoutput,CADoutput,2);
+    [0,0,0],CADoutput,2);
 switchLOS=switch3;
 if switch3==1 % if DoA exists
     output1 = nan(1,21);

@@ -61,14 +61,14 @@
 %array_of_materials- Similar to Array of points. Each triangle occupies 1
 %triangle. The data is the row number of material from Material library
 
-function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,arrayOfMaterials,indexMaterials] = treetraversal(CADop, numberOfRows,totalNumberOfReflections, numberOfReflections,switch1,number,index,indexPlanes,Rx,Tx,ArrayOfPoints,ArrayOfPlanes,MaterialLibrary,switchMaterial,arrayOfMaterials,indexMaterials,generalizedScenario)
+function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,arrayOfMaterials,indexMaterials] = treetraversal(CADop,totalNumberOfReflections, numberOfReflections,switch1,number,index,indexPlanes,Rx,Tx,ArrayOfPoints,ArrayOfPlanes,MaterialLibrary,switchMaterial,arrayOfMaterials,indexMaterials,generalizedScenario)
 numberTemporary = number;
 
 iterateCount = 0;
 
 %Loop to iterate through all the triangle in CADop
 
-for iterateNumberofRows = 1:numberOfRows
+for iterateNumberofRows = 1:size(CADop,1)
     % To protect the information in indices from being lost, it is
     % transfered to temporary parameters
     indexPlanesTemporary = indexPlanes;
@@ -197,7 +197,7 @@ for iterateNumberofRows = 1:numberOfRows
             [ArrayOfPoints,ArrayOfPlanes,number,indexTemporary,...
                 indexPlanesTemporary,arrayOfMaterials,...
                 indexMaterialsTemporary] = treetraversal(CADop,...
-                numberOfRows,totalNumberOfReflections, numberOfReflections - 1,iterateNumberofRows,...
+                totalNumberOfReflections, numberOfReflections - 1,iterateNumberofRows,...
                 number,indexTemporary,indexPlanesTemporary,Rx,Tx,...
                 ArrayOfPoints,ArrayOfPlanes,MaterialLibrary,...
                 switchMaterial,arrayOfMaterials,indexMaterialsTemporary,generalizedScenario);
