@@ -280,10 +280,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
     % Iterates through all the nodes
     
     for iterateTx = 1:numberOfNodes
-        for iterateRx = 1:numberOfNodes
-            if iterateTx == iterateRx
-                continue
-            end
+        for iterateRx = iterateTx+1:numberOfNodes
             
             output = [];
             if (numberOfNodes >= 2 || switchRandomization == 1)
@@ -487,42 +484,31 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     text(Rx(1), Rx(2), Rx(3), 'Rx', 'Fontsize', 6);
                 end                     
             end
-            %% The ouput from previous iterations is stored in file
-            %files whose names are TxiRxj.txt i,j is the link
-            %between ith node as Tx and jth as Rx.
-%             count1 = count;
-%             if switchQD == 1
-%                 sizeQD = size(output);
-%                 count1 = sizeQD(1);
-%             end
-%             if switchLOS == 1 && switchQD ~= 1
-%                 count1 = count1 + 1;
-%             end
-%             if count1 == 1
-%                ioi = 1; 
-%             end
+            
+            % The ouput from previous iterations is stored in files
+            % whose names are TxiRxj.txt. i,j is the link
+            % between ith node as Tx and jth as Rx.
+            
+            str{iterateTx, iterateRx} = StringOutputGenerator(...
+                iterateTimeDivision, str{iterateTx, iterateRx},...
+                output);
+            str{iterateRx, iterateTx} = StringOutputGenerator(...
+                iterateTimeDivision, str{iterateRx, iterateTx},...
+                reverseOutputTxRx(output));
 
-            %n = 1;
-            if iterateTimeDivision == 0
-                StringOutput = [];
-            else
-                StringOutput = str{iterateTx, iterateRx};
-            end
-
-            [StringOutput] = StringOutputGenerator(...
-                iterateTimeDivision, StringOutput, output);
-
-
-            str{iterateTx, iterateRx} = StringOutput;
             if iterateTimeDivision == numberOfTimeDivisions ||...
                     (iterateTimeDivision == 0 && mobilitySwitch == 0)
-                StringOutput = sprintf(StringOutput);
 
-                fid = fopen(strcat(qdFilesPath, '/',...
-                    'Tx', num2str(iterateTx-1),...
-                    'Rx', num2str(iterateRx-1),...
-                    '.txt'), 'wt');
-                fprintf(fid, StringOutput);
+                fid = fopen(sprintf('%s/Tx%dRx%d.txt',...
+                    qdFilesPath,iterateTx-1,iterateRx-1),...
+                    'wt');
+                fprintf(fid, str{iterateTx, iterateRx});
+                fclose(fid);
+                
+                fid = fopen(sprintf('%s/Tx%dRx%d.txt',...
+                    qdFilesPath,iterateRx-1,iterateTx-1),...
+                    'wt');
+                fprintf(fid, str{iterateRx, iterateTx});
                 fclose(fid);
 
             end
