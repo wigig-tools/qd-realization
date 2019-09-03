@@ -76,8 +76,8 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division==0
             Intersection1=Tx;
             
             vector=Reflected-Intersection1;
-            [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],...
-                [0,0,0],CADop,2);
+            [switch3]=verifyPath(Tx_test,Tx,vector,[0,0,0],...
+                [0,0,0],CADop,2,true);
             if switch3==0 && number_of_nodes>2
                 node_v(Tx_i,:)=-node_v(Tx_i,:);
             elseif switch3==0 && number_of_nodes==2
@@ -103,8 +103,8 @@ end
 %         Intersection1=Tx;
 %         
 %         vector=Reflected-Intersection1;
-%         [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
-%             number_rows_CADop,CADop,2);
+%         [switch3]=verifyPath(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
+%             number_rows_CADop,CADop,2,true);
 %         if switch3==0 && number_of_nodes>2
 %             node_v(Tx_i,:)=-node_v(Tx_i,:);
 %         elseif switch3==0 && number_of_nodes==2
@@ -115,8 +115,8 @@ end
 %         Intersection1=Rx;
 %         
 %         vector=Reflected-Intersection1;
-%         [switch3]=verifyPathMobility(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
-%             number_rows_CADop,CADop,2);
+%         [switch3]=verifyPath(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
+%             number_rows_CADop,CADop,2,true);
 %         if switch3==0 && number_of_nodes>2
 %             node_v(Rx_i,:)=-node_v(Rx_i,:);
 %         elseif switch3==0 && number_of_nodes==2
@@ -143,8 +143,8 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division>0
             Intersection1 = Tx;
             
             vector = Reflected-Intersection1;
-            [switch3] = verifyPathMobility(Tx_test, Tx,vector, [0,0,0],...
-                [0,0,0], CADop, 2);
+            [switch3] = verifyPath(Tx_test, Tx,vector, [0,0,0],...
+                [0,0,0], CADop, 2,true);
             if switch3==0
                 
                 node_v(Tx_i,:)=-node_v(Tx_i,:);
@@ -170,8 +170,8 @@ end
 %         Intersection1=Tx;
 %         
 %         vector=Reflected-Intersection1;
-%         [switch3]=verifyPathMobility(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
-%             number_rows_CADop,CADop,2);
+%         [switch3]=verifyPath(Tx_test,Tx,vector,[0,0,0],[0,0,0],...
+%             number_rows_CADop,CADop,2,true);
 %         if switch3==0
 %             vtx=-vtx;
 %         end
@@ -180,8 +180,8 @@ end
 %         Intersection1=Rx;
 %         
 %         vector=Reflected-Intersection1;
-%         [switch3]=verifyPathMobility(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
-%             number_rows_CADop,CADop,2);
+%         [switch3]=verifyPath(Rx_test,Rx,vector,[0,0,0],[0,0,0],...
+%             number_rows_CADop,CADop,2,true);
 %         if switch3==0
 %             vrx=-vrx;
 %         end

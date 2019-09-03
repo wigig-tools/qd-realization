@@ -47,11 +47,14 @@
 %                     case 1 = when the path reflects from a plane and is moving towards Rx
 %                     case -1 = when the path comes from Tx and impedes on a plane
 %                     case 2 = LOS condition
+%          isVerifyMobility - flag. True if path's origin could also lie on
+%          the plane, false if the intersection point can only lie between
+%          the point of origin and the destination.
 
 % Outputs = switch3 - boolean which has information whether the path exists or not
 
 function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
-    plane2,CADOutput,condition1)
+    plane2,CADOutput,condition1,isVerifyMobility)
 switch3 = 1;
 
 % Loop which iterates through all the planes of the CAD file
@@ -65,10 +68,12 @@ for i = 1:size(CADOutput,1)
     pointIntersection = pointOnPlaneVector(Reflected,vector, plane1);
     switch1 = 0;
     
-    % If condition checks whether path intersects with the plane and does the
+    % Check whether path intersects with the plane and does the
     % intersection point lie between the point of origin and destination
-    if round(dot(Reflected-pointIntersection,...
-            Intersection-pointIntersection),3) < 0
+    dotIntersects = round(dot(Reflected-pointIntersection,...
+            Intersection-pointIntersection), 3);
+    if dotIntersects < 0 ||...
+            (isVerifyMobility && dotIntersects == 0)
         % Switch is boolean whether the intersection point lies within
         % triangle described by CAD file
         switch1 = PointInTriangle(pointIntersection,Point1,Point2,Point3);

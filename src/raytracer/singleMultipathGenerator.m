@@ -187,7 +187,8 @@ else
     
     
 end
-[booleanMultipathExistance]=verifyPath(Intersection,Intersection1,directionOfArrival,plane,plane2,CADOutput,condition1);
+[booleanMultipathExistance] = verifyPath(Intersection,Intersection1,...
+    directionOfArrival,plane,plane2,CADOutput,condition1,false);
 % Polarization raytracing (yet to be tested)
 % Antenna orientation and Jones vector to be passed down as input
 %-----------------Polarization Part Omitted------------------------------%
@@ -217,7 +218,8 @@ if indexMultipath == 1 && booleanMultipathExistance==1
     directionOfArrival = -1 * (Rx-Intersection);
     condition1=-1;
     plane2=[0,0,0,0];
-    [booleanMultipathExistance]=verifyPath(Rx,Intersection,directionOfArrival,plane,plane2,CADOutput,condition1);
+    [booleanMultipathExistance] = verifyPath(Rx,Intersection,...
+        directionOfArrival,plane,plane2,CADOutput,condition1,false);
 %-----------------Polarization Part Omitted------------------------------%    
 %     if PolarizationSwitchTemporary == 1
 %         directionOfArrival=-directionOfArrival;
