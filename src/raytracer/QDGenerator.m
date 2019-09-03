@@ -43,7 +43,7 @@
 %triangle. The data is the row number of material from Material library
 %array_of_materials - Similar to Array of points. Each triangle occupies 1
 %triangle. The data is the row number of material from Material library
-%delay is the total length of multipath
+%distance is the total length of multipath
 %freq - frequency of operation (center frequency of carrier wave)
 %count1 - number of rows in output/ multipath
 %dod - direction of departure vector
@@ -60,7 +60,7 @@
 % This part of code generates QD parameters of a select multipath
 
 function [output,count1,switch_QD] = QDGenerator(order_of_R,output,...
-    array_of_materials,number,Material_library,delay,freq,count1,dod,...
+    array_of_materials,number,MaterialLibrary,distance,freq,count1,dod,...
     doa,vtx,v_temp,count,indexReference)
 c = 3e8;
 % if  switch_material==1 && QD_gen==1
@@ -78,7 +78,7 @@ for order_of_R_temp = 1:order_of_R
         output(count1-1,21) = Material;
     end
     
-    [Pathloss] = PathlossQD(Material_library,...
+    [Pathloss] = PathlossQD(MaterialLibrary,...
         array_of_materials(number,:),1);
     Pathloss1=Pathloss1+Pathloss;
 end
@@ -127,7 +127,7 @@ for i1 = 1:2
         
         lambda1 = abs(normalRandomGenerator(mul,sigmal));
         tau_set = [];
-        tau_set(1) = (delay/c)/1e-9;
+        tau_set(1) = (distance/c)/1e-9;
         
         i = 1;
         

@@ -129,7 +129,7 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         PolarizationSwitchTemporary = 0;
     end
     
-    [switch1,~,directionOfDeparture,directionOfArrival,multipath,delay,dopplerFactor,PathLoss,...
+    [switch1,~,dod,doa,multipath,distance,dopplerFactor,PathLoss,...
         PolarizationTxTemporary,~,~,~,velocityTemp] = singleMultipathGenerator...
         (iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexOrderOfReflection,ArrayOfPlanes,...
         ArrayOfPoints,Reflected,Rx,Tx,CADOutput,...
@@ -154,16 +154,16 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         
         output(indexOutput,1) = indexMultipath;
         % dod - direction of departure
-        output(indexOutput,2:4) = directionOfDeparture;
+        output(indexOutput,2:4) = dod;
         % doa - direction of arrival
-        output(indexOutput,5:7) = directionOfArrival;
+        output(indexOutput,5:7) = doa;
         % Time delay
-        output(indexOutput,8) = delay / LIGHTVELOCITY;
+        output(indexOutput,8) = distance / LIGHTVELOCITY;
         % Friis transmission loss
         if PathLoss(1) < 0
-            output(indexOutput,9) = (20 * log10(wavelength / (4 * pi * delay))) + ((PathLoss(1)));
+            output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) + PathLoss(1);
         else
-            output(indexOutput,9) = 20 * log10(wavelength / (4 * pi * delay)) + (-10);
+            output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) - 10;
         end
 %         if QDgen == 1
 %             temp = output(indexOutput,9);
@@ -190,17 +190,17 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
 %-----------------Polarization Part Omitted------------------------------%
 
         % Aod azimuth
-        output(indexOutput,10) = mod(atan2d(directionOfDeparture(2),directionOfDeparture(1)), 360);
+        output(indexOutput,10) = mod(atan2d(dod(2),dod(1)), 360);
         %Aod elevation
-        output(indexOutput,11) = acosd(directionOfDeparture(3) / norm(directionOfDeparture));
+        output(indexOutput,11) = acosd(dod(3) / norm(dod));
         
         %Aoa azimuth
         % doa(3)=-doa(3);
         % doa(2)=-doa(2);
         % doa(1)=-doa(1);
-        output(indexOutput,12) = mod(atan2d(directionOfArrival(2),directionOfArrival(1)), 360);
+        output(indexOutput,12) = mod(atan2d(doa(2),doa(1)), 360);
         %Aoa elevation
-        output(indexOutput,13) = acosd(directionOfArrival(3) / norm(directionOfArrival));
+        output(indexOutput,13) = acosd(doa(3) / norm(doa));
 %-----------------Polarization Part Omitted------------------------------%
 %         %End Polarization information
 %         if PolarizationSwitchTemporary==1
@@ -228,8 +228,8 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         % refer to "multipath - WCL17_revised.pdf" in this folder for QD model
         if  switchMaterial == 1 && QDGeneratorSwitch == 1
             [output,indexOutput,switchQD] = QDGenerator(orderOfReflection,...
-                output,arrayOfMaterials,iterateNumberOfRowsArraysOfPlanes,MaterialLibrary,delay,...
-                frequency,indexOutput,directionOfDeparture,directionOfArrival,velocityTx,velocityTemp,indexMultipath,indexReference);
+                output,arrayOfMaterials,iterateNumberOfRowsArraysOfPlanes,MaterialLibrary,distance,...
+                frequency,indexOutput,dod,doa,velocityTx,velocityTemp,indexMultipath,indexReference);
         end
     end
     
