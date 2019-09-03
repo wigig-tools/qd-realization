@@ -4,10 +4,7 @@ size1=size(arrayOfMaterials);
 Material=arrayOfMaterials(1,order);
 mu = MaterialLibrary.mu_RL(Material);
 sigma = MaterialLibrary.sigma_RL(Material);
-PathlossFinal = normalRandomGenerator(mu,sigma);
-if PathlossFinal<=0
-   PathlossFinal=abs(PathlossFinal); 
-end
+PathlossFinal = abs(randn(1)*sigma + mu);
 
 if PathlossFinal<mu-(mu/2)
     PathlossFinal=PathlossFinal+(mu/2);

@@ -127,8 +127,8 @@ for i1 = 1:2
         sigma_Aoa_A = abs(normalRandomGenerator(mus,sigmas));
         
         lambda1 = abs(normalRandomGenerator(mul,sigmal));
-        tau_set = [];
-        tau_set(1) = (distance/c)/1e-9;
+        tau_set = nan(n+1, 1);
+        tau_set(1) = (distance/c) * 1e9; % convert to ns
         
         i = 1;
         
@@ -142,12 +142,8 @@ for i1 = 1:2
                 tau_set(i+1) = tau_set(i)+diff;
             end
             output(count1+i-1,1) = count-1;
-            output(count1+i-1,2) = dod(1);
-            output(count1+i-1,3) = dod(2);
-            output(count1+i-1,4) = dod(3);
-            output(count1+i-1,5) = doa(1);
-            output(count1+i-1,6) = doa(2);
-            output(count1+i-1,7) = doa(3);
+            output(count1+i-1, 2:4) = dod;
+            output(count1+i-1, 5:7) = doa;
             output(count1+i-1,8) = tau_set(i+1)*1e-9;
             
             % output(count1,10)=180*atan(dod(2)/dod(1))/pi;
@@ -298,18 +294,18 @@ for i1 = 1:2
             output(count1+i-1,16)=output(count1-1,16);
             output(count1+i-1,17)=output(count1-1,17);
             output(count1+i-1,18)=output(count1-1,18);
-            vAngle_DoD=deg2rad(Aod_el1(i+1));
-            hAngle_DoD=deg2rad(Aod_az1(i+1));
-            dod_temp=[sin(vAngle_DoD)*cos(hAngle_DoD),sin(vAngle_DoD)*sin(hAngle_DoD),cos(vAngle_DoD)];
-            vtx_along_dod=dot(vtx,-1.*dod_temp);
-            vrx_along_dod=dot(v_temp,-1.*dod_temp);
-            c=3e8;
+            vAngle_DoD = Aod_el1(i+1);
+            hAngle_DoD = Aod_az1(i+1);
+            dod_temp=[sind(vAngle_DoD)*cosd(hAngle_DoD),sind(vAngle_DoD)*sind(hAngle_DoD),cosd(vAngle_DoD)];
+            vtx_along_dod = dot(vtx, -dod_temp);
+            vrx_along_dod = dot(v_temp, -dod_temp);
+            c = 3e8;
             %     vrx_along_dod
-            doppler_factor=freq*(vrx_along_dod-vtx_along_dod)/(c);
-            output(count1+i-1,20)=doppler_factor;
-            output(count1+i-1,18)=rand*2*pi;
-            output(count1+i-1,19)=output(count1+i-1,9)*(output(count1-1,19)/output(count1-1,9));
-            switch_QD=1;
+            doppler_factor = freq * (vrx_along_dod - vtx_along_dod) / c;
+            output(count1+i-1,20) = doppler_factor;
+            output(count1+i-1,18) = rand*2*pi;
+            output(count1+i-1,19) = output(count1+i-1,9)*(output(count1-1,19)/output(count1-1,9));
+            switch_QD = 1;
         end
         count1=count1+i;
         
