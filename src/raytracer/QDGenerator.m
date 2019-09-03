@@ -91,30 +91,31 @@ for i1 = 1:2
     % and different parameters are generated.
     
     if i1 == 1
-        muk = str2num(char(Material_library{Material,3}));
-        sigmak = str2num(char(Material_library{Material,4}));
-        muy = str2num(char(Material_library{Material,7}));
-        sigmay = str2num(char(Material_library{Material,8}));
-        mul = str2num(char(Material_library{Material,11}));
-        sigmal = str2num(char(Material_library{Material,12}));
-        mus = str2num(char(Material_library{Material,15}));
-        sigmas = str2num(char(Material_library{Material,16}));
+        muk = MaterialLibrary.mu_k_Precursor(Material);
+        sigmak = MaterialLibrary.sigma_k_Precursor(Material);
+        muy = MaterialLibrary.mu_Y_Precursor(Material);
+        sigmay = MaterialLibrary.sigma_Y_Precursor(Material);
+        mul = MaterialLibrary.mu_lambda_Precursor(Material);
+        sigmal = MaterialLibrary.sigma_lambda_Precursor(Material);
         % A total of 3 precursors are generated. they can be adjusted by
         % changing n
         n = 3;
+        
     else
-        muk = str2num(char(Material_library{Material,5}));
-        sigmak = str2num(char(Material_library{Material,6}));
-        muy = str2num(char(Material_library{Material,9}));
-        sigmay = str2num(char(Material_library{Material,10}));
-        mul = str2num(char(Material_library{Material,13}));
-        sigmal = str2num(char(Material_library{Material,14}));
-        mus = str2num(char(Material_library{Material,15}));
-        sigmas = str2num(char(Material_library{Material,16}));
+        muk = MaterialLibrary.mu_k_Postcursor(Material);
+        sigmak = MaterialLibrary.sigma_k_Postcursor(Material);
+        muy = MaterialLibrary.mu_Y_Postcursor(Material);
+        sigmay = MaterialLibrary.sigma_Y_Postcursor(Material);
+        mul = MaterialLibrary.mu_lambda_Postcursor(Material);
+        sigmal = MaterialLibrary.sigma_lambda_Postcursor(Material);
         % A total of 16 post cursors are genearted
         n = 16;
         
     end
+    
+    mus = MaterialLibrary.mu_sigmaTheta(Material);
+    sigmas = MaterialLibrary.sigma_sigmaTheta(Material);
+    
     %%
     if  muk~=0
         Kfactor = normalRandomGenerator(muk,sigmak);

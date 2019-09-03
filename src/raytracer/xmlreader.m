@@ -114,11 +114,10 @@ for iterateVolume=1:size(volume)
         
         % Storing Material information in output if the material exists in the material database
         if materialSwitch==1
-            sizeMaterialLibrary=size(MaterialLibrary);
             switch2=0;
-            for iterateMaterials=1:sizeMaterialLibrary(1)
-                if strcmpi(char(MaterialLibrary{iterateMaterials,2}),Material)
-                    CADOutput(indexCADOutput,14)=str2double(char(MaterialLibrary{iterateMaterials,1}));
+            for iterateMaterials=1:size(MaterialLibrary,1)
+                if strcmpi(MaterialLibrary.Reflector{iterateMaterials},Material)
+                    CADOutput(indexCADOutput,14) = MaterialLibrary.PrimaryKey(iterateMaterials);
                     switch2=1;
                 end
             end

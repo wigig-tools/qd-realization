@@ -2,8 +2,8 @@ function [PathlossFinal]=PathlossQD(MaterialLibrary,arrayOfMaterials,order)
 size1=size(arrayOfMaterials);
 
 Material=arrayOfMaterials(1,order);
-mu=str2num(char(MaterialLibrary{Material,17}));
-sigma=str2num(char(MaterialLibrary{Material,18}));
+mu = MaterialLibrary.mu_RL(Material);
+sigma = MaterialLibrary.sigma_RL(Material);
 PathlossFinal = normalRandomGenerator(mu,sigma);
 if PathlossFinal<=0
    PathlossFinal=abs(PathlossFinal); 

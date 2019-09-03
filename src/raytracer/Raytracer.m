@@ -166,7 +166,7 @@ AntennaOrientationTx = [1, 0, 0; 0, 1, 0; 0, 0, 1];
 AntennaOrientationRx = [1, 0, 0; 0, 1, 0; 0, 0, 1];
 multipath1 = [];
 output = [];
-MaterialLibrary = readtable('Material_library.txt');
+MaterialLibrary = importMaterialLibrary('raytracer/Material_library.txt');
 %-----------------Polarization Part Omitted------------------------------%
 % number_of_nodes=2;
 % switch_randomization=0;
@@ -366,7 +366,7 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
                     indexMaterials] = treetraversal(CADop,...
                     numberOfReflections, numberOfReflections,...
                     0, 1, 1, 1, Rx, Tx, [], [],...
-                    MaterialLibrary, switchMaterial, [], 1,generalizedScenario);
+                    switchMaterial, [], 1,generalizedScenario);
                         
                 number = number - 1;
                         
