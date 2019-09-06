@@ -71,8 +71,26 @@ end
 end
 
 
-function qdFiles = extractQdFilesInfo(app)
+function extractQdFilesInfo(app)
+qdFiles = dir(sprintf('%s/QdFiles',app.ns3Path));
 
+for i = 1:length(qdFiles)
+    token = regexp(qdFiles(i).name,'Tx(\d+)Rx(\d+).txt','tokens');
+    if isempty(token)
+        continue
+    end
+    
+    % else
+    Tx = str2double(token{1}{1}) + 1;
+    Rx = str2double(token{1}{2}) + 1;
+    
+    qd = readQdFile(sprintf('%s/%s',...
+        qdFiles(i).folder,qdFiles(i).name));
+    
+    for t = 1:length(qd)
+        app.timestepInfo(t).qdInfo(Tx,Rx) = qd(t);
+    end
+end
 end
 
 

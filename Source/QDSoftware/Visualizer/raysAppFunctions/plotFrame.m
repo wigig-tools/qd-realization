@@ -1,6 +1,8 @@
 function plotFrame(app)
 plotNodes(app)
 plotRays(app)
+plotQd(app,'aod')
+plotQd(app,'aoa')
 end
 
 
@@ -50,4 +52,28 @@ for i = 1:length(mpcs)
         'Color',color,...
         'LineWidth',width)];
 end
+end
+
+
+function plotQd(app,direction)
+
+Tx = app.txIndex;
+Rx = app.rxIndex;
+t = app.currentTimestep;
+
+timestampInfo = app.timestepInfo(t);
+if ~isempty(timestampInfo.qdInfo)
+    qd = timestampInfo.qdInfo(Tx,Rx);
+    raysAppPlotQdStruct(app, qd, direction)
+else
+    switch(direction)
+        case 'aoa'
+            delete(app.aoaPlotHandle)
+        case 'aod'
+            delete(app.aodPlotHandle)
+        otherwise
+            error('direction should be either ''aoa'' or ''aod''')
+    end
+end
+
 end
