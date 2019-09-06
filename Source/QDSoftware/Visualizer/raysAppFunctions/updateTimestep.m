@@ -5,5 +5,5 @@ t = app.currentTimestep;
 app.TimestepSpinner.Value = t;
 app.TimestepSlider.Value = t;
 
-disp(t)
+plotFrame(app)
 end
