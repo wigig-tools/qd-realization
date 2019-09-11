@@ -116,11 +116,10 @@ for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
     PolarizationSwitchTemporary = 1;
     if PolarizationSwitch == 1 && switchMaterial == 1
         for orderOfReflectionTemporary = 1:orderOfReflection
-            if str2double(char(MaterialLibrary{...
-                    arrayOfMaterials(indexMultipath,orderOfReflectionTemporary),19})) ~= 0
-                nt_array(orderOfReflectionTemporary) = str2double(...
-                    char(MaterialLibrary{...
-                    arrayOfMaterials(indexMultipath,orderOfReflectionTemporary),19}));
+            dielectricConstant = MaterialLibrary.DielectricConstant(...
+                    arrayOfMaterials(indexMultipath,orderOfReflectionTemporary));
+            if dielectricConstant ~= 0
+                nt_array(orderOfReflectionTemporary) = dielectricConstant;
             else
                 nt_array = [];
                 PolarizationSwitchTemporary = 0;
