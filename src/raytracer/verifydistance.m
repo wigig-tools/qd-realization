@@ -36,7 +36,7 @@ function [switch1] = verifydistance(r,Tx,CADop,i)
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 %
-% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation to improve performance
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
 plane1 = CADop(i,10:13);
