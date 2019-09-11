@@ -1,3 +1,11 @@
+function [point_on_plane]=point_on_plane(point, plane)
+% point_on_plane calculates the projection of a point on to plane, by
+% constructing a vector passing through the point along plane's normal
+
+% Inputs: point(parameter) which has to be projected on to a given plane (parameter)
+% Ouput: point_on_plane is array which contains the point projected on plane
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,13 +38,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% point_on_plane calculates the projection of a point on to plane, by
-% constructing a vector passing through the point along plane's normal
 
-% Inputs: point(parameter) which has to be projected on to a given plane (parameter)
-% Ouput: point_on_plane is array which contains the point projected on plane
-
-function [point_on_plane]=point_on_plane(point, plane)
 vector(1)=plane(1);
 vector(2)=plane(2);
 vector(3)=plane(3);

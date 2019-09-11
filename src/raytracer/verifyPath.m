@@ -1,3 +1,28 @@
+function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
+    plane2,CADOutput,condition1,isVerifyMobility)
+%  Given the CAD model and the vectors one can verify if the vector passes
+%  through any one of the planes in the CAD model. While verifying about
+%  the intersection of line with triangle we consider intersection inside
+%  triangle case only (not on triangle).
+%
+% Inputs = vector - vectorial representation of the path that has to be verified
+%          Intersection - point of origin of vector
+%          Reflected - point of destination of vector
+%          Plane - plane where point of origin is present on
+%          plane2 - plane where point of destination is present
+%          CADop - output of xmlreader (see xml reader for more information)
+%          Condition1 - describes the scenario where the path has to be verified
+%                     case 0 = when the path reflects from a plane and is going impede on another plane
+%                     case 1 = when the path reflects from a plane and is moving towards Rx
+%                     case -1 = when the path comes from Tx and impedes on a plane
+%                     case 2 = LOS condition
+%          isVerifyMobility - flag. True if path's origin could also lie on
+%          the plane, false if the intersection point can only lie between
+%          the point of origin and the destination.
+
+% Outputs = switch3 - boolean which has information whether the path exists or not
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -31,30 +56,6 @@
 % States.
 
 
-%  Given the CAD model and the vectors one can verify if the vector passes
-%  through any one of the planes in the CAD model. While verifying about
-%  the intersection of line with triangle we consider intersection inside
-%  triangle case only (not on triangle).
-
-% Inputs = vector - vectorial representation of the path that has to be verified
-%          Intersection - point of origin of vector
-%          Reflected - point of destination of vector
-%          Plane - plane where point of origin is present on
-%          plane2 - plane where point of destination is present
-%          CADop - output of xmlreader (see xml reader for more information)
-%          Condition1 - describes the scenario where the path has to be verified
-%                     case 0 = when the path reflects from a plane and is going impede on another plane
-%                     case 1 = when the path reflects from a plane and is moving towards Rx
-%                     case -1 = when the path comes from Tx and impedes on a plane
-%                     case 2 = LOS condition
-%          isVerifyMobility - flag. True if path's origin could also lie on
-%          the plane, false if the intersection point can only lie between
-%          the point of origin and the destination.
-
-% Outputs = switch3 - boolean which has information whether the path exists or not
-
-function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
-    plane2,CADOutput,condition1,isVerifyMobility)
 switch3 = 1;
 
 % Loop which iterates through all the planes of the CAD file

@@ -1,3 +1,8 @@
+function [Ex1,Ey1]=Calculate_Ex_Ey(Plane,vector,Ex,Ey)
+% This function is in still under development. Yet to be tested. Please
+% ignore this function
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,10 +35,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function is in still under development. Yet to be tested. Please
-% ignore this function
-
-function [Ex1,Ey1]=Calculate_Ex_Ey(Plane,vector,Ex,Ey)
 normal=[Plane(1),Plane(2),Plane(3)];
 Ex1=(cross(vector,normal))/(norm(normal)*(norm(vector)));
 if norm(Ex1)==0

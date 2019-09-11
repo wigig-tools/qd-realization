@@ -1,3 +1,7 @@
+function [SameSide]=SameSide(point1,point2,a,b)
+%SAMESIDE
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -31,7 +35,6 @@
 % States.
 
 
-function [SameSide]=SameSide(point1,point2,a,b)
 cp1=cross(a-b,a-point1);
 cp2=cross(a-b,a-point2);
 if (dot(cp1,cp2)>=0)

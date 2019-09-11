@@ -1,3 +1,7 @@
+function [JV_final,phi_x,phi_y]=Fresnel(ni,nt,thetai,JV1)
+% This function is in still under development. Yet to be tested
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,9 +34,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function is in still under development. Yet to be tested
-
-function [JV_final,phi_x,phi_y]=Fresnel(ni,nt,thetai,JV1)
 if nt==100
     r_parallel=1;
     r_perpendicular=1;

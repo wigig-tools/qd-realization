@@ -1,3 +1,8 @@
+function [distance]=distanceOfPointFromPlane(point, plane)
+% This function return the normal distance of a point fram a plane.
+% ref: http://mathinsight.org/distance_point_plane
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,10 +35,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function return the normal distance of a point fram a plane.
-% ref: http://mathinsight.org/distance_point_plane
-
-function [distance]=distanceOfPointFromPlane(point, plane)
 distance=abs((point(1)*plane(1))+(point(2)*plane(2))+(point(3)*plane(3))+plane(4)) /...
     norm(plane(1:3));
 

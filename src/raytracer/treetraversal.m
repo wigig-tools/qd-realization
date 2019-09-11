@@ -1,3 +1,36 @@
+function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,...
+    arrayOfMaterials,indexMaterials] = treetraversal(CADop,...
+    totalNumberOfReflections, numberOfReflections,switch1,number,index,...
+    indexPlanes,Rx,Tx,ArrayOfPoints,ArrayOfPlanes,...
+    switchMaterial,arrayOfMaterials,indexMaterials,generalizedScenario)
+%Treetraversal generates all plane combinations for nth order reflections
+%using backtracking (special case of DFS).
+%
+% Refer to "treetraversal - Backtracking algorithm. ppt". The ppt has a
+% slide show. Each step is explained in the notes.
+%
+%Outputs:
+%Array_of_points- combinations of multiple triangles, every row is a unique
+%combination. every triangle occupies 9 columns (3 vertices).
+%Array_of_planes- Similar to Array of points. Each triangle occupies 4 columns (plane equation). The first
+%column has the order of reflection
+%index- keeps track of the column where the data (vertices of triangles) should be inserted
+%index_planes- similar to index but data is plane equations.
+%index_materials- similar to index but data is materials.
+%
+%Inputs:
+% CADop- points and plane equations from CAD file
+%number_of_R- order of reflection
+%switch1- row of CADop from previous recursion. For the first traversal the
+%value is zero.
+%number- number of rows in the Array_of_planes and Array_of_points
+%Rx- Rx location
+%Tx-Tx location
+%switchMaterial- whether triangle materials properties are present
+%array_of_materials- Similar to Array of points. Each triangle occupies 1
+%triangle. The data is the row number of material from Material library
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -31,39 +64,6 @@
 % States.
 
 
-%Treetraversal generates all plane combinations for nth order reflections
-%using backtracking (special case of DFS).
-
-% Refer to "treetraversal - Backtracking algorithm. ppt". The ppt has a
-% slide show. Each step is explained in the notes.
-
-
-%Outputs:
-%Array_of_points- combinations of multiple triangles, every row is a unique
-%combination. every triangle occupies 9 columns (3 vertices).
-%Array_of_planes- Similar to Array of points. Each triangle occupies 4 columns (plane equation). The first
-%column has the order of reflection
-%index- keeps track of the column where the data (vertices of triangles) should be inserted
-%index_planes- similar to index but data is plane equations.
-%index_materials- similar to index but data is materials.
-
-%Inputs:
-% CADop- points and plane equations from CAD file
-%number_of_R- order of reflection
-%switch1- row of CADop from previous recursion. For the first traversal the
-%value is zero.
-%number- number of rows in the Array_of_planes and Array_of_points
-%Rx- Rx location
-%Tx-Tx location
-%switchMaterial- whether triangle materials properties are present
-%array_of_materials- Similar to Array of points. Each triangle occupies 1
-%triangle. The data is the row number of material from Material library
-
-function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,...
-    arrayOfMaterials,indexMaterials] = treetraversal(CADop,...
-    totalNumberOfReflections, numberOfReflections,switch1,number,index,...
-    indexPlanes,Rx,Tx,ArrayOfPoints,ArrayOfPlanes,...
-    switchMaterial,arrayOfMaterials,indexMaterials,generalizedScenario)
 numberTemporary = number;
 
 iterateCount = 0;

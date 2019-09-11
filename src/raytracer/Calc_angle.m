@@ -1,3 +1,7 @@
+function [theta]=Calc_angle(V1,V2,Vector)
+% This function returns angle between two vectors in 4 quadrant system (from 0 to 2pi)
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,10 +34,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function returns angle between two vectors in 4 quadrant system (from 0 to 2pi)
-
-
-function [theta]=Calc_angle(V1,V2,Vector)
 theta_s=asin(norm(cross(V1,V2))/(norm(V2)*(norm(V1))));
 
 switch1=1;

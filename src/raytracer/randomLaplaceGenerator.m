@@ -1,3 +1,12 @@
+function x = randomLaplaceGenerator()
+% Function which generates a random number using laplace distribution
+%
+% function: x  = randomLaplaceGenerator(m, n)
+% m - number of matrix rows
+% n - number of matrix columns
+% x - matrix with Laplacian distributed numbers with mu = 0 and sigma = 1
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,14 +39,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% Function which generates a random number using laplace distribution
-
-function x = randomLaplaceGenerator()
-
-% function: x  = randomLaplaceGenerator(m, n)
-% m - number of matrix rows
-% n - number of matrix columns
-% x - matrix with Laplacian distributed numbers with mu = 0 and sigma = 1
 
 % generation of a numbers with Uniform distribution
 u=rand;

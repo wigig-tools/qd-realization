@@ -1,3 +1,14 @@
+function [PointInTriangle]=PointInTriangle(point1,a,b,c)
+%PointInTriangle verifies whether the point lies in the triangle
+% ref: http://blackpawn.com/texts/pointinpoly/
+% Inputs-
+% a,b,c: arrays which denote vertices of a triangle
+% point1: point to be verified
+%
+% Ouput-
+% PointInTriangle: boolean
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,16 +41,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-%PointInTriangle verifies whether the point lies in the triangle
-% ref: http://blackpawn.com/texts/pointinpoly/
-% Inputs-
-% a,b,c: arrays which denote vertices of a triangle
-% point1: point to be verified
-%
-% Ouput-
-% PointInTriangle: boolean
-
-function [PointInTriangle]=PointInTriangle(point1,a,b,c)
 v0=c-a;
 v1=b-a;
 v2=point1-a;

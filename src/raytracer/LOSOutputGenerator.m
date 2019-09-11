@@ -1,3 +1,34 @@
+function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
+    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
+    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes,frequency)
+% This part of code compute LOS between two nodes
+%
+%Inputs:
+% timeDivision - it is the time instance number
+%CADoutput - CAD output
+%Tx and Rx locations if using two nodes
+%velocityTx, velocityRx are velocities of tx and rx respectively
+%output - multipath parameters
+%switchCP - a boolean to describe whether cross polarization is selected
+%or not. 1 means there is cross polarization and 0 means there is no cross
+%polarization
+%PolarizationTx - gives polarization information of Tx location
+%f1 - figure that displays multipath
+%f2 - figure that displays channel model
+%switchMaterial - boolean which gives information whether material
+%properties are presnet in CAD output
+%output - multipath parameters
+%MobilitySwitch is boolean to either have mobility or not
+%numberOfNodes - total number of nodes
+% frequency: the carrier frequency at which the system operates
+%
+%Outputs:
+%f1 - figure that displays multipath
+%f2 - figure that displays channel model
+%switchLOS - a boolean which gives information whether LOS exist or not. 
+%1 stands for existant while 0 is for non existant case
+%output - multipath parameters
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,37 +61,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This part of code compute LOS between two nodes
-
-%Inputs:
-% timeDivision - it is the time instance number
-%CADoutput - CAD output
-%Tx and Rx locations if using two nodes
-%velocityTx, velocityRx are velocities of tx and rx respectively
-%output - multipath parameters
-%switchCP - a boolean to describe whether cross polarization is selected
-%or not. 1 means there is cross polarization and 0 means there is no cross
-%polarization
-%PolarizationTx - gives polarization information of Tx location
-%f1 - figure that displays multipath
-%f2 - figure that displays channel model
-%switchMaterial - boolean which gives information whether material
-%properties are presnet in CAD output
-%output - multipath parameters
-%MobilitySwitch is boolean to either have mobility or not
-%numberOfNodes - total number of nodes
-% frequency: the carrier frequency at which the system operates
-
-%Outputs:
-%f1 - figure that displays multipath
-%f2 - figure that displays channel model
-%switchLOS - a boolean which gives information whether LOS exist or not. 
-%1 stands for existant while 0 is for non existant case
-%output - multipath parameters
-
-function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
-    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
-    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes,frequency)
 
 %Direction of departure (DoD) is simple the difference of position vectors
 % of Tx and Rx

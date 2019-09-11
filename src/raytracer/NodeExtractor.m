@@ -1,3 +1,25 @@
+function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,...
+    timeDivision, node, nodeVelocity, NodePosition,delt)
+% INPUT:
+% number_of_nodes - number of nodes
+% switch_randomization - This is switch to turn ON or OFF randomization. 
+% 1 = random
+% time_division - it is the time instance number
+% node - 2d array which contains all node locations
+% node_v - 2d array which contains all node velocities
+% NodePosition - these are positions of nodes in a 2D array which are
+% extracted from a file
+% vtx, vrx are velocities of tx and rx respectively
+% delt - it is the time interval between consecutive time instances
+% number_rows_CADop - number of rows of CAD output
+% OUTPUT:
+% node - 2d array which contains all node locations
+% node_v - 2d array which contains all node velocities
+%
+% This function is to extract node positions from a file and compute node 
+% velocities from the position values
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,28 +52,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-
-% INPUT:
-% number_of_nodes - number of nodes
-% switch_randomization - This is switch to turn ON or OFF randomization. 
-% 1 = random
-% time_division - it is the time instance number
-% node - 2d array which contains all node locations
-% node_v - 2d array which contains all node velocities
-% NodePosition - these are positions of nodes in a 2D array which are
-% extracted from a file
-% vtx, vrx are velocities of tx and rx respectively
-% delt - it is the time interval between consecutive time instances
-% number_rows_CADop - number of rows of CAD output
-% OUTPUT:
-% node - 2d array which contains all node locations
-% node_v - 2d array which contains all node velocities
-
-% This function is to extract node positions from a file and compute node 
-% velocities from the position values
-
-function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,...
-    timeDivision, node, nodeVelocity, NodePosition,delt)
 
 % This case is for number of nodes greater than 2 or when nodes are
 % randomly generated

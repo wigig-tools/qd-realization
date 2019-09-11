@@ -1,3 +1,28 @@
+function [PL,JV_final,phi_x,phi_y,Antenna_orientation]=Polarization(Antenna_orientation,JV,Plane,Vector,Thetai,switch_cp,nt)
+% This function is in still under development. Yet to be tested. Please
+% ignore this function
+%
+%
+%Refer to "Polarization raytracing. pdf" for theoretical background
+%
+%% Input
+% Antenna ground plane equation
+% JV - Jones vector
+% Plane - plane equation of the plane where reflection occurs
+% Vector - Propagating vector
+% Thetai - Angle of incidence
+% nt - dielectric constant of plane
+%% Output
+% PL - Path loss (1-Reflectivity)
+% JV_final - New Jones Vector
+% phi_x,phi_y - phase shift in the horizontal and vertical axis
+% respectively
+% Antenna_orientation - x,y,z axis of antenna coordinate system defined in
+% global coordinate systen
+%
+% Patch update - Line 75 to 99
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,29 +55,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function is in still under development. Yet to be tested. Please
-% ignore this function
 
-%Refer to "Polarization raytracing. pdf" for theoretical background
-
-%% Input
-% Antenna ground plane equation
-% JV - Jones vector
-% Plane - plane equation of the plane where reflection occurs
-% Vector - Propagating vector
-% Thetai - Angle of incidence
-% nt - dielectric constant of plane
-%% Output
-% PL - Path loss (1-Reflectivity)
-% JV_final - New Jones Vector
-% phi_x,phi_y - phase shift in the horizontal and vertical axis
-% respectively
-% Antenna_orientation - x,y,z axis of antenna coordinate system defined in
-% global coordinate systen
-
-% Patch update - Line 75 to 99
-
-function [PL,JV_final,phi_x,phi_y,Antenna_orientation]=Polarization(Antenna_orientation,JV,Plane,Vector,Thetai,switch_cp,nt)
 % x,y,z axis of antenna coordinate system defined in
 % global coordinate systen
 Antenna_x=[Antenna_orientation(1,1),Antenna_orientation(1,2),Antenna_orientation(1,3)];

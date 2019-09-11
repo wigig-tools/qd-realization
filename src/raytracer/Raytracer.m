@@ -1,10 +1,33 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                    %
-%                                                                    %
-%                    Ray tracing Software                            %
-%                                                                    %
-%                                                                    %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [outputPath] = Raytracer(paraCfgInput,nodeCfgInput)
+% Inputs:
+% RootFolderPath - it is the current location of the folder where the function is called from
+% environmentFileName - it is the CAD file name
+% switchRandomization - boolean to either randomly generates nodes and velocity or not
+% mobilitySwitch -  is boolean to either have mobility or not
+% totalNumberOfReflections - is the highest order of reflections to be computed
+% switchQDGenerator - Switch to turn ON or OFF the Qausi dterministic module 1 = ON, 0 = OFF
+% nodeLoc - 2d array which contains all node locations
+% nodeVelocities - 2d array which contains all node velocities
+% nodePolarization - 2d array which contains all node polarization
+% nodeAntennaOrientation - 2d array which contains all node antenna orientation
+% totalTimeDuration, n1 are for granularity in time domain. t is total period and n is the
+% number of divisions of that time period
+% mobilityType - This switch lets the user to decide the input to mobility
+% 1 = Linear, 2 = input from File
+% nodePosition - these are positions of nodes in a 2D array which are
+% extracted from a file
+% indoorSwitch - This boolean lets user say whether the given CAD file
+% is indoor or outdorr. If indoor, then the value is 1 else the value is 0.
+% generalizedScenario - This boolean lets user say whether a scenario
+% conforms to a regular indoor or outdoor environment or it is a more
+% general scenario.
+% selectPlanesByDist - This is selection of planes/nodes by distance. 
+% r = 0 means that there is no limitation.  
+% referencePoint - Reference point is the center of limiting sphere 
+%
+% Outputs:
+% N/A
+
 
 % -------------Software Disclaimer---------------
 %
@@ -39,36 +62,6 @@
 % States.
 
 
-% Inputs:
-% RootFolderPath - it is the current location of the folder where the function is called from
-% environmentFileName - it is the CAD file name
-% switchRandomization - boolean to either randomly generates nodes and velocity or not
-% mobilitySwitch -  is boolean to either have mobility or not
-% totalNumberOfReflections - is the highest order of reflections to be computed
-% switchQDGenerator - Switch to turn ON or OFF the Qausi dterministic module 1 = ON, 0 = OFF
-% nodeLoc - 2d array which contains all node locations
-% nodeVelocities - 2d array which contains all node velocities
-% nodePolarization - 2d array which contains all node polarization
-% nodeAntennaOrientation - 2d array which contains all node antenna orientation
-% totalTimeDuration, n1 are for granularity in time domain. t is total period and n is the
-% number of divisions of that time period
-% mobilityType - This switch lets the user to decide the input to mobility
-% 1 = Linear, 2 = input from File
-% nodePosition - these are positions of nodes in a 2D array which are
-% extracted from a file
-% indoorSwitch - This boolean lets user say whether the given CAD file
-% is indoor or outdorr. If indoor, then the value is 1 else the value is 0.
-% generalizedScenario - This boolean lets user say whether a scenario
-% conforms to a regular indoor or outdoor environment or it is a more
-% general scenario.
-% selectPlanesByDist - This is selection of planes/nodes by distance. 
-% r = 0 means that there is no limitation.  
-% referencePoint - Reference point is the center of limiting sphere 
-
-% Outputs:
-% N/A
-
-function [outputPath] = Raytracer(paraCfgInput,nodeCfgInput)
 
 %% Input Parameters Management
 environmentFileName = paraCfgInput.environmentFileName;

@@ -1,3 +1,36 @@
+function [output,count1,switch_QD] = QDGenerator(order_of_R,output,...
+    array_of_materials,number,MaterialLibrary,distance,freq,count1,dod,...
+    doa,vtx,v_temp,count,indexReference)
+%INPUT -
+%order_of_R -  Order of reflection
+%output - multipath parameters
+%array_of_materials - material properties of every triangle as described in
+%array of plane
+%number - row number of array_of_materials that is being used
+%Array_of_planes - Similar to Array of points. Each triangle occupies 4
+%columns (plane equation). The first column has the order of reflection
+%(o/p of treetraversal)
+%Material_library - Similar to Array of points. Each triangle occupies 1
+%triangle. The data is the row number of material from Material library
+%array_of_materials - Similar to Array of points. Each triangle occupies 1
+%triangle. The data is the row number of material from Material library
+%distance is the total length of multipath
+%freq - frequency of operation (center frequency of carrier wave)
+%count1 - number of rows in output/ multipath
+%dod - direction of departure vector
+%doa - direction of arrival vector
+%vtx is velocity of tx
+%v_temp is relative velocity of rx wrt tx
+%count - number of rows in output/ multipath
+%
+%OUTPUT -
+%output - multipath parameters
+%count - number of rows in output/ multipath
+%switch_QD - whether QD output exists
+%
+% This part of code generates QD parameters of a select multipath
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,38 +63,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-%INPUT -
-%order_of_R -  Order of reflection
-%output - multipath parameters
-%array_of_materials - material properties of every triangle as described in
-%array of plane
-%number - row number of array_of_materials that is being used
-%Array_of_planes - Similar to Array of points. Each triangle occupies 4
-%columns (plane equation). The first column has the order of reflection
-%(o/p of treetraversal)
-%Material_library - Similar to Array of points. Each triangle occupies 1
-%triangle. The data is the row number of material from Material library
-%array_of_materials - Similar to Array of points. Each triangle occupies 1
-%triangle. The data is the row number of material from Material library
-%distance is the total length of multipath
-%freq - frequency of operation (center frequency of carrier wave)
-%count1 - number of rows in output/ multipath
-%dod - direction of departure vector
-%doa - direction of arrival vector
-%vtx is velocity of tx
-%v_temp is relative velocity of rx wrt tx
-%count - number of rows in output/ multipath
 
-%OUTPUT -
-%output - multipath parameters
-%count - number of rows in output/ multipath
-%switch_QD - whether QD output exists
-
-% This part of code generates QD parameters of a select multipath
-
-function [output,count1,switch_QD] = QDGenerator(order_of_R,output,...
-    array_of_materials,number,MaterialLibrary,distance,freq,count1,dod,...
-    doa,vtx,v_temp,count,indexReference)
 c = 3e8;
 % if  switch_material==1 && QD_gen==1
 % To demonstrate that even higher order reflections can be taken care of

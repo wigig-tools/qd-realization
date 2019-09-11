@@ -1,3 +1,27 @@
+function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes, switch_randomization,...
+    time_division, node, node_v, vtx, vrx,Tx_initial,Rx_initial,delt,CADop,Tx,Rx)
+% This function is to generate node locations according linear mobility 
+% model and to avoid nodes crashing into walls.
+%
+% INPUT:
+% number_of_nodes - number of nodes
+% switch_randomization - This is switch to turn ON or OFF randomization. 
+% 1 = random
+% time_division - it is the time instance number
+% node - 2d array which contains all node locations
+% node_v - 2d array which contains all node velocities
+% vtx, vrx are velocities of tx and rx respectively
+% Tx_initial and Rx_initial - these are locations of Rx/Tx in first time
+% instance
+% delt - it is the time interval between consecutive time instances
+% CADop - CAD output
+% Tx and Rx - these are locations of Rx/Tx in current time instance
+% OUTPUT:
+% node - 2d array which contains all node locations
+% vtx, vrx are velocities of tx and rx respectively
+% node_v - 2d array which contains all node velocities
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,30 +54,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% INPUT:
-% number_of_nodes - number of nodes
-% switch_randomization - This is switch to turn ON or OFF randomization. 
-% 1 = random
-% time_division - it is the time instance number
-% node - 2d array which contains all node locations
-% node_v - 2d array which contains all node velocities
-% vtx, vrx are velocities of tx and rx respectively
-% Tx_initial and Rx_initial - these are locations of Rx/Tx in first time
-% instance
-% delt - it is the time interval between consecutive time instances
-% CADop - CAD output
-% Tx and Rx - these are locations of Rx/Tx in current time instance
-% OUTPUT:
-% node - 2d array which contains all node locations
-% vtx, vrx are velocities of tx and rx respectively
-% node_v - 2d array which contains all node velocities
 
-% This function is to generate node locations according linear mobility 
-% model and to avoid nodes crashing into walls.
-
-
-function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes, switch_randomization,...
-    time_division, node, node_v, vtx, vrx,Tx_initial,Rx_initial,delt,CADop,Tx,Rx)
 % node= []; vtx =[];
 % vrx =[]; node_v =[];
 

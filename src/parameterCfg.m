@@ -1,3 +1,8 @@
+function [para] = parameterCfg(scenarioNameStr)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,9 +35,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-function [para] = parameterCfg(scenarioNameStr)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
 
 % Load Parameters
 cfgPath = sprintf('%s/Input/paraCfgCurrent.txt',scenarioNameStr);

@@ -1,3 +1,9 @@
+function [point]=pointOnPlaneVector(point1,vector, plane)
+%This function returns the intersection of a vector with plane. The point
+%in input is the through which vector passes
+% ref: http://www.ambrsoft.com/TrigoCalc/Plan3D/PlaneLineIntersection_.htm
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,11 +36,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-%This function returns the intersection of a vector with plane. The point
-%in input is the through which vector passes
-% ref: http://www.ambrsoft.com/TrigoCalc/Plan3D/PlaneLineIntersection_.htm
 
-function [point]=pointOnPlaneVector(point1,vector, plane)
 normal = plane(1:3);
 t = -(dot(point1,normal) + plane(4)) / dot(normal,vector);
 

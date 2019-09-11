@@ -1,3 +1,13 @@
+function [CADOutput, materialSwitch] = ...
+    xmlreader(filename, MaterialLibrary, referencePoint, r, IndoorSwitch)
+%XML redaer extracts the information of CAD file (AMF). The input of the
+%function is filename, the material database with all the material
+%parameters (Material_library), reference point (referencePoint) and distance limitation(r)
+%The output is extracted triangles (CADop),
+%and a boolean to know whether the material information is
+%present in the CAD file (switch1)
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,16 +40,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-
-%XML redaer extracts the information of CAD file (AMF). The input of the
-%function is filename, the material database with all the material
-%parameters (Material_library), reference point (referencePoint) and distance limitation(r)
-%The output is extracted triangles (CADop),
-%and a boolean to know whether the material information is
-%present in the CAD file (switch1)
-
-function [CADOutput, materialSwitch] = ...
-    xmlreader(filename, MaterialLibrary, referencePoint, r, IndoorSwitch)
 
 [ s ] = xml2struct( filename );
 

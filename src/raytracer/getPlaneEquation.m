@@ -1,3 +1,8 @@
+function [plane]=getPlaneEquation(normal, point)
+% This function constructs a plane equation when normal and a point are
+% given
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,10 +35,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-% This function constructs a plane equation when normal and a point are
-% given
-
-function [plane]=getPlaneEquation(normal, point)
 plane(1)=normal(1);
 plane(2)=normal(2);
 plane(3)=normal(3);

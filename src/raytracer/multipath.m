@@ -1,3 +1,49 @@
+function [QD,switchQD,output,multipath,indexMultipath,indexQD] = multipath(...
+    ArrayOfPlanes,ArrayOfPoints,Rx,Tx,CADOutput,...
+    numberOfRowsArraysOfPlanes,MaterialLibrary,arrayOfMaterials,switchMaterial,velocityTx,velocityRx,...
+    PolarizationSwitch,PolarizationTx,AntennaOrientationTx,...
+    PolarizationRx,AntennaOrientationRx,switchCrossPolarization,QDGeneratorSwitch,frequency)
+%INPUT -
+%ArrayOfPoints - combinations of multiple triangles, every row is a unique
+%combination. every triangle occupies 9 columns (3 vertices). (o/p of
+%treetraversal)
+%ArrayOfPlanes - Similar to Array of points. Each triangle occupies 4
+%columns (plane equation). The first column has the order of reflection
+%(o/p of treetraversal)
+%Rx - Rx position
+%Tx - Tx position
+%CADop - CAD output
+%number1 -
+%MaterialLibrary - Similar to Array of points. Each triangle occupies 1
+%triangle. The data is the row number of material from Material library
+%arrayOfMaterials - Similar to Array of points. Each triangle occupies 1
+%triangle. The data is the row number of material from Material library
+%switchMaterial - whether triangle materials properties are present
+% vtx, vrx are velocities of tx and rx respectively
+% PolarizationSwitch - switch to enable or disable polarization module
+% PolarizationTx/ PolarizationRx - Tx/Rx Polarization
+% AntennaOrientationTx/ AntennaOrientationRx - Tx/Rx antenna
+% oreientation
+%switchCrossPolarization - a boolean to describe whether cross polarization is selected
+%or not. 1 means there is cross polarization and 0 means there is no cross
+%polarization
+% QDGeneratorSwitch - Switch to turn ON or OFF the Qausi dterministic module
+% 1 = ON, 0 = OFF
+% frequency: the carrier frequency at which the system operates
+%
+%OUTPUT -
+%QD - output to be plotted on f2 channel plot
+%switchQD - whether QD output exists
+%output - multipath parameters
+%multipath - output to be plottd on f1 multipath plot
+%indexMultipath - number of rows in multipath
+%countQD - number of QD component
+%
+% The phase information in case of presence of polarization information and is
+% encoded in the Jones vector. In case of absence of polarization, order of
+% reflection is multiplied by pi to give phase shift
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -31,52 +77,6 @@
 % States.
 
 
-%INPUT -
-%ArrayOfPoints - combinations of multiple triangles, every row is a unique
-%combination. every triangle occupies 9 columns (3 vertices). (o/p of
-%treetraversal)
-%ArrayOfPlanes - Similar to Array of points. Each triangle occupies 4
-%columns (plane equation). The first column has the order of reflection
-%(o/p of treetraversal)
-%Rx - Rx position
-%Tx - Tx position
-%CADop - CAD output
-%number1 -
-%MaterialLibrary - Similar to Array of points. Each triangle occupies 1
-%triangle. The data is the row number of material from Material library
-%arrayOfMaterials - Similar to Array of points. Each triangle occupies 1
-%triangle. The data is the row number of material from Material library
-%switchMaterial - whether triangle materials properties are present
-% vtx, vrx are velocities of tx and rx respectively
-% PolarizationSwitch - switch to enable or disable polarization module
-% PolarizationTx/ PolarizationRx - Tx/Rx Polarization
-% AntennaOrientationTx/ AntennaOrientationRx - Tx/Rx antenna
-% oreientation
-%switchCrossPolarization - a boolean to describe whether cross polarization is selected
-%or not. 1 means there is cross polarization and 0 means there is no cross
-%polarization
-% QDGeneratorSwitch - Switch to turn ON or OFF the Qausi dterministic module
-% 1 = ON, 0 = OFF
-% frequency: the carrier frequency at which the system operates
-
-
-%OUTPUT -
-%QD - output to be plotted on f2 channel plot
-%switchQD - whether QD output exists
-%output - multipath parameters
-%multipath - output to be plottd on f1 multipath plot
-%indexMultipath - number of rows in multipath
-%countQD - number of QD component
-
-
-% The phase information in case of presence of polarization information and is
-% encoded in the Jones vector. In case of absence of polarization, order of
-% reflection is multiplied by pi to give phase shift
-function [QD,switchQD,output,multipath,indexMultipath,indexQD] = multipath(...
-    ArrayOfPlanes,ArrayOfPoints,Rx,Tx,CADOutput,...
-    numberOfRowsArraysOfPlanes,MaterialLibrary,arrayOfMaterials,switchMaterial,velocityTx,velocityRx,...
-    PolarizationSwitch,PolarizationTx,AntennaOrientationTx,...
-    PolarizationRx,AntennaOrientationRx,switchCrossPolarization,QDGeneratorSwitch,frequency)
 switchQD = 0;
 QD = [];
 indexMultipath = 1;

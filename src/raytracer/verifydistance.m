@@ -1,3 +1,9 @@
+function [switch1] = verifydistance(r,Tx,CADop,i)
+% This part of the code verifies whether the given triangle (denoted by ith
+% row of CAop) is within a sphere of radius r and centered at Tx.
+% Please refer to "verifydistance - Limitation by distance.pdf" in this folder
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,12 +36,6 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-
-% This part of the code verifies whether the given triangle (denoted by ith
-% row of CAop) is within a sphere of radius r and centered at Tx.
-% Please refer to "verifydistance - Limitation by distance.pdf" in this folder
-
-function [switch1] = verifydistance(r,Tx,CADop,i)
 
 plane1(1) = CADop(i,10);
 plane1(2) = CADop(i,11);

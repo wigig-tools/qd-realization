@@ -1,3 +1,17 @@
+function [StringOutput] = StringOutputGenerator(time_division,...
+    StringOutput, output)
+% This function generates the string output which is then written onto a
+% text file
+%
+% INPUT:
+% time_division - it is the time instance number
+% String_output - it is the final output of multipath stored as string
+% output - matlab variable which contains multipath variables
+% count1 - index of current row used in output parameter
+% OUTPUT:
+% String_output - it is the final output of multipath stored as string
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -29,19 +43,8 @@
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
-% INPUT:
-% time_division - it is the time instance number
-% String_output - it is the final output of multipath stored as string
-% output - matlab variable which contains multipath variables
-% count1 - index of current row used in output parameter
-% OUTPUT:
-% String_output - it is the final output of multipath stored as string
 
-% This function generates the string output which is then written onto a
-% text file
 
-function [StringOutput] = StringOutputGenerator(time_division,...
-    StringOutput, output)
 sizeOutput = size(output);
 count1 = sizeOutput(1);
 

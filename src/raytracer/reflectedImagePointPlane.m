@@ -1,3 +1,8 @@
+function [reflectedPoint]=reflectedImagePointPlane(point, plane)
+%this function returns the image of a point with respect to a plane (assuming the plane is a mirror)
+%ref: https://math.stackexchange.com/questions/1013230/how-to-find-coordinates-of-reflected-point
+
+
 % -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
@@ -30,10 +35,7 @@
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
 
-%this function returns the image of a point with respect to a plane (assuming the plane is a mirror)
-%ref: https://math.stackexchange.com/questions/1013230/how-to-find-coordinates-of-reflected-point
 
-function [reflectedPoint]=reflectedImagePointPlane(point, plane)
 vector = plane(1:3);
 t = -2 * (dot(vector,point) + plane(4)) / dot(vector,vector);
 reflectedPoint = point + t*vector;
