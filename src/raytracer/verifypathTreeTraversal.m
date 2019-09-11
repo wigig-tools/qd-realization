@@ -61,6 +61,9 @@ function [switch3]=verifypathTreeTraversal(Point11,Point12,Point13,...
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones,
+%    exploiting MATLAB's short-circuit logic
 
 
 vector1121=Point11-Point21;

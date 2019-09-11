@@ -34,6 +34,8 @@ function [plane]=getPlaneEquation(normal, point)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 plane(1)=normal(1);
 plane(2)=normal(2);

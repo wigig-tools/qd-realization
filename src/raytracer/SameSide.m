@@ -33,6 +33,8 @@ function [SameSide]=SameSide(point1,point2,a,b)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
 cp1=cross(a-b,a-point1);

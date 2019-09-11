@@ -53,6 +53,8 @@ function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes, switch_r
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
 % node= []; vtx =[];

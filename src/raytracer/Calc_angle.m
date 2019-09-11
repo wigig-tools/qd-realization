@@ -33,6 +33,8 @@ function [theta]=Calc_angle(V1,V2,Vector)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 theta_s=asin(norm(cross(V1,V2))/(norm(V2)*(norm(V1))));
 

@@ -54,6 +54,9 @@ function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones,
+%    supporting mobility check, improved if/else chain
 
 
 switch3 = 1;

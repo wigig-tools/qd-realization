@@ -40,6 +40,8 @@ function [PointInTriangle]=PointInTriangle(point1,a,b,c)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 v0=c-a;
 v1=b-a;

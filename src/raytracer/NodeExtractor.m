@@ -51,6 +51,8 @@ function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
 % This case is for number of nodes greater than 2 or when nodes are

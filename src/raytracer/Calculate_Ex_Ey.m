@@ -34,6 +34,8 @@ function [Ex1,Ey1]=Calculate_Ex_Ey(Plane,vector,Ex,Ey)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 normal=[Plane(1),Plane(2),Plane(3)];
 Ex1=(cross(vector,normal))/(norm(normal)*(norm(vector)));

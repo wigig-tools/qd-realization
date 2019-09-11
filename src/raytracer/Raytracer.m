@@ -60,7 +60,8 @@ function [outputPath] = Raytracer(paraCfgInput,nodeCfgInput)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
-
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Refactored code
 
 
 %% Input Parameters Management

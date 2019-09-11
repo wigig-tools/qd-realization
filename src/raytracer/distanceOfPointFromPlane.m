@@ -34,6 +34,8 @@ function [distance]=distanceOfPointFromPlane(point, plane)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 distance=abs((point(1)*plane(1))+(point(2)*plane(2))+(point(3)*plane(3))+plane(4)) /...
     norm(plane(1:3));

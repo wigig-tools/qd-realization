@@ -35,6 +35,8 @@ function [switch1] = verifydistance(r,Tx,CADop,i)
 % where a failure could cause risk of injury or damage to property. The software
 % developed by NIST employees is not subject to copyright protection within the United
 % States.
+%
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation to improve performance
 
 
 plane1(1) = CADop(i,10);
