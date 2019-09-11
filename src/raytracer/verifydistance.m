@@ -39,10 +39,7 @@ function [switch1] = verifydistance(r,Tx,CADop,i)
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation to improve performance
 
 
-plane1(1) = CADop(i,10);
-plane1(2) = CADop(i,11);
-plane1(3) = CADop(i,12);
-plane1(4) = CADop(i,13);
+plane1 = CADop(i,10:13);
 
 switch1 = 0;
 % checks whether vertices are within the sphere
@@ -61,15 +58,9 @@ if switch1 ~= 1
     
     d1 = (distanceOfPointFromPlane(Tx, plane1));
     Point = point_on_plane(Tx, plane1);
-    Point1(1) = CADop(i,1);
-    Point1(2) = CADop(i,2);
-    Point1(3) = CADop(i,3);
-    Point2(1) = CADop(i,4);
-    Point2(2) = CADop(i,5);
-    Point2(3) = CADop(i,6);
-    Point3(1) = CADop(i,7);
-    Point3(2) = CADop(i,8);
-    Point3(3) = CADop(i,9);
+    Point1 = CADop(i, 1:3);
+    Point2 = CADop(i, 4:6);
+    Point3 = CADop(i, 7:9);
     % checks whether projection of center (Tx) on to plane of triangle lies within
     % triangle and sphere
     switch_triangle = PointInTriangle(Point,Point1,Point2,Point3);
@@ -87,13 +78,12 @@ if switch1 ~= 1
         for iterator = 1:3
             v1 = Triangle_Vertices(iterator,:);
             v2 = Triangle_Vertices(iterator + 1,:);
-            t = -dot(v1-Point,v1-v2)/...
-                dot(v1-v2,v1-v2);
+            t = -dot(v1-Point,v1-v2) / dot(v1-v2,v1-v2);
             Point_on_side = v1 + (t.* (v1-v2));
             d2 = (dot(Point_on_side-Point,...
                 Point_on_side-Point));
-            if (dot(v1-Point_on_side,...
-                    v2-Point_on_side)) <= 0 && (d1^2) + (d2) <= r^2
+            if dot(v1-Point_on_side, v2-Point_on_side) <= 0 &&...
+                    (d1^2) + (d2) <= r^2
                 switch1 = 1;
                 break;
             end

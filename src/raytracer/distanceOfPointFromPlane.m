@@ -37,7 +37,6 @@ function [distance]=distanceOfPointFromPlane(point, plane)
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
-distance=abs((point(1)*plane(1))+(point(2)*plane(2))+(point(3)*plane(3))+plane(4)) /...
-    norm(plane(1:3));
+distance=abs(dot(point,plane(1:3)) + plane(4)) / norm(plane(1:3));
 
 end

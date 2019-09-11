@@ -289,15 +289,12 @@ for i1 = 1:2
         % sorting all QD parameters in 'QD' parametwr
         
         for i=1:n
-            output(count1+i-1,11)=Aod_el1(i+1);
-            output(count1+i-1,10)=Aod_az1(i+1);
-            output(count1+i-1,12)=Aoa_az1(i+1);
-            output(count1+i-1,13)=Aoa_el1(i+1);
-            output(count1+i-1,14)=output(count1-1,14);
-            output(count1+i-1,15)=output(count1-1,15);
-            output(count1+i-1,16)=output(count1-1,16);
-            output(count1+i-1,17)=output(count1-1,17);
-            output(count1+i-1,18)=output(count1-1,18);
+            output(count1+i-1, 11)=Aod_el1(i+1);
+            output(count1+i-1, 10)=Aod_az1(i+1);
+            output(count1+i-1, 12)=Aoa_az1(i+1);
+            output(count1+i-1, 13)=Aoa_el1(i+1);
+            output(count1+i-1, 14:18)=output(count1-1, 14:18);
+            
             vAngle_DoD = Aod_el1(i+1);
             hAngle_DoD = Aod_az1(i+1);
             dod_temp=[sind(vAngle_DoD)*cosd(hAngle_DoD),sind(vAngle_DoD)*sind(hAngle_DoD),cosd(vAngle_DoD)];

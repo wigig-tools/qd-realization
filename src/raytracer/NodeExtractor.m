@@ -62,12 +62,9 @@ function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,
 % nodepositions 
 
 if (numberOfNodes>2 || switchRandomization==1) && timeDivision==0
+    node = nan(numberOfNodes, 3);
     for Tx_i = 1:numberOfNodes
-        Tx = NodePosition(1,:,Tx_i);
-        
-        node(Tx_i,1)=Tx(1);
-        node(Tx_i,2)=Tx(2);
-        node(Tx_i,3)=Tx(3);
+        node(Tx_i,:) = NodePosition(1,:,Tx_i);
         
         nodeVelocity(Tx_i,:)= (NodePosition(timeDivision+1,:,Tx_i)...
             - NodePosition(timeDivision+2,:,Tx_i))./delt;
@@ -102,12 +99,9 @@ end
 
 
 if (numberOfNodes>2 || switchRandomization==1) && timeDivision>0
+    node = nan(numberOfNodes, 3);
     for Tx_i = 1:numberOfNodes
-        Tx = NodePosition(timeDivision+1,:,Tx_i);
-        
-        node(Tx_i,1)=Tx(1);
-        node(Tx_i,2)=Tx(2);
-        node(Tx_i,3)=Tx(3);
+        node(Tx_i, :) = NodePosition(timeDivision+1,:,Tx_i);
         
         nodeVelocity(Tx_i,:)= (NodePosition(timeDivision+1,:,Tx_i)...
             - NodePosition(timeDivision+2,:,Tx_i))./delt;
