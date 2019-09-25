@@ -1,0 +1,20 @@
+# Ignore all subfolders in QDSoftware
+# Done to avoid saving custom results
+/src/*/
+
+# Do NOT ignore important folders
+!/src/raytracer/
+!/src/input/
+!/src/utils/
+!/src/examples/
+
+# Ignore cached files
+**/cachedCadOutput.mat
+
+# Ignore profile results
+**/profile_results*
+
+## Useless/temporary files to ignore
+# MATLAB
+*.asv
+*.m~

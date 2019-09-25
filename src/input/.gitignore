@@ -1,0 +1,5 @@
+# Placeholder Folder: ignore everything
+/*
+
+# Do not ignore this .gitignore in order to force git to see this folder
+!.gitignore
