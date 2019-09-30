@@ -4,9 +4,9 @@ scenarioName = app.ScenarioDropdown.Value;
 app.scenarioName = scenarioName;
 app.UIAxes.Title.String = scenarioName;
 
-app.outputPath = sprintf('../%s/Output', scenarioName);
-app.visualizerPath = sprintf('../%s/Output/Visualizer', scenarioName);
-app.ns3Path = sprintf('../%s/Output/Ns3', scenarioName);
+app.outputPath = sprintf('../examples/%s/Output', scenarioName);
+app.visualizerPath = sprintf('../examples/%s/Output/Visualizer', scenarioName);
+app.ns3Path = sprintf('../examples/%s/Output/Ns3', scenarioName);
 
 raysAppPlotRoom(app)
 

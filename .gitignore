@@ -19,6 +19,3 @@
 # MATLAB
 *.asv
 *.m~
-
-# MATLAB's apps
-*.mlapp
