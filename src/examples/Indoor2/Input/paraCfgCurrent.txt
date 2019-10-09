@@ -10,7 +10,6 @@ referencePoint	[3,3,2]
 selectPlanesByDist	0
 switchQDGenerator	0
 switchRandomization	0
-switchVisuals	1
 totalNumberOfReflections	1
 totalTimeDuration	1
 switchSaveVisualizerFiles	1

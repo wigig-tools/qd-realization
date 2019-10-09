@@ -108,10 +108,6 @@ switch(para.switchRandomization)
 end
 para = fieldToNum(para, 'numberOfNodes', [], defaultNumberOfNodes);
 
-% Switch to enable or disable the visuals
-% = 0 (Default)
-para = fieldToNum(para, 'switchVisuals', [0,1], 0);
-
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
 para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
