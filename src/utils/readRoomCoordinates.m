@@ -1,5 +1,5 @@
 function out = readRoomCoordinates(path)
-%READROOMCOORDINATES Function that extracts the Room Coordinates from the 
+%READROOMCOORDINATES Function that extracts the Room Coordinates from the
 % output file, as described by the documentation).
 %
 % INPUTS:

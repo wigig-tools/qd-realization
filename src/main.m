@@ -38,7 +38,7 @@ clc
 
 addpath('raytracer', 'utils')
 
-%% Initialization 
+%% Initialization
 rootFolderPath = pwd;
 fprintf('-------- NIST/CTL QD mmWave Channel Model --------\n');
 fprintf('Current root folder:\n\t%s\n',rootFolderPath);

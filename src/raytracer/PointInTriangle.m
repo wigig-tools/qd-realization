@@ -1,4 +1,4 @@
-function [PointInTriangle]=PointInTriangle(point1,a,b,c)
+function PointInTriangle = PointInTriangle(point1, a, b, c)
 %PointInTriangle verifies whether the point lies in the triangle
 % ref: http://blackpawn.com/texts/pointinpoly/
 % Inputs-

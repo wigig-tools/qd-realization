@@ -1,4 +1,4 @@
-function [ s ] = xml2struct( file )
+function s = xml2struct(file)
 %Convert xml file into a MATLAB structure
 % [ s ] = xml2struct( file )
 %
@@ -63,12 +63,13 @@ end
 if isa(file, 'org.apache.xerces.dom.DeferredDocumentImpl') || isa(file, 'org.apache.xerces.dom.DeferredElementImpl')
     % input is a java xml object
     xDoc = file;
+    
 else
-    %check for existance
+    % check for existance
     if (exist(file,'file') == 0)
-        %Perhaps the xml extension was omitted from the file name. Add the
-        %extension and try again.
-        if (isempty(strfind(file,'.xml')))
+        % Perhaps the xml extension was omitted from the file name. Add the
+        % extension and try again.
+        if (~contains(file,'.xml'))
             file = [file '.xml'];
         end
         
@@ -76,20 +77,24 @@ else
             error(['The file ' file ' could not be found']);
         end
     end
-    %read the xml file
+    
+    % read the xml file
     xDoc = xmlread(file);
 end
 
-%parse xDoc into a MATLAB structure
+% parse xDoc into a MATLAB structure
 s = parseChildNodes(xDoc);
 
 end
 
-% ----- Subfunction parseChildNodes -----
+
+%% ----- Subfunction parseChildNodes -----
 function [children,ptext,textflag] = parseChildNodes(theNode)
 % Recurse over node children.
 children = struct;
-ptext = struct; textflag = 'Text';
+ptext = struct;
+textflag = 'Text';
+
 if hasChildNodes(theNode)
     childNodes = getChildNodes(theNode);
     numChildNodes = getLength(childNodes);
@@ -99,67 +104,75 @@ if hasChildNodes(theNode)
         [text,name,attr,childs,textflag] = getNodeData(theChild);
         
         if (~strcmp(name,'#text') && ~strcmp(name,'#comment') && ~strcmp(name,'#cdata_dash_section'))
-            %XML allows the same elements to be defined multiple times,
-            %put each in a different cell
+            % XML allows the same elements to be defined multiple times,
+            % put each in a different cell
             if (isfield(children,name))
                 if (~iscell(children.(name)))
-                    %put existsing element into cell format
+                    % put existsing element into cell format
                     children.(name) = {children.(name)};
                 end
+                
                 index = length(children.(name))+1;
-                %add new element
+                % add new element
                 children.(name){index} = childs;
+                
                 if(~isempty(fieldnames(text)))
                     children.(name){index} = text;
                 end
+                
                 if(~isempty(attr))
                     children.(name){index}.('Attributes') = attr;
                 end
+                
             else
-                %add previously unknown (new) element to the structure
+                % add previously unknown (new) element to the structure
                 children.(name) = childs;
                 if(~isempty(text) && ~isempty(fieldnames(text)))
                     children.(name) = text;
                 end
+                
                 if(~isempty(attr))
                     children.(name).('Attributes') = attr;
                 end
             end
+            
         else
             ptextflag = 'Text';
+            
             if (strcmp(name, '#cdata_dash_section'))
                 ptextflag = 'CDATA';
             elseif (strcmp(name, '#comment'))
                 ptextflag = 'Comment';
             end
             
-            %this is the text in an element (i.e., the parentNode)
+            % this is the text in an element (i.e., the parentNode)
             if (~isempty(regexprep(text.(textflag),'[\s]*','')))
                 if (~isfield(ptext,ptextflag) || isempty(ptext.(ptextflag)))
                     ptext.(ptextflag) = text.(textflag);
+                    
                 else
-                    %what to do when element data is as follows:
-                    %<element>Text <!--Comment--> More text</element>
+                    % what to do when element data is as follows:
+                    % <element>Text <!--Comment--> More text</element>
                     
-                    %put the text in different cells:
-                    % if (~iscell(ptext)) ptext = {ptext}; end
-                    % ptext{length(ptext)+1} = text;
+                    % put the text in different cells:
+                    %  if (~iscell(ptext)) ptext = {ptext}; end
+                    %  ptext{length(ptext)+1} = text;
                     
-                    %just append the text
+                    % just append the text
                     ptext.(ptextflag) = [ptext.(ptextflag) text.(textflag)];
                 end
             end
         end
-        
     end
 end
 end
 
-% ----- Subfunction getNodeData -----
+
+%% ----- Subfunction getNodeData -----
 function [text,name,attr,childs,textflag] = getNodeData(theNode)
 % Create structure of node info.
 
-%make sure name is allowed as structure name
+% make sure name is allowed as structure name
 name = toCharArray(getNodeName(theNode))';
 name = strrep(name, '-', '_dash_');
 name = strrep(name, ':', '_colon_');
@@ -170,11 +183,11 @@ if (isempty(fieldnames(attr)))
     attr = [];
 end
 
-%parse child nodes
+% parse child nodes
 [childs,text,textflag] = parseChildNodes(theNode);
 
 if (isempty(fieldnames(childs)) && isempty(fieldnames(text)))
-    %get the data of any childless nodes
+    % get the data of any childless nodes
     % faster than if any(strcmp(methods(theNode), 'getData'))
     % no need to try-catch (?)
     % faster than text = char(getData(theNode));
@@ -193,11 +206,7 @@ if hasAttributes(theNode)
     numAttributes = getLength(theAttributes);
     
     for count = 1:numAttributes
-        %attrib = item(theAttributes,count-1);
-        %attr_name = regexprep(char(getName(attrib)),'[-:.]','_');
-        %attributes.(attr_name) = char(getValue(attrib));
-        
-        %Suggestion of Adrian Wanner
+        % Suggestion of Adrian Wanner
         str = toCharArray(toString(item(theAttributes,count-1)))';
         k = strfind(str,'=');
         attr_name = str(1:(k(1)-1));
@@ -207,4 +216,5 @@ if hasAttributes(theNode)
         attributes.(attr_name) = str((k(1)+2):(end-1));
     end
 end
+
 end

@@ -1,6 +1,6 @@
 function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
     CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
-    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes,frequency)
+    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes, frequency)
 % This part of code compute LOS between two nodes
 %
 %Inputs:
@@ -25,7 +25,7 @@ function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
 %Outputs:
 %f1 - figure that displays multipath
 %f2 - figure that displays channel model
-%switchLOS - a boolean which gives information whether LOS exist or not. 
+%switchLOS - a boolean which gives information whether LOS exist or not.
 %1 stands for existant while 0 is for non existant case
 %output - multipath parameters
 
@@ -64,10 +64,10 @@ function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
-%Direction of departure (DoD) is simple the difference of position vectors
+% Direction of departure (DoD) is simple the difference of position vectors
 % of Tx and Rx
 dod=Rx-Tx;
-%delay is the total length of multipath
+% delay is the total length of multipath
 delay=norm(dod);
 % Direction of arrival (DoA) is negative of DoD
 doa=-dod;
@@ -86,53 +86,38 @@ if switch3==1 % if DoA exists
     
     lambda=c/frequency;
     output1(1) = 1;
-    %dod - direction of departure
+    % dod - direction of departure
     output1(2:4) = dod;
-    %doa - direction of arrival
+    % doa - direction of arrival
     output1(5:7) = doa;
-    %Time delay
+    % Time delay
     output1(1,8)=delay/c;
-    %Path gain
+    % Path gain
     output1(1,9) = 20*log10(lambda/(4*pi*delay));
-    %Aod azimuth
+    % Aod azimuth
     output1(10) = mod(atan2d(dod(2),dod(1)), 360);
-    %Aod elevation
+    % Aod elevation
     output1(11) = acosd(dod(3)/norm(dod));
-    % doa(3)=-doa(3);
-    % doa(2)=-doa(2);
-    % doa(1)=-doa(1);
-    %Aoa azimuth
+    % Aoa azimuth
     output1(12) = mod(atan2d(doa(2),doa(1)), 360);
-    %Aoa elevation
+    % Aoa elevation
     output1(13)=acosd(doa(3)/norm(doa));
-    %Polarization Jones vector
+    % Polarization Jones vector
     output1(14:15) = PolarizationTx(1,:);
-    %Cross polarization Jones vector
+    % Cross polarization Jones vector
     if switchCP==1
         output1(16:17) = PolarizationTx(2,:);
     end
     output1(18) = 0;
-    %Doppler Factor
+    % Doppler Factor
     output1(20) = dopplerFactor*frequency;
     output1(21) = 0;
-    %Cross polarization path gain
+    % Cross polarization path gain
     if switchCP==1
         output1(19) = 20*log10(lambda/(4*pi*delay));
     else
         output1(19) = 0;
     end
-    % QD plot(f2) parameters
-%     output2(1,1,timeDivision+1)=delay/c;
-%     output2(1,2,timeDivision+1)=20*log10(lambda/...
-%         (4*pi*delay));
-%     output2(1,3,timeDivision+1)=180*atan(dod(2)...
-%         /dod(1))/pi;
-%     output2(1,4,timeDivision+1)=180*acos(dod(3)/...
-%         norm(dod))/pi;
-%     output2(1,5,timeDivision+1)=180*atan(doa(2)/...
-%         doa(1))/pi;
-%     output2(1,6,timeDivision+1)=180*acos(doa(3)/...
-%         norm(doa))/pi;
     
     if size(output)>0
         output = [output; output1];

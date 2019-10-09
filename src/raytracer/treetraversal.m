@@ -1,8 +1,8 @@
-function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,...
-    arrayOfMaterials,indexMaterials] = treetraversal(CADop,...
-    totalNumberOfReflections, numberOfReflections,switch1,number,index,...
-    indexPlanes,Rx,Tx,ArrayOfPoints,ArrayOfPlanes,...
-    switchMaterial,arrayOfMaterials,indexMaterials,generalizedScenario)
+function [ArrayOfPoints, ArrayOfPlanes, number, index, indexPlanes,...
+    arrayOfMaterials, indexMaterials] = treetraversal(CADop,...
+    totalNumberOfReflections, numberOfReflections, switch1, number, index,...
+    indexPlanes, Rx, Tx, ArrayOfPoints, ArrayOfPlanes, switchMaterial,...
+    arrayOfMaterials, indexMaterials, generalizedScenario)
 %Treetraversal generates all plane combinations for nth order reflections
 %using backtracking (special case of DFS).
 %
@@ -65,61 +65,55 @@ function [ArrayOfPoints,ArrayOfPlanes,number,index,indexPlanes,...
 
 
 numberTemporary = number;
-
 iterateCount = 0;
 
-%Loop to iterate through all the triangle in CADop
-
+% Loop to iterate through all the triangle in CADop
 for iterateNumberofRows = 1:size(CADop,1)
     % To protect the information in indices from being lost, it is
     % transfered to temporary parameters
     indexPlanesTemporary = indexPlanes;
     indexTemporary = index;
     indexMaterialsTemporary = indexMaterials;
-    %% given that the previous plane is not the same as present plane and number of reflection is greater than 1
+    % given that the previous plane is not the same as present plane and number of reflection is greater than 1
     if (iterateNumberofRows ~= switch1 && numberOfReflections > 1)
-        %Transfering the information of triangles from CADop to Array_of_points
+        % Transfering the information of triangles from CADop to Array_of_points
         ArrayOfPoints(number,indexTemporary:indexTemporary + 8) = CADop(iterateNumberofRows,1:9);
         
-        %Transfering the information of triangles from CADop to
-        %Array_of_planes, given that this is not first traversal. because
-        %the first column is order of reflection, we need to add that
-        %information to array of planes before any information
-        
+        % Transfering the information of triangles from CADop to
+        % Array_of_planes, given that this is not first traversal. because
+        % the first column is order of reflection, we need to add that
+        % information to array of planes before any information
         if switch1 == 0
-            
             % Extracting information of plane equations from CADop and storing
             % it as an array, plane1
-            
             plane1=CADop(iterateNumberofRows,10:13);
             
             % Extracting information of normal vector of a plane from plane1
             % array and storing it as an array, normal1
-            
             normal1 = plane1(1:3);
             
             % Extracting information of points and storing it as three distinct
             % points - point11, Point12, point13
-            
             Point11 = ArrayOfPoints(number,indexTemporary:indexTemporary + 2);
             Point12 = ArrayOfPoints(number,indexTemporary + 3:indexTemporary + 5);
             Point13 = ArrayOfPoints(number,indexTemporary + 6:indexTemporary + 8);
             
             % the first column is information of order of reflection
-            
-            
             ArrayOfPlanes(number,indexPlanesTemporary) = totalNumberOfReflections;
             indexPlanesTemporary = indexPlanesTemporary + 1;
             
-            %for condition1 see verify_treetraversal
+            % for condition1 see verify_treetraversal
             condition1 = -1;
             
-            %checking whether a path exists between the plane and Tx
+            % checking whether a path exists between the plane and Tx
             if generalizedScenario == 0
-             [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,Tx,Tx,Tx,normal1,normal1,plane1,plane1,condition1);
+                switch3 = verifypathTreeTraversal(Point11,Point12,Point13,Tx,Tx,Tx,normal1,normal1,plane1,plane1,condition1);
+                
             else
-             switch3 = 1;
+                switch3 = 1;
+                
             end
+            
             if switch3 == 1
                 ArrayOfPlanes(number,...
                     indexPlanesTemporary:indexPlanesTemporary + 3) = CADop(iterateNumberofRows,10:13);
@@ -131,14 +125,15 @@ for iterateNumberofRows = 1:size(CADop,1)
             plane1 = ArrayOfPlanes(number,...
                 indexPlanesTemporary:indexPlanesTemporary + 3);
             
-            
             normal1 = plane1(1:3);
             
             Point11 = ArrayOfPoints(number,indexTemporary:indexTemporary + 2);
             Point12 = ArrayOfPoints(number,indexTemporary + 3:indexTemporary + 5);
             Point13 = ArrayOfPoints(number,indexTemporary + 6:indexTemporary + 8);
-            %for condition1 see verify_treetraversal
+            
+            % for condition1 see verify_treetraversal
             condition1 = 0;
+            
             % plane2, point21, point22, point23 correspond to previous planes
             % and points in Array_of_planes and Array_of_points
             plane2 = ArrayOfPlanes(number,indexPlanesTemporary - 4:indexPlanesTemporary - 1);
@@ -147,24 +142,25 @@ for iterateNumberofRows = 1:size(CADop,1)
             Point22 = ArrayOfPoints(number,indexTemporary - 6:indexTemporary - 4);
             Point23 = ArrayOfPoints(number,indexTemporary - 3:indexTemporary - 1);
             
-            %checking whether a path exists between the plane1 and plane2
-                        if generalizedScenario == 0
-              [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
-                Point21,Point22,Point23,normal1,normal2,plane1,...
-                plane2,condition1);
+            % checking whether a path exists between the plane1 and plane2
+            if generalizedScenario == 0
+                [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
+                    Point21,Point22,Point23,normal1,normal2,plane1,...
+                    plane2,condition1);
+                
             else
-             switch3 = 1;
+                switch3 = 1;
+                
             end
-           
             
         end
         
         if switch3 == 0
             if switch1 == 0
-                
                 indexPlanesTemporary = indexPlanesTemporary - 1;
             end
             continue
+            
         else
             indexPlanesTemporary = indexPlanesTemporary + 4;
             indexTemporary = indexTemporary + 9;
@@ -172,15 +168,15 @@ for iterateNumberofRows = 1:size(CADop,1)
                 arrayOfMaterials(number,indexMaterialsTemporary) = CADop(iterateNumberofRows,14);
                 indexMaterialsTemporary = indexMaterialsTemporary + 1;
             end
+            
         end
-        %% When a combination is possible recursion is performed in this step
         
+        % When a combination is possible recursion is performed in this step
         if switch3 == 1
             % This chunk of code replicates the previous traversal information
             % (DFS) if the traversal changes course. For example 1->3->2->3,
             % needs to copy the part, 1->3->2 for 1->3->2->4.
             if(iterateCount>0 && number>1 && switch1 ~= 0)
-                
                 for j = 1:index - 1
                     ArrayOfPoints(number,j) = ArrayOfPoints(number - 1,j);
                 end
@@ -188,6 +184,7 @@ for iterateNumberofRows = 1:size(CADop,1)
                 for j = 1:indexPlanes - 1
                     ArrayOfPlanes(number,j) = ArrayOfPlanes(number - 1,j);
                 end
+                
                 if switchMaterial == 1
                     for j = 1:indexMaterials - 1
                         arrayOfMaterials(number,j) = arrayOfMaterials(number - 1,j);
@@ -195,6 +192,7 @@ for iterateNumberofRows = 1:size(CADop,1)
                 end
                 
             end
+            
             iterateCount = iterateCount + 1;
             [ArrayOfPoints,ArrayOfPlanes,number,indexTemporary,...
                 indexPlanesTemporary,arrayOfMaterials,...
@@ -208,13 +206,11 @@ for iterateNumberofRows = 1:size(CADop,1)
     
     %% given that the previous plane is not the same as present plane and number of reflection is equal to 1
     if (numberOfReflections == 1 && iterateNumberofRows ~= switch1)
-        
         condition1 = 0;
         
         % This chunk of code replicates the previous traversal information
         % (DFS) if the traversal changes course. For example 1->3->2->3,
         % needs to copy the part, 1->3->2 for 1->3->2->4.
-        
         if(iterateNumberofRows>1)
             for j = 1:index - 1
                 ArrayOfPoints(numberTemporary,j) = ArrayOfPoints(number,j);
@@ -223,6 +219,7 @@ for iterateNumberofRows = 1:size(CADop,1)
             for j = 1:indexPlanes - 1
                 ArrayOfPlanes(numberTemporary,j) = ArrayOfPlanes(number,j);
             end
+            
             if switchMaterial == 1
                 for j = 1:indexMaterials - 1
                     arrayOfMaterials(numberTemporary,j) = arrayOfMaterials(number,j);
@@ -233,7 +230,6 @@ for iterateNumberofRows = 1:size(CADop,1)
         
         % Extracting information of vertices of triangle from CADop and storing
         % it as 3 distinct arrays, point11, point12, point13
-        
         Point11 = CADop(iterateNumberofRows, 1:3);
         Point12 = CADop(iterateNumberofRows, 4:6);
         Point13 = CADop(iterateNumberofRows, 7:9);
@@ -242,48 +238,54 @@ for iterateNumberofRows = 1:size(CADop,1)
         % it as an array, plane1
         plane1 = CADop(iterateNumberofRows, 10:13);
         
-        %In case the total order of reflection is 1, we have plane2=plane1
-        %else we extract previous plane equation and store it in plane2
+        % In case the total order of reflection is 1, we have plane2=plane1
+        % else we extract previous plane equation and store it in plane2
         if switch1 == 0
             plane2 = plane1;
+            
         else
             plane2 = ArrayOfPlanes(number,...
                 indexPlanesTemporary - 4:indexPlanesTemporary - 1);
+            
         end
         
         normal1 = plane1(1:3);
-        
         switch3 = 0;
+        
         if switch1 == 0
-            
             condition1 = 1;
-            if generalizedScenario == 0
-              [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
-                Tx,Tx,Tx,normal1,normal1,plane1,plane2,condition1);
-            else
-             switch3 = 1;
-            end
             
+            if generalizedScenario == 0
+                [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
+                    Tx,Tx,Tx,normal1,normal1,plane1,plane2,condition1);
+                
+            else
+                switch3 = 1;
+                
+            end
             
             if switch3 == 1
                 ArrayOfPlanes(numberTemporary,indexPlanesTemporary) = numberOfReflections;
                 indexPlanesTemporary = indexPlanesTemporary + 1;
             end
         end
-        % Verifying whther path exists between plane and Rx
         
+        % Verifying whther path exists between plane and Rx
         if ((switch1 ~= 0 || (switch3 == 1 && switch1 == 1)) && ...
                 totalNumberOfReflections > 1) || (totalNumberOfReflections == 1 && switch3 == 1)
             condition1 = 1;
+            
             if generalizedScenario == 0
-             [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
-                Rx,Rx,Rx,normal1,normal1,plane1,plane2,condition1);
+                [switch3] = verifypathTreeTraversal(Point11,Point12,Point13,...
+                    Rx,Rx,Rx,normal1,normal1,plane1,plane2,condition1);
+                
             else
-             switch3 = 1;
+                switch3 = 1;
+                
             end
             
-            
         end
+        
         if switch3 == 1
             ArrayOfPoints(numberTemporary,indexTemporary:indexTemporary + 8) = CADop(iterateNumberofRows,1:9);
             ArrayOfPlanes(numberTemporary,indexPlanesTemporary:indexPlanesTemporary + 3) = CADop(iterateNumberofRows,10:13);
@@ -291,13 +293,12 @@ for iterateNumberofRows = 1:size(CADop,1)
             if switchMaterial == 1
                 arrayOfMaterials(numberTemporary,indexMaterialsTemporary) = CADop(iterateNumberofRows,14);
             end
+            
             iterateCount = iterateCount + 1;
             numberTemporary = numberTemporary + 1;
             
         end
-        
     end
-    
 end
 
 % After all interations that occur for first order reflections or last

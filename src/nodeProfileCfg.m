@@ -1,4 +1,4 @@
-function [paraCfg,nodeCfg] = nodeProfileCfg(paraCfg)
+function [paraCfg, nodeCfg] = nodeProfileCfg(paraCfg)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -20,7 +20,7 @@ nodesPositionPath = strcat(scenarioNameStr,'/Output/Ns3/NodesPosition');
 nodePosition = [];
 
 %% Random generation of node positions
-if switchRandomization == 1    
+if switchRandomization == 1
     xCoordinateRandomizer = rand * 8 + 1;
     yCoordinateRandomizer = rand * 17 + 1;
     zCoordinateRandomizer = 2.5;
@@ -30,8 +30,8 @@ if switchRandomization == 1
     yCoordinateRandomizer = rand * 17 + 1;
     zCoordinateRandomizer = 1.6;
     Rx = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-
-   mobilityType = 1; 
+    
+    mobilityType = 1;
 end
 
 %% Extracting data from nodes.dat and nodeVelocities.dat file.
@@ -67,10 +67,10 @@ if switchRandomization == 0
     if mobilityType == 2
         listing = dir(strcat(scenarioNameStr, '/Input'));
         sizeListing = size(listing);
-        countListing = 0; 
+        countListing = 0;
         for iterateSizeListing = 1:sizeListing(1)
             ln = listing(iterateSizeListing).name;
-            %nodePosition = zeros(3, 3, numberOfNodes);
+            
             for iterateNumberOfNodes = 1:numberOfNodes
                 if strcmp(ln, strcat('NodePosition', num2str(iterateNumberOfNodes), '.dat'))
                     nodePositionTemp = load(strcat(inputPath, '/', ln));
@@ -97,7 +97,7 @@ if switchRandomization == 0
 end
 
 iterateNumberOfNodes = 1;
-%% This part of code generates other parameters of 
+%% This part of code generates other parameters of
 nodeAntennaOrientation = zeros(numberOfNodes, 3, 3);
 nodePolarization = zeros(iterateNumberOfNodes, 2);
 while iterateNumberOfNodes <= numberOfNodes
@@ -110,22 +110,8 @@ while iterateNumberOfNodes <= numberOfNodes
         nodeLoc(iterateNumberOfNodes, :) = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
         xCoordinateRandomizer = rand * 0.7;
         yCoordinateRandomizer = sqrt((0.7^2) - (xCoordinateRandomizer^2));
-        zCoordinateRandomizer = 0;        
+        zCoordinateRandomizer = 0;
         nodeVelocities(iterateNumberOfNodes, :) = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-%     elseif (switchRandomization  == 1 && iterateNumberOfNodes == 2)...
-%             || (numberOfNodes == 2 && iterateNumberOfNodes == 2 && switchRandomization  == 1)
-%         node(iterateNumberOfNodes, :) = Rx;
-%         xCoordinateRandomizer = rand * 0.7;
-%         yCoordinateRandomizer = sqrt((0.7^2) - (xCoordinateRandomizer^2));
-%         zCoordinateRandomizer = 0;        
-%         nodeVelocities(iterateNumberOfNodes, :) = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-%     elseif (switchRandomization == 1 && iterateNumberOfNodes == 1) || ...
-%             (numberOfNodes == 2 && iterateNumberOfNodes == 1 && switchRandomization  == 1)
-%         node(iterateNumberOfNodes, :) = Tx;
-%         xCoordinateRandomizer = rand * 0.7;
-%         yCoordinateRandomizer = sqrt((0.7^2) - (xCoordinateRandomizer^2));
-%         zCoordinateRandomizer = 0;        
-%         nodeVelocities(iterateNumberOfNodes, :) = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
     end
     iterateNumberOfNodes = iterateNumberOfNodes + 1;
 end

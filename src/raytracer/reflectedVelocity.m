@@ -1,4 +1,4 @@
-function [velocityReflected]=reflectedVelocity(velocityTx, plane)
+function velocityReflected = reflectedVelocity(velocityTx, plane)
 %Input/output -
 %vtx: Velocity of Tx
 %Plane: Plane on which the Tx is reflecting
@@ -44,17 +44,21 @@ function [velocityReflected]=reflectedVelocity(velocityTx, plane)
 vector = plane(1:3);
 dp = dot(velocityTx,vector);
 
-if dp~=0
+if dp ~= 0
     vectorAlongNormal=(-1*dp).*vector;
     theta=acos(dp/norm(velocityTx));
     vectorOrthogonal=cross(vector,cross(velocityTx,vector));
+    
     if norm(vectorOrthogonal)~=0
         vectorOrthogonal=vectorOrthogonal./norm(vectorOrthogonal);
     end
+    
     vectorOrthogonal=(dp*tan(theta)).*vectorOrthogonal;
     velocityReflected=vectorOrthogonal+vectorAlongNormal;
+    
 else
     velocityReflected=velocityTx;
+    
 end
 
 end

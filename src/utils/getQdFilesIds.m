@@ -1,4 +1,4 @@
-function fids = getQdFilesIds(qdFilesPath,numberOfNodes)
+function fids = getQdFilesIds(qdFilesPath, numberOfNodes)
 %GETQDFILESIDS Opens/creates all QdFiles with 'At' permission (create or
 % append to text file without automatic flushing).
 %
@@ -40,6 +40,7 @@ for iTx = 1:numberOfNodes
         
         fids(iTx,iRx) = fopen(filepath,'At');
     end
+    
 end
 
 end

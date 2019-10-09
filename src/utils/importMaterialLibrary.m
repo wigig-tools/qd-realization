@@ -55,7 +55,7 @@ while ~feof(fid)
     line = replace(line,'""','"0"'); % convert "" to "0"
     line = replace(line,'"',''); % remove ""
     tab(i,:) = textscan(line,'%d%q%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f','Delimiter',',');
-
+    
     i = i+1;
 end
 

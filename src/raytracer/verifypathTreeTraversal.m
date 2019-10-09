@@ -1,5 +1,5 @@
-function [switch3]=verifypathTreeTraversal(Point11,Point12,Point13,...
-    Point21,Point22,Point23,Normal1,Normal2,Plane1,Plane2,condition1)
+function switch3 = verifypathTreeTraversal(Point11, Point12, Point13,...
+    Point21, Point22, Point23, Normal1, Normal2, Plane1, Plane2, condition1)
 % verifypathTreeTraversal is used to check whether two planes are facing
 %each other or whether the the point and the plane (normal) are on the same side.
 %
@@ -81,7 +81,6 @@ switch3 = dot(vector1121,Normal1) <= 0 &&...
     distanceOfPointFromPlane(Point22, Plane1)~=0 ||...
     distanceOfPointFromPlane(Point23, Plane1)~=0);
 
-
 if(condition1==0)
     switch3 = switch3 &&...
         dot(vector2111,Normal2) <= 0 &&...
@@ -90,10 +89,6 @@ if(condition1==0)
         (distanceOfPointFromPlane(Point11, Plane2) ~= 0 ||...
         distanceOfPointFromPlane(Point12, Plane2) ~= 0 ||...
         distanceOfPointFromPlane(Point13, Plane2) ~= 0);
-    
 end
-
-% % Uncomment this part of code when using environment that is not a box.
-% switch3 = 1;
 
 end

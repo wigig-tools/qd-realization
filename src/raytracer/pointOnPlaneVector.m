@@ -1,4 +1,4 @@
-function [point]=pointOnPlaneVector(point1,vector, plane)
+function point = pointOnPlaneVector(point1, vector, plane)
 %This function returns the intersection of a vector with plane. The point
 %in input is the through which vector passes
 % ref: http://www.ambrsoft.com/TrigoCalc/Plan3D/PlaneLineIntersection_.htm

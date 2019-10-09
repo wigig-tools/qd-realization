@@ -1,6 +1,6 @@
-function [output,count1,switch_QD] = QDGenerator(order_of_R,output,...
-    array_of_materials,number,MaterialLibrary,distance,freq,count1,dod,...
-    doa,vtx,v_temp,count,indexReference)
+function [output, count1, switch_QD] = QDGenerator(order_of_R,output,...
+    array_of_materials, number, MaterialLibrary, distance, freq, count1,...
+    dod, doa, vtx, v_temp, count, indexReference)
 %INPUT -
 %order_of_R -  Order of reflection
 %output - multipath parameters
@@ -88,8 +88,8 @@ for order_of_R_temp = 1:order_of_R
 end
 output(count1-1,9) = output(count1-1,9)-(Pathloss1);
 New_pathgain = output(count1-1,9);
-%% i1 is for generating precursors and i2 is for generating postcursors.
 
+% i1 is for generating precursors and i2 is for generating postcursors.
 for i1 = 1:2
     % In this step the material properties are extracted from material library
     % and different parameters are generated.
@@ -172,9 +172,9 @@ for i1 = 1:2
                     output(count1+i-1,9) = ((PGcursor)-...
                         Kfactor-(((tau_set(i+1))-...
                         (tau_set(1)))/gamma));
-                        if i == 1
-                output(indexReference,9) = 20*log10(10^(PGcursor/10)-10^((PGcursor-Kfactor)/10));
-            end
+                    if i == 1
+                        output(indexReference,9) = 20*log10(10^(PGcursor/10)-10^((PGcursor-Kfactor)/10));
+                    end
                 end
             end
         end
@@ -208,7 +208,6 @@ for i1 = 1:2
         a=((sum(PG.*((Aod_el-mu_1).*(Aod_el-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
         b=PG_cursor*((theta_cursor-mu_1)^2);
         s1=abs(x*(1+(b/a)));
-        % Aod_el=Aod_el.*s;
         Aod_el=((Aod_el-mu_1).*sqrt(s1))+(mu_1);
         
         mu=output(count1-1,10);
@@ -220,8 +219,6 @@ for i1 = 1:2
             ran(i)=x;
             Aod_az(i)=mu+x;
             theta_cursor=mu;
-            
-            %     output(count1+i-1,10)=randomLaplaceGenerator(mu,sigma_Aod_A);
         end
         
         mu_1=sum(PG.*Aod_az)/sum(PG);
@@ -232,9 +229,6 @@ for i1 = 1:2
         a=((sum(PG.*((Aod_az-mu_1).*(Aod_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
         b=PG_cursor*((theta_cursor-mu_1)^2);
         s1=abs(x*(1+(b/a)));
-        s1;
-        % Aod_az=Aod_az.*s;
-        % Aod_az=Aod_az-ran+(ran.*s);
         Aod_az=((Aod_az-mu_1).*sqrt(s1))+(mu_1);
         
         
@@ -247,8 +241,6 @@ for i1 = 1:2
             ran(i)=x;
             Aoa_az(i)=mu+x;
             theta_cursor=mu;
-            
-            %     output(count1+i-1,12)=randomLaplaceGenerator(mu,sigma_Aoa_A);
         end
         
         mu_1=sum(PG.*Aoa_az)/sum(PG);
@@ -259,20 +251,16 @@ for i1 = 1:2
         a=((sum(PG.*((Aoa_az-mu_1).*(Aoa_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
         b=PG_cursor*((theta_cursor-mu_1)^2);
         s1=abs(x*(1+(b/a)));
-        % Aoa_az=Aoa_az.*s;
         Aoa_az=((Aoa_az-mu_1).*sqrt(s1))+(mu_1);
         
         mu=acosd(doa(3)/norm(doa));
         
         % generates angular spread for Aoa elevation
-        
         for i=1:n
             x = randomLaplaceGenerator();
             ran(i)=x;
             Aoa_el(i)=mu+x;
             theta_cursor=mu;
-            
-            %     output(count1+i-1,13)=randomLaplaceGenerator(mu,sigma_Aoa_E);
         end
         
         mu_1=sum(PG.*Aoa_el)/sum(PG);
@@ -283,11 +271,9 @@ for i1 = 1:2
         a=((sum(PG.*((Aoa_el-mu_1).*(Aoa_el-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
         b=PG_cursor*((theta_cursor-mu_1)^2);
         s1=abs(x*(1+(b/a)));
-        % Aoa_el=Aoa_el.*s;
         Aoa_el=((Aoa_el-mu_1).*sqrt(s1))+(mu_1);
         
         % sorting all QD parameters in 'QD' parametwr
-        
         for i=1:n
             output(count1+i-1, 11)=Aod_el1(i+1);
             output(count1+i-1, 10)=Aod_az1(i+1);
@@ -301,18 +287,14 @@ for i1 = 1:2
             vtx_along_dod = dot(vtx, -dod_temp);
             vrx_along_dod = dot(v_temp, -dod_temp);
             c = 3e8;
-            %     vrx_along_dod
             doppler_factor = freq * (vrx_along_dod - vtx_along_dod) / c;
             output(count1+i-1,20) = doppler_factor;
             output(count1+i-1,18) = rand*2*pi;
             output(count1+i-1,19) = output(count1+i-1,9)*(output(count1-1,19)/output(count1-1,9));
             switch_QD = 1;
         end
+        
         count1=count1+i;
-        
-        %  QD(:,:,count-1)=[Aod_el1,Aod_az1,Aoa_el1,Aoa_az1,[PG_cursor1,PG1]',tau_set'];
-        
-        % QD(:,:,count-1)=[Aod_el1(1),Aod_az1(1),Aoa_el1(1),Aoa_az1(1),PG_cursor1,tau_set(1)];
         
     end
 end
