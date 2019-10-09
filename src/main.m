@@ -50,8 +50,8 @@ else
 end
 
 %% Input
-promptScenStr = 'Input: Create or enter an existing scenario name to begin the process (default: ''ScenarioTest''): ';
-scenarioNameStr = input(promptScenStr,'s');
+% Leave empty for default 'ScenarioTest'
+scenarioNameStr = '';
 if ~isempty(scenarioNameStr)
     fprintf('Use customized scenario: %s.\n',scenarioNameStr);
 else
