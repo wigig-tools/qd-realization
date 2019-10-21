@@ -1,4 +1,4 @@
-function [reflectedPoint]=reflectedImagePointPlane(point, plane)
+function reflectedPoint = reflectedImagePointPlane(point, plane)
 %this function returns the image of a point with respect to a plane (assuming the plane is a mirror)
 %ref: https://math.stackexchange.com/questions/1013230/how-to-find-coordinates-of-reflected-point
 

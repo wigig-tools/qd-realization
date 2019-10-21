@@ -1,4 +1,4 @@
-function [switch1] = verifydistance(r,Tx,CADop,i)
+function switch1 = verifydistance(r, Tx, CADop, i)
 % This part of the code verifies whether the given triangle (denoted by ith
 % row of CAop) is within a sphere of radius r and centered at Tx.
 % Please refer to "verifydistance - Limitation by distance.pdf" in this folder
@@ -40,41 +40,42 @@ function [switch1] = verifydistance(r,Tx,CADop,i)
 
 
 plane1 = CADop(i,10:13);
-
 switch1 = 0;
-% checks whether vertices are within the sphere
 
+% checks whether vertices are within the sphere
 for iterator = 1:3
     d = norm([CADop(i,(iterator - 1) + 1) - Tx(1),...
         CADop(i,(iterator - 1) + 2) - Tx(2),...
         CADop(i,(iterator - 1) + 3) - Tx(3)]);
+    
     if d <= r
         switch1 = 1;
         break;
     end
+    
 end
 
 if switch1 ~= 1
-    
     d1 = (distanceOfPointFromPlane(Tx, plane1));
     Point = point_on_plane(Tx, plane1);
     Point1 = CADop(i, 1:3);
     Point2 = CADop(i, 4:6);
     Point3 = CADop(i, 7:9);
+    
     % checks whether projection of center (Tx) on to plane of triangle lies within
     % triangle and sphere
     switch_triangle = PointInTriangle(Point,Point1,Point2,Point3);
+    
     if d1 <= r && switch_triangle == 1
         switch1 = 1;
-    elseif d1 <= r && switch_triangle == 0
         
+    elseif d1 <= r && switch_triangle == 0
         Triangle_Vertices = [Point1;Point2;Point3;Point1];
         
         %  calculates distance of projection of center (Tx) on to plane of triangle from
         %  the 3 sides of triangle. From pythagoras theorem we get the closest
         %  distance between Tx and any side is less than r. If not then the
         %  triangle lies outside the sphere.
-        
         for iterator = 1:3
             v1 = Triangle_Vertices(iterator,:);
             v2 = Triangle_Vertices(iterator + 1,:);
@@ -82,15 +83,15 @@ if switch1 ~= 1
             Point_on_side = v1 + (t.* (v1-v2));
             d2 = (dot(Point_on_side-Point,...
                 Point_on_side-Point));
+            
             if dot(v1-Point_on_side, v2-Point_on_side) <= 0 &&...
                     (d1^2) + (d2) <= r^2
                 switch1 = 1;
                 break;
             end
+            
         end
-        
     end
-    
 end
 
 end

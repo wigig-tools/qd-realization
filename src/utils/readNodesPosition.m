@@ -1,5 +1,5 @@
 function out = readNodesPosition(path)
-%READNODESPOSITION Function that extracts the Nodes Position from the 
+%READNODESPOSITION Function that extracts the Nodes Position from the
 % output file, as described by the documentation).
 %
 % INPUTS:

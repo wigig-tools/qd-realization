@@ -1,5 +1,5 @@
-function out = readQdFile(path,sortBy)
-%READQDFILE Function that extracts the QD file from the 
+function out = readQdFile(path, sortBy)
+%READQDFILE Function that extracts the QD file from the
 % output file, as described by the documentation).
 %
 % INPUTS:
@@ -85,9 +85,12 @@ out.aodAz=[];
 out.aoaEl=[];
 out.aoaAz=[];
 out.numRays=[];
+
 end
 
+
 function out = importRays(fid,numRays,sortBy)
+
 if isempty(sortBy)
     out = importRaysUnordered(fid,numRays);
 else
@@ -146,7 +149,9 @@ out.numRays = [];
 
 end
 
+
 function out = getNextRowFloats(fid,numRays)
 line = fgetl(fid);
 out = sscanf(line,'%g,',[1,numRays]);
+
 end

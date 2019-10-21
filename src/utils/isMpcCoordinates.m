@@ -34,4 +34,5 @@ b = ~isempty(regexp(splitPath{end},...
 b = b && strcmp(splitPath{end-1}, 'MpcCoordinates');
 b = b && strcmp(splitPath{end-2}, 'Visualizer');
 b = b && strcmp(splitPath{end-3}, 'Output');
+
 end

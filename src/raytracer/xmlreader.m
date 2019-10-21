@@ -1,5 +1,5 @@
-function [CADOutput, materialSwitch] = ...
-    xmlreader(filename, MaterialLibrary, referencePoint, r, IndoorSwitch)
+function [CADOutput, materialSwitch] = xmlreader(filename,...
+    MaterialLibrary, referencePoint, r, IndoorSwitch)
 %XML redaer extracts the information of CAD file (AMF). The input of the
 %function is filename, the material database with all the material
 %parameters (Material_library), reference point (referencePoint) and distance limitation(r)
@@ -44,10 +44,9 @@ function [CADOutput, materialSwitch] = ...
 %    improved MaterialLibrary access, readibility, performance in general
 
 
-[ s ] = xml2struct( filename );
+s = xml2struct(filename);
 
-%% Probing whether material information is present or not
-
+% Probing whether material information is present or not
 if isfield(s.amf,'material')
     materialSwitch = 1;
     
@@ -73,24 +72,25 @@ for iterateVolume=1:size(volume)
     else
         triangles=s.amf.object.mesh.volume.triangle';
     end
-    % vertices=s.amf.mesh.vertices.vertex;
+    
     if materialSwitch==1
         if sizeVolume(1)~=1
             materialid=s.amf.object.mesh.volume{1,iterateVolume}.Attributes.materialid;
         else
             materialid=s.amf.object.mesh.volume.Attributes.materialid;
         end
-        % materialid=s.amf.object.mesh.volume{1,j}.Attributes.materialid;
+        
         for iterateMaterials=1:sizeMaterials
             if sizeMaterials~=1
                 if str2double(materialid)==str2double(s.amf.material{1,iterateMaterials}.Attributes.id)
                     Material=s.amf.material{1,iterateMaterials}.metadata.Text;
                 end
+                
             elseif sizeVolume(1)==1 && sizeMaterials == 1
                 if str2double(materialid)==str2double(s.amf.material.Attributes.id)
                     Material=s.amf.material.metadata.Text;
-                    
                 end
+                
             end
         end
     end
@@ -98,7 +98,7 @@ for iterateVolume=1:size(volume)
     
     sizeTriangle=size(triangles);
     for iterateTriangles=1:sizeTriangle(1)
-        indexCADOutput=countRows;%((j-1)*size_triangle(1))+i;
+        indexCADOutput=countRows;
         
         v1 = getTriangleVertex(s,iterateVolume,iterateTriangles,'v1',sizeVolume);
         v2 = getTriangleVertex(s,iterateVolume,iterateTriangles,'v2',sizeVolume);
@@ -112,7 +112,7 @@ for iterateVolume=1:size(volume)
         normal = cross(vector2,vector1) * (1-(2*IndoorSwitch));
         normal = round(normal/norm(normal),4);
         vector3 = v2;
-        %for box. remove for others
+        % for box. remove for others
         D = -dot(normal,vector3);
         
         % Storing Material information in output if the material exists in the material database
@@ -125,22 +125,12 @@ for iterateVolume=1:size(volume)
                 end
             end
             
-            %     if switch2==0
-            %         msgID = 'MYFUN:incorrectMaterial';
-            %         msg = 'The materials in the file donot match with Material Library. Please create those materials in Material Library.';
-            %         causeException2 = MException(msgID,msg);
-            % %         baseException = addCause(baseException,causeException2);
-            %         throw(causeException2)
-            %     end
-            
-            %% Storing triangle vertices and plane equations in output
-            %Part where output file is created. It contains the triangle vertices
-            %in first nine columns, plane equations in the next four columns
-            
+            % Storing triangle vertices and plane equations in output
+            % Part where output file is created. It contains the triangle vertices
+            % in first nine columns, plane equations in the next four columns
             if switch2==0
                 materialSwitch=0;
             end
-            
             
         end
         
@@ -149,20 +139,20 @@ for iterateVolume=1:size(volume)
         CADOutput(indexCADOutput,7:9) = round(v3,6);
         CADOutput(indexCADOutput,10:12) = round(normal,4);
         CADOutput(indexCADOutput,13) = round(D,4);
-
-        %We are using distance limitation at this step
         
+        % We are using distance limitation at this step
         if r==0
             [switchDistance] = 1;
         else
             [switchDistance] = verifydistance(r,referencePoint,CADOutput,indexCADOutput);
         end
-        %If the triangles are within the given distance we increase the count,
-        %else the next triangle will replace the present row (as count remains constant)
         
+        % If the triangles are within the given distance we increase the count,
+        % else the next triangle will replace the present row (as count remains constant)
         if switchDistance==1
             countRows=countRows+1;
         end
+        
     end
 end
 

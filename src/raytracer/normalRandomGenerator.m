@@ -1,4 +1,5 @@
-function x=normalRandomGenerator( mu,sigma)
+function x = normalRandomGenerator(mu,sigma)
+
 x = (randn)*sigma + mu;
 
 end

@@ -1,4 +1,4 @@
-function [para] = parameterCfg(scenarioNameStr)
+function para = parameterCfg(scenarioNameStr)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -53,7 +53,7 @@ para = fieldToNum(para, 'generalizedScenario', [0,1], 1);
 % = 1;
 para = fieldToNum(para, 'indoorSwitch', [0,1], 1);
 
-% Input Scenario Filename 
+% Input Scenario Filename
 % = 'Case1'
 para.inputScenarioName = scenarioNameStr;
 
@@ -75,7 +75,7 @@ para = fieldToNum(para, 'mobilityType', [0,1,2], defaultMobilityType); % TODO: 0
 % = 10 (Default)
 para = fieldToNum(para, 'numberOfTimeDivisions', [], 10);
 
-%Reference point is the center of limiting sphere. 
+% Reference point is the center of limiting sphere.
 % = [3,3,2] (Default)
 % TODO: default value is arbitrary and not generic at all
 if isfield(para,'referencePoint')
@@ -85,7 +85,7 @@ else
 end
 
 % This is selection of planes/nodes by distance. r = 0 means that there is
-% no limitation (Default). 
+% no limitation (Default).
 para = fieldToNum(para, 'selectPlanesByDist', [], 0);
 
 % Switch to turn ON or OFF the Qausi dterministic module
@@ -107,10 +107,6 @@ switch(para.switchRandomization)
         error('Cannot handle switchRandomization=%f',para.switchRandomization)
 end
 para = fieldToNum(para, 'numberOfNodes', [], defaultNumberOfNodes);
-
-% Switch to enable or disable the visuals
-% = 0 (Default)
-para = fieldToNum(para, 'switchVisuals', [0,1], 0);
 
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)

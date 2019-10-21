@@ -27,6 +27,7 @@ for i = 1:numel(fids)
     if ~isnan(fids(i))
         fclose(fids(i));
     end
+    
 end
 
 end

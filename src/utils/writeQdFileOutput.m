@@ -55,9 +55,4 @@ fprintf(fid,formatSpec,output(:,13));
 % Stores Angle of arrival azimuth
 fprintf(fid,formatSpec,output(:,12));
 
-% formatSpecLine = [repmat('%.9g,',1,numRays-1), '%.9g\n'];
-% formatSpecMatrix = repmat(formatSpecLine,1,7);
-% 
-% fprintf(fid,formatSpecMatrix, output(:, [8,9,18,11,10,13,12]));
-
 end

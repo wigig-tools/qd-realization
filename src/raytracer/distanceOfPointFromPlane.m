@@ -1,4 +1,4 @@
-function [distance]=distanceOfPointFromPlane(point, plane)
+function distance = distanceOfPointFromPlane(point, plane)
 % This function return the normal distance of a point fram a plane.
 % ref: http://mathinsight.org/distance_point_plane
 

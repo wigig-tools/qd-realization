@@ -1,4 +1,4 @@
-function [point_on_plane]=point_on_plane(point, plane)
+function point_on_plane = point_on_plane(point, plane)
 % point_on_plane calculates the projection of a point on to plane, by
 % constructing a vector passing through the point along plane's normal
 

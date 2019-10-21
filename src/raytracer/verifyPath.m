@@ -1,5 +1,5 @@
-function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
-    plane2,CADOutput,condition1,isVerifyMobility)
+function switch3 = verifyPath(Intersection, Reflected, vector, plane,...
+    plane2, CADOutput, condition1, isVerifyMobility)
 %  Given the CAD model and the vectors one can verify if the vector passes
 %  through any one of the planes in the CAD model. While verifying about
 %  the intersection of line with triangle we consider intersection inside
@@ -19,7 +19,7 @@ function [switch3] = verifyPath(Intersection,Reflected,vector,plane,...
 %          isVerifyMobility - flag. True if path's origin could also lie on
 %          the plane, false if the intersection point can only lie between
 %          the point of origin and the destination.
-
+%
 % Outputs = switch3 - boolean which has information whether the path exists or not
 
 
@@ -75,7 +75,8 @@ for i = 1:size(CADOutput,1)
     % Check whether path intersects with the plane and does the
     % intersection point lie between the point of origin and destination
     dotIntersects = round(dot(Reflected-pointIntersection,...
-            Intersection-pointIntersection), 3);
+        Intersection-pointIntersection), 3);
+    
     if dotIntersects < 0 ||...
             (isVerifyMobility && dotIntersects == 0)
         % Switch is boolean whether the intersection point lies within
@@ -100,6 +101,7 @@ for i = 1:size(CADOutput,1)
     if switch3 == 0
         break;
     end
+    
 end
 
 end

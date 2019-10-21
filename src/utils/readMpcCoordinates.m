@@ -1,5 +1,5 @@
 function out = readMpcCoordinates(path)
-%READMPCCOORDINATES Function that extracts the MPC Coordinates from the 
+%READMPCCOORDINATES Function that extracts the MPC Coordinates from the
 % output file, as described by the documentation).
 %
 % INPUTS:

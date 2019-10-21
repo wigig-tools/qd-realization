@@ -1,8 +1,9 @@
-function [QD,switchQD,output,multipath,indexMultipath,indexQD] = multipath(...
-    ArrayOfPlanes,ArrayOfPoints,Rx,Tx,CADOutput,...
-    numberOfRowsArraysOfPlanes,MaterialLibrary,arrayOfMaterials,switchMaterial,velocityTx,velocityRx,...
-    PolarizationSwitch,PolarizationTx,AntennaOrientationTx,...
-    PolarizationRx,AntennaOrientationRx,switchCrossPolarization,QDGeneratorSwitch,frequency)
+function [QD, switchQD, output, multipath, indexMultipath, indexQD] =...
+    multipath(ArrayOfPlanes, ArrayOfPoints, Rx, Tx, CADOutput,...
+    numberOfRowsArraysOfPlanes, MaterialLibrary, arrayOfMaterials,...
+    switchMaterial, velocityTx, velocityRx, PolarizationSwitch,...
+    PolarizationTx, AntennaOrientationTx, PolarizationRx,...
+    AntennaOrientationRx, switchCrossPolarization, QDGeneratorSwitch, frequency)
 %INPUT -
 %ArrayOfPoints - combinations of multiple triangles, every row is a unique
 %combination. every triangle occupies 9 columns (3 vertices). (o/p of
@@ -87,176 +88,134 @@ indexOutput = 1;
 indexQD = 1;
 sizeArrayOfPlanes = size(ArrayOfPlanes);
 
-output = zeros(sizeArrayOfPlanes(1),21); 
+output = zeros(sizeArrayOfPlanes(1),21);
 multipath = [];
 LIGHTVELOCITY = 3e8;
 wavelength = LIGHTVELOCITY / frequency;
 if numberOfRowsArraysOfPlanes>0
-orderOfReflection = ArrayOfPlanes(1,1);
-%---
-
-% the for loop iterates through all the rows of ArrayOfPlanes,
-% ArrayOfPoints and provides a single row as input to
-% singleMultipathGenerator function
-% QD model is present in  this loop
-multipath = zeros(numberOfRowsArraysOfPlanes,orderOfReflection * 3 + 1);
-for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
+    orderOfReflection = ArrayOfPlanes(1,1);
     
-    
-    indexOrderOfReflection = 1;
-    multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1) = orderOfReflection;
-    multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1 + (1:3)) = Rx;
-    Reflected = Rx;
-    
-    % a single row of ArrayOfPlanes,ArrayOfPoints is fed to
-    % singleMultipathGenerator function to know whether a path exists. If a
-    % path exists then what are vectors that form the path (stored in
-    % multipath parameter)
-    
-    PolarizationSwitchTemporary = 1;
-    if PolarizationSwitch == 1 && switchMaterial == 1
-        for orderOfReflectionTemporary = 1:orderOfReflection
-            dielectricConstant = MaterialLibrary.DielectricConstant(...
+    % the for loop iterates through all the rows of ArrayOfPlanes,
+    % ArrayOfPoints and provides a single row as input to
+    % singleMultipathGenerator function
+    % QD model is present in  this loop
+    multipath = zeros(numberOfRowsArraysOfPlanes,orderOfReflection * 3 + 1);
+    for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
+        
+        
+        indexOrderOfReflection = 1;
+        multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1) = orderOfReflection;
+        multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1 + (1:3)) = Rx;
+        Reflected = Rx;
+        
+        % a single row of ArrayOfPlanes,ArrayOfPoints is fed to
+        % singleMultipathGenerator function to know whether a path exists. If a
+        % path exists then what are vectors that form the path (stored in
+        % multipath parameter)
+        
+        PolarizationSwitchTemporary = 1;
+        if PolarizationSwitch == 1 && switchMaterial == 1
+            for orderOfReflectionTemporary = 1:orderOfReflection
+                dielectricConstant = MaterialLibrary.DielectricConstant(...
                     arrayOfMaterials(indexMultipath,orderOfReflectionTemporary));
-            if dielectricConstant ~= 0
-                nt_array(orderOfReflectionTemporary) = dielectricConstant;
-            else
-                nt_array = [];
-                PolarizationSwitchTemporary = 0;
-                break
+                if dielectricConstant ~= 0
+                    nt_array(orderOfReflectionTemporary) = dielectricConstant;
+                else
+                    nt_array = [];
+                    PolarizationSwitchTemporary = 0;
+                    break
+                end
             end
-        end
-    else
-        nt_array = [];
-        PolarizationSwitchTemporary = 0;
-    end
-    
-    [switch1,~,dod,doa,multipath,distance,dopplerFactor,PathLoss,...
-        PolarizationTxTemporary,~,~,~,velocityTemp] = singleMultipathGenerator...
-        (iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexOrderOfReflection,ArrayOfPlanes,...
-        ArrayOfPoints,Reflected,Rx,Tx,CADOutput,...
-        multipath,indexMultipath,velocityTx,velocityRx,PolarizationSwitchTemporary,...
-        PolarizationTx,AntennaOrientationTx,PolarizationRx,...
-        AntennaOrientationRx,nt_array,switchCrossPolarization);
-    
-    
-    if switch1 == 1
-        for i = 1:indexMultipath - 1
-            switch3 = 1;
-            for j = 1:(orderOfReflection * 3) + 6
-                switch3 = switch3 && (multipath(i,j) == multipath(indexMultipath,j));
-            end
-            switch1 = switch1 && (~switch3);
-        end
-    end
-    
-    %the delay, AoA, AoD, path loss of the path are stored in output parameter
-    
-    if  switch1 == 1
-        
-        output(indexOutput,1) = indexMultipath;
-        % dod - direction of departure
-        output(indexOutput,2:4) = dod;
-        % doa - direction of arrival
-        output(indexOutput,5:7) = doa;
-        % Time delay
-        output(indexOutput,8) = distance / LIGHTVELOCITY;
-        % Friis transmission loss
-        if PathLoss(1) < 0
-            output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) + PathLoss(1);
         else
-            output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) - 10;
+            nt_array = [];
+            PolarizationSwitchTemporary = 0;
         end
-%         if QDgen == 1
-%             temp = output(indexOutput,9);
-%             randomHumanBlockage = rand;
-%             if randomHumanBlockage < 0.1
-%                 randomHumanBlockage = -1;
-%             else
-%                 randomHumanBlockage = 0;
-%             end
-%             output(indexOutput,9) = temp+(rand*25*randomHumanBlockage);
-%         end
-
-%-----------------Polarization Part Omitted------------------------------%
-%         if switchCrossPolarization == 1
-%             if PathLoss(2)<0
-%                 output(indexOutput,19) = (20*log10(wavelength/(4*pi*delay)))...
-%                     +((PathLoss(2)));
-%             else
-%                 output(indexOutput,19) = 20*log10(wavelength/(4*pi*delay));
-%             end
-%         else
-%             output(indexOutput,19) = 0;
-%         end
-%-----------------Polarization Part Omitted------------------------------%
-
-        % Aod azimuth
-        output(indexOutput,10) = mod(atan2d(dod(2),dod(1)), 360);
-        %Aod elevation
-        output(indexOutput,11) = acosd(dod(3) / norm(dod));
         
-        %Aoa azimuth
-        % doa(3)=-doa(3);
-        % doa(2)=-doa(2);
-        % doa(1)=-doa(1);
-        output(indexOutput,12) = mod(atan2d(doa(2),doa(1)), 360);
-        %Aoa elevation
-        output(indexOutput,13) = acosd(doa(3) / norm(doa));
-%-----------------Polarization Part Omitted------------------------------%
-%         %End Polarization information
-%         if PolarizationSwitchTemporary==1
-%             output(indexOutput,14) = PolarizationTxTemporary(1,1);
-%             output(indexOutput,15) = PolarizationTxTemporary(2,1);
-%         end
-%         %End Polarization information - crosspolarized component
-%         if switchCrossPolarization == 1
-%             output(indexOutput,16) = PolarizationTxTemporary(1,2);
-%             output(indexOutput,17) = PolarizationTxTemporary(2,2);
-%         end
-%         if PolarizationSwitch == 1
-%             output(indexOutput,18) = 0;%dopplerFactor*delay;
-%         else
-%             %This part of code has phase information in the absence of Polarization
-             output(indexOutput,18) = orderOfReflection*pi;% + dopplerFactor*delay;
-%         end
-%-----------------Polarization Part Omitted------------------------------%
-        output(indexOutput,20) = dopplerFactor * frequency;
-        indexReference = indexOutput;
-        indexMultipath = indexMultipath + 1;
-        indexOutput = indexOutput + 1;
-        output(indexOutput - 1,21) = 0;
-
-        % refer to "multipath - WCL17_revised.pdf" in this folder for QD model
-        if  switchMaterial == 1 && QDGeneratorSwitch == 1
-            [output,indexOutput,switchQD] = QDGenerator(orderOfReflection,...
-                output,arrayOfMaterials,iterateNumberOfRowsArraysOfPlanes,MaterialLibrary,distance,...
-                frequency,indexOutput,dod,doa,velocityTx,velocityTemp,indexMultipath,indexReference);
+        [switch1,~,dod,doa,multipath,distance,dopplerFactor,PathLoss,...
+            ~,~,~,~,velocityTemp] = singleMultipathGenerator...
+            (iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexOrderOfReflection,ArrayOfPlanes,...
+            ArrayOfPoints,Reflected,Rx,Tx,CADOutput,...
+            multipath,indexMultipath,velocityTx,velocityRx,PolarizationSwitchTemporary,...
+            PolarizationTx,AntennaOrientationTx,PolarizationRx,...
+            AntennaOrientationRx,nt_array,switchCrossPolarization);
+        
+        
+        if switch1 == 1
+            for i = 1:indexMultipath - 1
+                switch3 = 1;
+                for j = 1:(orderOfReflection * 3) + 6
+                    switch3 = switch3 && (multipath(i,j) == multipath(indexMultipath,j));
+                end
+                switch1 = switch1 && (~switch3);
+            end
+        end
+        
+        % the delay, AoA, AoD, path loss of the path are stored in output parameter
+        
+        if  switch1 == 1
+            
+            output(indexOutput,1) = indexMultipath;
+            % dod - direction of departure
+            output(indexOutput,2:4) = dod;
+            % doa - direction of arrival
+            output(indexOutput,5:7) = doa;
+            % Time delay
+            output(indexOutput,8) = distance / LIGHTVELOCITY;
+            % Friis transmission loss
+            if PathLoss(1) < 0
+                output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) + PathLoss(1);
+            else
+                output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) - 10;
+            end
+            % Aod azimuth
+            output(indexOutput,10) = mod(atan2d(dod(2),dod(1)), 360);
+            % Aod elevation
+            output(indexOutput,11) = acosd(dod(3) / norm(dod));
+            % Aoa azimuth
+            output(indexOutput,12) = mod(atan2d(doa(2),doa(1)), 360);
+            % Aoa elevation
+            output(indexOutput,13) = acosd(doa(3) / norm(doa));
+            output(indexOutput,18) = orderOfReflection*pi;% + dopplerFactor*delay;
+            output(indexOutput,20) = dopplerFactor * frequency;
+            indexReference = indexOutput;
+            indexMultipath = indexMultipath + 1;
+            indexOutput = indexOutput + 1;
+            output(indexOutput - 1,21) = 0;
+            
+            % refer to "multipath - WCL17_revised.pdf" in this folder for QD model
+            if  switchMaterial == 1 && QDGeneratorSwitch == 1
+                [output,indexOutput,switchQD] = QDGenerator(orderOfReflection,...
+                    output,arrayOfMaterials,iterateNumberOfRowsArraysOfPlanes,MaterialLibrary,distance,...
+                    frequency,indexOutput,dod,doa,velocityTx,velocityTemp,indexMultipath,indexReference);
+            end
+        end
+        
+    end
+    
+    switch2 = 1;
+    
+    try
+        ioi = output(indexMultipath,1)==0;
+    catch
+        switch2 = 0;
+        indexMultipath = indexMultipath -1;
+    end
+    
+    if switch2==1
+        if output(indexMultipath,1)==0
+            indexMultipath = indexMultipath-1 ;
         end
     end
     
-end
-switch2 = 1;
-try 
-    ioi = output(indexMultipath,1)==0;
-catch
-    switch2 = 0;
-    indexMultipath = indexMultipath -1;
-end
-if switch2==1
-if output(indexMultipath,1)==0
-indexMultipath = indexMultipath-1 ;
-end
-end
-indexQD = indexOutput - 1;
-output1 = output;
-output = [];
-output = output1(1:indexQD,1:21);
-mp1 = multipath;
-multipath = [];
-if indexMultipath>=1
-    multipath = mp1(1:indexMultipath,:);
-end
+    indexQD = indexOutput - 1;
+    output1 = output;
+    output = output1(1:indexQD,1:21);
+    mp1 = multipath;
+    multipath = [];
+    
+    if indexMultipath>=1
+        multipath = mp1(1:indexMultipath,:);
+    end
 end
 
 end

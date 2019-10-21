@@ -1,8 +1,8 @@
-function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,...
-    timeDivision, node, nodeVelocity, NodePosition,delt)
+function [node, nodeVelocity] = NodeExtractor(numberOfNodes,...
+    switchRandomization, timeDivision, node, nodeVelocity, NodePosition, delt)
 % INPUT:
 % number_of_nodes - number of nodes
-% switch_randomization - This is switch to turn ON or OFF randomization. 
+% switch_randomization - This is switch to turn ON or OFF randomization.
 % 1 = random
 % time_division - it is the time instance number
 % node - 2d array which contains all node locations
@@ -16,7 +16,7 @@ function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,
 % node - 2d array which contains all node locations
 % node_v - 2d array which contains all node velocities
 %
-% This function is to extract node positions from a file and compute node 
+% This function is to extract node positions from a file and compute node
 % velocities from the position values
 
 
@@ -59,7 +59,7 @@ function [node,nodeVelocity] = NodeExtractor(numberOfNodes, switchRandomization,
 % randomly generated
 % For the first time division, the code extracts Tx position from
 % NodePosition parameter. The velocity is computed from the difference in
-% nodepositions 
+% nodepositions
 
 if (numberOfNodes>2 || switchRandomization==1) && timeDivision==0
     node = nan(numberOfNodes, 3);
@@ -75,7 +75,7 @@ end
 % randomly generated
 % For the first time division, the code extracts Tx/Rx position from
 % NodePosition parameter. The velocity is computed from the difference in
-% nodepositions 
+% nodepositions
 
 if timeDivision==0 && ~(numberOfNodes>2 || switchRandomization==1)
     Tx = NodePosition(timeDivision+1,:,1);
@@ -94,9 +94,7 @@ end
 % randomly generated
 % For the nth time division, the code extracts Tx position from
 % NodePosition parameter. The velocity is computed from the difference in
-% nodepositions 
-
-
+% nodepositions
 
 if (numberOfNodes>2 || switchRandomization==1) && timeDivision>0
     node = nan(numberOfNodes, 3);
@@ -113,8 +111,7 @@ end
 % randomly generated
 % For the first nth division, the code extracts Tx/Rx position from
 % NodePosition parameter. The velocity is computed from the difference in
-% nodepositions 
-
+% nodepositions
 
 if timeDivision>0 && ~(numberOfNodes>2 || switchRandomization==1)
     Tx = NodePosition(timeDivision+1,:,1);
