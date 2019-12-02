@@ -1,4 +1,4 @@
-clear
+% clear
 close all
 clc
 
@@ -15,9 +15,9 @@ roomCoords = readRoomCoordinates(roomCoordPath);
 %% visualization
 [Tri,X,Y,Z] = roomCoords2triangles(roomCoords); % triangle vertices
 
-saveGif=true;
-orderColor=true;
-visualizeRays(Tri,X,Y,Z,visualizerPath,0,3,saveGif,orderColor)
+saveGif = false;
+orderColor = false;
+visualizeRays(Tri, X, Y, Z, visualizerPath, 0, 3, saveGif, orderColor)
 
 % color selection
 % boxTriangles = xml2struct(strcat(path,'/Input/BoxTriangles.xml'));
