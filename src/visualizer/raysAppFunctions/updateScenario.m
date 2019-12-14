@@ -1,12 +1,18 @@
 function updateScenario(app)
 
-scenarioName = app.ScenarioDropdown.Value;
+mainPath = uigetdir;
+if mainPath == 0
+    return
+end
+pathParts = regexp(mainPath,filesep,'split');
+
+scenarioName = pathParts{end};
 app.scenarioName = scenarioName;
 app.UIAxes.Title.String = scenarioName;
 
-app.outputPath = sprintf('../examples/%s/Output', scenarioName);
-app.visualizerPath = sprintf('../examples/%s/Output/Visualizer', scenarioName);
-app.ns3Path = sprintf('../examples/%s/Output/Ns3', scenarioName);
+app.outputPath = fullfile(mainPath,'Output');
+app.visualizerPath = fullfile(app.outputPath,'Visualizer');
+app.ns3Path = fullfile(app.outputPath,'Ns3');
 
 raysAppPlotRoom(app)
 
