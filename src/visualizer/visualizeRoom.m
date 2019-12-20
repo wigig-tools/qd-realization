@@ -6,7 +6,7 @@ addpath('../utils')
 
 %% data loading
 scenario = 'SpatialSharing'; % select the scenario to visualize. Must respect the folder structure
-path = ['../',scenario];
+path = ['../examples/',scenario];
 visualizerPath = strcat(path,'/Output/Visualizer');
 
 roomCoordPath = strcat(visualizerPath,'/RoomCoordinates/RoomCoordinates.csv');
@@ -16,7 +16,7 @@ roomCoords = readRoomCoordinates(roomCoordPath);
 [Tri,X,Y,Z] = roomCoords2triangles(roomCoords); % triangle vertices
 
 saveGif = false;
-orderColor = false;
+orderColor = true;
 visualizeRays(Tri, X, Y, Z, visualizerPath, 0, 3, saveGif, orderColor)
 
 % color selection

@@ -5,7 +5,8 @@ function [] = visualizeRays(Tri,X,Y,Z,visualizerPath,txIndex,rxIndex,saveGif,ord
 if orderColor
     colorMap = ['k','r','b','o','g','c','m'];
 end
-scenarioName = string({extractBetween(visualizerPath,'../','/Output')});
+lastIdxScenarioName = strfind(visualizerPath,'/Output/') - 1;
+scenarioName = visualizerPath(1:lastIdxScenarioName);
 
 nodeFolder = [visualizerPath,'/NodePositions/']; % create the path to the node positions files
 nodeFileList = dir(nodeFolder); % list files and directories
@@ -84,9 +85,9 @@ for timeStep = 1:overallTimeSteps % open each file (one per time step)
         [imind,cm] = rgb2ind(im,256);
         % Write to the GIF File
         if timeStep == 1
-            imwrite(imind,cm,filename,'gif', 'Loopcount',inf,'DelayTime',0.005);
+            imwrite(imind,cm,filename,'gif', 'Loopcount',inf,'DelayTime',0.03);
         else
-            imwrite(imind,cm,filename,'gif','WriteMode','append','DelayTime',0.005);
+            imwrite(imind,cm,filename,'gif','WriteMode','append','DelayTime',0.03);
         end
     end
 end
