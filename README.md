@@ -1,5 +1,5 @@
 # Q-D realization software
-> An MATLAB open-source ray-tracer specialized for mmWave RF applications.
+> A MATLAB open-source ray-tracer specialized for mmWave RF applications.
 
 [![Contributors](https://img.shields.io/github/contributors/wigig-tools/qd-realization)](https://github.com/wigig-tools/qd-realization/graphs/contributors)
 
