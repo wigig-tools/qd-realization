@@ -3,7 +3,7 @@
 
 [![Contributors](https://img.shields.io/github/contributors/wigig-tools/qd-realization)](https://github.com/wigig-tools/qd-realization/graphs/contributors)
 
-![Snapshot for our Q-D realization app](qdRealizationSnapshot.PNG)
+![Snapshot for our Q-D realization app](SpatialSharingTx0Rx3.gif)
 
 ## Table of Contents
 * [Installation](#installation)
