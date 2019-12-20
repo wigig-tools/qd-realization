@@ -59,7 +59,7 @@ For more information check out the [CONTRIBUTING](CONTRIBUTING) file.
 
 The Q-D Realization software has been developed by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi) and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
 
-The current version of the code has been developed in collaboration with University of Padova, Department of Information Engineering, [SIGNET lab.](http://signet.dei.unipd.it/), under Prof. [Michele Zorzi](mailto:zorzi@dei.unipd.it)'s supervision.
+The current version of the code has been developed in collaboration with University of Padova, Department of Information Engineering, [SIGNET lab.](http://signet.dei.unipd.it/), under Prof. [Michele Zorzi](http://www.dei.unipd.it/~zorzi/)'s supervision.
 
 You can find the detailed list of contributors [here](https://github.com/wigig-tools/qd-realization/graphs/contributors).
 
