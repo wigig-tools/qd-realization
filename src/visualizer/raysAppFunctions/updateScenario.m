@@ -8,7 +8,12 @@ pathParts = regexp(mainPath,filesep,'split');
 
 scenarioName = pathParts{end};
 app.scenarioName = scenarioName;
-app.UIAxes.Title.String = scenarioName;
+
+if strcmp(app.UIAxes.Title.Interpreter, 'latex')
+    app.UIAxes.Title.String = strrep(scenarioName, '_', '\_');
+else
+    app.UIAxes.Title.String = scenarioName;
+end
 
 app.outputPath = fullfile(mainPath,'Output');
 app.visualizerPath = fullfile(app.outputPath,'Visualizer');
