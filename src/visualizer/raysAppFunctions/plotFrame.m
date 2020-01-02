@@ -41,10 +41,10 @@ if all(cellfun(@isempty, mpcs))
 end
 
 for i = 1:length(mpcs)
-    coords = mpcs{i};
+    relfOrder = i - 1;
     
-    color = app.rayColors(i,:);
-    width = app.rayWidth(i);
+    coords = mpcs{i};
+    [color, width] = getRayAspect(relfOrder);
     
     app.raysPlotHandle = [app.raysPlotHandle;...
         plot3(app.UIAxes,...
