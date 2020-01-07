@@ -1,6 +1,6 @@
 function updateScenario(app)
+    mainPath = uigetdir('..');
 
-mainPath = uigetdir;
 if mainPath == 0
     return
 end
