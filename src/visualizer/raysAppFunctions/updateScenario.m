@@ -1,7 +1,7 @@
 function updateScenario(app, mainPath)
 
 if nargin < 2
-    mainPath = uigetdir('..');
+    mainPath = uigetdir(app.srcPath);
 end
 
 if mainPath == 0
