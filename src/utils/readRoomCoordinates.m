@@ -27,10 +27,6 @@ function out = readRoomCoordinates(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-out = readtable(path,...
-    'FileType', 'text',...
-    'ReadVariableNames', false,...
-    'Delimiter', ',');
-out = out{:,:}; % return matrix
+out = csvread(path); % not using readmatrix for retrocompatibility
 
 end
