@@ -7,10 +7,16 @@ end
 if mainPath == 0
     return
 end
-pathParts = regexp(mainPath,filesep,'split');
 
-scenarioName = pathParts{end};
-app.scenarioName = scenarioName;
+scenarioName = getScenarioNameFromPath(mainPath, true);
+if strcmp(scenarioName, '')
+    uialert(app.Visualizer,...
+        'Selected path is not a valid scenario to be visualized',...
+        'Invalid path')
+    return
+else
+    app.scenarioName = scenarioName;
+end
 
 if strcmp(app.UIAxes.Title.Interpreter, 'latex')
     app.UIAxes.Title.String = strrep(scenarioName, '_', '\_');
