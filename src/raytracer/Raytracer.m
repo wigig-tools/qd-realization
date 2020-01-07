@@ -128,7 +128,8 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
 end
 
 % Init output files
-fids = getQdFilesIds(qdFilesPath,numberOfNodes);
+fids = getQdFilesIds(qdFilesPath, numberOfNodes,...
+    paraCfgInput.useOptimizedOutputToFile);
 
 %% ------------ Original Raytracer --------------
 
@@ -294,9 +295,13 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
             % The ouput from previous iterations is stored in files
             % whose names are TxiRxj.txt. i,j is the link
             % between ith node as Tx and jth as Rx.
-            writeQdFileOutput(output, fids(iterateTx,iterateRx),...
+            writeQdFileOutput(output,...
+                paraCfgInput.useOptimizedOutputToFile,...
+                fids, iterateTx, iterateRx, qdFilesPath,...
                 paraCfgInput.qdFilesFloatPrecision);
-            writeQdFileOutput(reverseOutputTxRx(output), fids(iterateRx,iterateTx),...
+            writeQdFileOutput(reverseOutputTxRx(output),...
+                paraCfgInput.useOptimizedOutputToFile,...
+                fids, iterateRx, iterateTx, qdFilesPath,...
                 paraCfgInput.qdFilesFloatPrecision);
             
         end
@@ -304,6 +309,6 @@ for iterateTimeDivision = 0:numberOfTimeDivisions
     
 end
 
-closeQdFilesIds(fids);
+closeQdFilesIds(fids, paraCfgInput.useOptimizedOutputToFile);
 
 end
