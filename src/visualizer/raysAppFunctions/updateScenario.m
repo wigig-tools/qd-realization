@@ -1,5 +1,8 @@
-function updateScenario(app)
+function updateScenario(app, mainPath)
+
+if nargin < 2
     mainPath = uigetdir('..');
+end
 
 if mainPath == 0
     return
@@ -60,7 +63,7 @@ extractMpcCoordinatesInfo(app);
 extractNodePositionsInfo(app);
 
 totalTimesteps = length(app.timestepInfo);
-app.currentTimestep = 1;
+app.currentTimestep = 1; % added listener to this variable 
 
 if totalTimesteps < 2
     app.TimestepSlider.Limits = [0,1];
