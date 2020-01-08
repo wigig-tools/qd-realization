@@ -6,7 +6,7 @@ mobilitySwitch	0
 mobilityType	2
 numberOfNodes	3
 numberOfTimeDivisions	5
-referencePoint	[3,3,2]
+referencePoint	[0,0,0]
 selectPlanesByDist	0
 switchQDGenerator	0
 switchRandomization	1

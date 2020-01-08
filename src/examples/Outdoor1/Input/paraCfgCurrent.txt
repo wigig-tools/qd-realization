@@ -6,8 +6,8 @@ mobilitySwitch	0
 mobilityType	1
 numberOfNodes	2
 numberOfTimeDivisions	4
-referencePoint	[285.27,178.7,2]
-selectPlanesByDist	10
+referencePoint	[0,0,0]
+selectPlanesByDist	0
 switchQDGenerator	0
 switchRandomization	0
 totalNumberOfReflections	1
