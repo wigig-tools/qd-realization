@@ -129,6 +129,11 @@ para = fieldToNum(para, 'carrierFrequency', [], 60e9);
 % Default: 6 digits
 para = fieldToNum(para, 'qdFilesFloatPrecision', [], 6);
 
+% Use optimized output to file. Might create problems when files are too
+% many, especially on servers. In this case, try to disable it (=0)
+% Default: 1 (true)
+para = fieldToNum(para, 'useOptimizedOutputToFile', [], 1);
+
 end
 
 

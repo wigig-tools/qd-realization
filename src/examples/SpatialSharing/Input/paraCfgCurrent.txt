@@ -6,7 +6,7 @@ mobilitySwitch	1
 mobilityType	1
 numberOfNodes	4
 numberOfTimeDivisions	100
-referencePoint	[3,3,2]
+referencePoint	[0,0,0]
 selectPlanesByDist	0
 switchQDGenerator	0
 switchRandomization	0
@@ -15,3 +15,4 @@ totalTimeDuration	100
 switchSaveVisualizerFiles	1
 carrierFrequency	60e9
 qdFilesFloatPrecision	6
+useOptimizedOutputToFile	1
