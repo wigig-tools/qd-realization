@@ -1,11 +1,12 @@
-function closeQdFilesIds(fids)
+function closeQdFilesIds(fids, useOptimizedOutputToFile)
 %CLOSEQDFILESIDS Closes and flushes opened QdFiles given in the fids matrix
 %
 % INPUTS:
 % - fids: matrix of file IDs previously opened. The main diagonal is
 % NaN-filled
+% - useOptimizedOutputToFile: see PARAMETERCFG
 %
-% SEE ALSO: GETQDFILESIDS, WRITEQDFILEOUTPUT
+% SEE ALSO: GETQDFILESIDS, WRITEQDFILEOUTPUT, PARAMETERCFG
 
 
 % Copyright (c) 2019, University of Padova, Department of Information
@@ -22,6 +23,11 @@ function closeQdFilesIds(fids)
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 % See the License for the specific language governing permissions and
 % limitations under the License.
+
+if ~useOptimizedOutputToFile
+    % do nothing, files are already closed
+    return
+end
 
 for i = 1:numel(fids)
     if ~isnan(fids(i))

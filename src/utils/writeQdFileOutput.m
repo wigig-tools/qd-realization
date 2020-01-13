@@ -1,12 +1,17 @@
-function writeQdFileOutput(output, fid, precision)
+function writeQdFileOutput(output, useOptimizedOutputToFile,...
+    fids, iTx, iRx, qdFilesPath, precision)
 %WRITEQDFILEOUTPUT Writes timestamp information to QdFile
 %
 % INPUTS:
 % - output: output matrix formatted as in MULTIPATH and LOSOUTPUTGENERATOR
-% - fid: File ID of the target file
+% - useOptimizedOutputToFile: see PARAMETERCFG
+% - fids: see GETQDFILESIDS
+% - iTx: index of the TX
+% - iRx: index of the RX
+% - qdFilesPath: path to Output/Ns3/QdFiles
 % - precision: floating point output precision in number of digits
 %
-% SEE ALSO: GETQDFILESIDS, CLOSEQDFILESIDS, MULTIPATH, LOSOUTPUTGENERATOR
+% SEE ALSO: GETQDFILESIDS, CLOSEQDFILESIDS, MULTIPATH, LOSOUTPUTGENERATOR, PARAMETERCFG
 
 
 % Copyright (c) 2019, University of Padova, Department of Information
@@ -23,6 +28,14 @@ function writeQdFileOutput(output, fid, precision)
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 % See the License for the specific language governing permissions and
 % limitations under the License.
+
+if ~useOptimizedOutputToFile
+    filename = sprintf('%s/Tx%dRx%d.txt', qdFilesPath, iTx - 1, iRx - 1);
+    fid = fopen(filename, 'A');
+else
+    fid = fids(iTx, iRx);
+end
+    
 
 numRays = size(output,1);
 fprintf(fid, '%d\n', numRays);
@@ -54,5 +67,9 @@ fprintf(fid,formatSpec,output(:,13));
 
 % Stores Angle of arrival azimuth
 fprintf(fid,formatSpec,output(:,12));
+
+if ~useOptimizedOutputToFile
+    fclose(fid);
+end
 
 end
