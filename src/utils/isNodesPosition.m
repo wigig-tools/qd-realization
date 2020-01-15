@@ -25,11 +25,16 @@ function b = isNodesPosition(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-splitPath = split(path,'/');
+[remainingPath, fileName, extension] = fileparts(path);
+b = strcmp([fileName, extension], 'NodesPosition.csv');
 
-b = strcmp(splitPath{end}, 'NodesPosition.csv');
-b = b && strcmp(splitPath{end-1}, 'NodesPosition');
-b = b && strcmp(splitPath{end-2}, 'Ns3');
-b = b && strcmp(splitPath{end-3}, 'Output');
+[remainingPath, nodesPositionFolder] = fileparts(remainingPath);
+b = b && strcmp(nodesPositionFolder, 'NodesPosition');
+
+[remainingPath, ns3Folder] = fileparts(remainingPath);
+b = b && strcmp(ns3Folder, 'Ns3');
+
+[~, outputFolder] = fileparts(remainingPath);
+b = b && strcmp(outputFolder, 'Output');
 
 end
