@@ -45,6 +45,10 @@ if isempty(output)
     return
 end
 
+if any(any(isnan(output(:, [8, 9, 18, 11, 10, 13, 12]))))
+    warning('Writing NaN in QD file')
+end
+
 floatFormat = sprintf('%%.%dg',precision);
 formatSpec = [repmat([floatFormat,','],1,numRays-1), [floatFormat,'\n']];
 
