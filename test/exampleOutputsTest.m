@@ -144,8 +144,10 @@ end
 %% Utils
 function runRaytracer(testCase, exampleName)
 
+% Copy example scenario to new temporary folder
 copyfile(fullfile(testCase.TestData.examplesFolderPath, exampleName, 'Input'),...
     fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
+delete(fullfile(testCase.TestData.scenarioFolderPath, 'Input/cachedCadOutput.mat'))
 
 % Input System Parameters
 paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
