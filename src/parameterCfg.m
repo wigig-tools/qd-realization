@@ -39,7 +39,7 @@ function para = parameterCfg(scenarioNameStr)
 
 
 % Load Parameters
-cfgPath = sprintf('%s/Input/paraCfgCurrent.txt',scenarioNameStr);
+cfgPath = fullfile(scenarioNameStr, 'Input/paraCfgCurrent.txt');
 paraList = readtable(cfgPath,'Delimiter','\t');
 
 paraCell = (table2cell(paraList))';
@@ -188,7 +188,7 @@ end
 end
 
 function b = isNodePositionPresent(path)
-files = dir(sprintf('%s/Input',path));
+files = dir(fullfile(path, 'Input'));
 
 b = any(startsWith({files.name},'NodePosition'));
 end

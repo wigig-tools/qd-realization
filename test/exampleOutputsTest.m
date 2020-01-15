@@ -78,7 +78,7 @@ assert(~isfolder(testCase.TestData.scenarioFolderPath),...
     testCase.TestData.scenarioFolderPath)
 
 % Setup folder
-mkdir(sprintf('%s/Input',testCase.TestData.scenarioFolderPath));
+mkdir(fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
 
 % Reset RNG for reproducibility
 rng('default')
@@ -144,9 +144,8 @@ end
 %% Utils
 function runRaytracer(testCase, exampleName)
 
-copyfile(sprintf('%s/%s/Input/',...
-    testCase.TestData.examplesFolderPath, exampleName),...
-    sprintf('%s/Input/', testCase.TestData.scenarioFolderPath));
+copyfile(fullfile(testCase.TestData.examplesFolderPath, exampleName, 'Input'),...
+    fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
 
 % Input System Parameters
 paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
@@ -163,12 +162,12 @@ end
 
 function checkOutput(testCase, exampleName)
 % list of output files
-scenarioFiles = dir(sprintf('%s/Output/**',...
-    testCase.TestData.scenarioFolderPath));
+scenarioFiles = dir(fullfile(...
+    testCase.TestData.scenarioFolderPath, 'Output/**'));
 scenarioFiles = scenarioFiles(~[scenarioFiles.isdir]);
 
-exampleFiles = dir(sprintf('%s/%s/Output/**',...
-    testCase.TestData.examplesFolderPath, exampleName));
+exampleFiles = dir(fullfile(...
+    testCase.TestData.examplesFolderPath, exampleName, 'Output/**'));
 exampleFiles = exampleFiles(~[exampleFiles.isdir]);
 
 verifyLength(testCase, scenarioFiles, length(exampleFiles),...

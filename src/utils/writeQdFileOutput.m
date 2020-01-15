@@ -30,8 +30,9 @@ function writeQdFileOutput(output, useOptimizedOutputToFile,...
 % limitations under the License.
 
 if ~useOptimizedOutputToFile
-    filename = sprintf('%s/Tx%dRx%d.txt', qdFilesPath, iTx - 1, iRx - 1);
-    fid = fopen(filename, 'A');
+    filename = sprintf('Tx%dRx%d.txt', iTx - 1, iRx - 1);
+    filepath = fullfile(qdFilesPath, filename);
+    fid = fopen(filepath, 'A');
 else
     fid = fids(iTx, iRx);
 end
