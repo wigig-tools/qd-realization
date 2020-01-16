@@ -59,12 +59,7 @@ while ~feof(fid)
     % (a) number of rays occupies the first row
     line = fgetl(fid);
     numRays = sscanf(line,'%d');
-    
-    if numRays == 0
-        % skip
-        continue
-    end
-    
+
     out(i) = importRays(fid,numRays,sortBy);
     out(i).numRays = numRays;
     
@@ -151,7 +146,10 @@ end
 
 
 function out = getNextRowFloats(fid,numRays)
-line = fgetl(fid);
-out = sscanf(line,'%g,',[1,numRays]);
-
+if numRays==0 % if there are no rays, all the fields are filled with empty values
+    out = [];
+else
+    line = fgetl(fid);
+    out = sscanf(line,'%g,',[1,numRays]);
+end
 end
