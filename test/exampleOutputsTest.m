@@ -45,21 +45,12 @@ function setupOnce(testCase)
 % Save important folders & move to src folder
 testCase.TestData.testFolderPath = pwd;
 
-cd('../src')
+srcFolder = '../src';
 
-addpath('raytracer', 'utils')
-testCase.TestData.mainFolderPath = pwd;
+addpath(fullfile(srcFolder, 'raytracer'),...
+    fullfile(srcFolder,'utils'))
 
-[~,folderName] = fileparts(testCase.TestData.mainFolderPath);
-assert(strcmp(folderName, 'src'),...
-    'The root folder should be ''src''');
-
-testCase.TestData.examplesFolderPath = 'examples';
-end
-
-function teardownOnce(testCase)
-cd(testCase.TestData.testFolderPath)
-
+testCase.TestData.examplesFolderPath = fullfile(srcFolder,'examples');
 end
 
 
@@ -149,15 +140,11 @@ copyfile(fullfile(testCase.TestData.examplesFolderPath, exampleName, 'Input'),..
     fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
 delete(fullfile(testCase.TestData.scenarioFolderPath, 'Input/cachedCadOutput.mat'))
 
-% Input System Parameters
-paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
-% Input Node related parameters
-[paraCfg, nodeCfg] = nodeProfileCfg(paraCfg);
 % Force settings
 paraCfg.switchSaveVisualizerFiles = 1;
-paraCfg.switchVisuals = 0;
-% Run raytracing function and generate outputs
-Raytracer(paraCfg, nodeCfg);
+% Run raytracing function and generate output files
+launchRaytracer(testCase.TestData.scenarioFolderPath,...
+    'Verbose', 0, 'forcedParaCfg', paraCfg);
 
 end
 
