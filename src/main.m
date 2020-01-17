@@ -58,14 +58,14 @@ else
     scenarioNameStr = 'ScenarioTest';
     fprintf('Use default scenario: ScenarioTest.\n');
 end
-scenarioPathStr = strcat(rootFolderPath,'/',scenarioNameStr);
+scenarioPathStr = fullfile(rootFolderPath, scenarioNameStr);
 
 % Check Input Scenario File
 if ~isfolder(scenarioPathStr)
-    scenarioInputPath = strcat(rootFolderPath,'/',scenarioNameStr,'/Input');
+    scenarioInputPath = fullfile(rootFolderPath, scenarioNameStr, 'Input');
     mkdir(scenarioInputPath);
     
-    copyfile(strcat(rootFolderPath,'/Input'), scenarioInputPath);
+    copyfile(fullfile(rootFolderPath, 'Input'), scenarioInputPath);
     
     fprintf(['%s folder does not exist, creating a new folder with',...
         ' default scenario from root Input folder.\n'],scenarioNameStr);

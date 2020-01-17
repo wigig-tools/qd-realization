@@ -13,8 +13,8 @@ numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
 switchRandomization = paraCfg.switchRandomization;
 
 % List of paths
-inputPath = strcat(scenarioNameStr, '/Input');
-nodesPositionPath = strcat(scenarioNameStr,'/Output/Ns3/NodesPosition');
+inputPath = fullfile(scenarioNameStr, 'Input');
+nodesPositionPath = fullfile(scenarioNameStr, 'Output/Ns3/NodesPosition');
 
 %% Code
 nodePosition = [];
@@ -39,8 +39,8 @@ end
 % velocities
 if switchRandomization == 0
     try
-        nodeLoc = csvread(strcat(inputPath, '/nodes.dat'));
-        nodeVelocities = csvread(strcat(inputPath, '/nodeVelocities.dat'));
+        nodeLoc = csvread(fullfile(inputPath, 'nodes.dat'));
+        nodeVelocities = csvread(fullfile(inputPath, 'nodeVelocities.dat'));
     catch
         switchRandomization = 1;
     end
@@ -65,15 +65,15 @@ if switchRandomization == 0
         nodeVelocities = zeros(numberOfNodes, 3);
     end
     if mobilityType == 2
-        listing = dir(strcat(scenarioNameStr, '/Input'));
+        listing = dir(fullfile(scenarioNameStr, 'Input'));
         sizeListing = size(listing);
         countListing = 0;
         for iterateSizeListing = 1:sizeListing(1)
             ln = listing(iterateSizeListing).name;
             
             for iterateNumberOfNodes = 1:numberOfNodes
-                if strcmp(ln, strcat('NodePosition', num2str(iterateNumberOfNodes), '.dat'))
-                    nodePositionTemp = load(strcat(inputPath, '/', ln));
+                if strcmp(ln, sprintf('NodePosition%d.dat', iterateNumberOfNodes))
+                    nodePositionTemp = load(fullfile(inputPath, ln));
                     try
                         nodePosition(:, :, iterateNumberOfNodes) = nodePositionTemp;
                         countListing = countListing + 1;
@@ -119,11 +119,11 @@ end
 switchRandomization = 0;
 
 % Check Temp Output Folder
-status = rmdir(strcat(scenarioNameStr,'/Output'), 's');
+status = rmdir(fullfile(scenarioNameStr, 'Output'), 's');
 
-mkdir(strcat(scenarioNameStr,'/Output'));
-mkdir(strcat(scenarioNameStr,'/Output/Ns3'));
-mkdir(strcat(scenarioNameStr,'/Output/Visualizer'));
+mkdir(fullfile(scenarioNameStr, 'Output'));
+mkdir(fullfile(scenarioNameStr, 'Output/Ns3'));
+mkdir(fullfile(scenarioNameStr, 'Output/Visualizer'));
 
 sizeNode = size(nodeLoc);
 
@@ -131,8 +131,7 @@ if ~isfolder(nodesPositionPath)
     mkdir(nodesPositionPath)
 end
 
-csvwrite(strcat(nodesPositionPath, '/',...
-    'NodesPosition.csv'), nodeLoc);
+csvwrite(fullfile(nodesPositionPath, 'NodesPosition.csv'), nodeLoc);
 
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 

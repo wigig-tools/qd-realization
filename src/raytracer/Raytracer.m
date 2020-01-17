@@ -94,18 +94,18 @@ if paraCfgInput.switchQDGenerator == 1 &&...
 end
 
 % List of paths
-inputPath = strcat(inputScenarioName, '/Input');
-outputPath = strcat(inputScenarioName, '/Output');
+inputPath = fullfile(inputScenarioName, 'Input');
+outputPath = fullfile(inputScenarioName, 'Output');
 
-ns3Path = strcat(outputPath, '/Ns3');
-qdFilesPath = strcat(ns3Path, '/QdFiles');
+ns3Path = fullfile(outputPath, 'Ns3');
+qdFilesPath = fullfile(ns3Path, 'QdFiles');
 
 if paraCfgInput.switchSaveVisualizerFiles == 1
-    visualizerPath = strcat(outputPath, '/Visualizer');
+    visualizerPath = fullfile(outputPath, 'Visualizer');
     
-    nodePositionsPath = strcat(visualizerPath, '/NodePositions');
-    roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
-    mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
+    nodePositionsPath = fullfile(visualizerPath, 'NodePositions');
+    roomCoordinatesPath = fullfile(visualizerPath, 'RoomCoordinates');
+    mpcCoordinatesPath = fullfile(visualizerPath, 'MpcCoordinates');
 end
 
 % Subfolders creation
