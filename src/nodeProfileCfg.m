@@ -97,7 +97,8 @@ if switchRandomization == 0
                 'model is chosen']);
             mobilityType = 1;
         elseif mobilityType == 2 && countListing == numberOfNodes
-            numberOfTimeDivisions = size(nodePosition, 1) - 2;
+            % Cannot compute last velocity, so stop one iteration earlier
+            numberOfTimeDivisions = size(nodePosition, 1) - 1;
             warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
         end
         

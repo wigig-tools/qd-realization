@@ -186,7 +186,7 @@ end
 % planes. If that occurs then the velocities are simply reversed (not
 % reflected). At every time step the positions of all nodes are updated
 
-for iterateTimeDivision = 0:numberOfTimeDivisions
+for iterateTimeDivision = 0:numberOfTimeDivisions-1
     
     if mobilityType == 1
         if numberOfNodes == 2
