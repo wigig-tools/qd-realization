@@ -47,7 +47,8 @@ testCase.TestData.testFolderPath = pwd;
 
 srcFolder = '../src';
 
-addpath(fullfile(srcFolder, 'raytracer'),...
+addpath(srcFolder,...
+    fullfile(srcFolder, 'raytracer'),...
     fullfile(srcFolder,'utils'))
 
 testCase.TestData.examplesFolderPath = fullfile(srcFolder,'examples');
