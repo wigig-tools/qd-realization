@@ -135,7 +135,7 @@ switchRandomization = 0;
 warning('Changing switchRandomization to %d', switchRandomization)
 
 % Check Temp Output Folder
-rmdir(fullfile(scenarioNameStr, 'Output'), 's');
+rmdirStatus = rmdir(fullfile(scenarioNameStr, 'Output'), 's');
 
 mkdir(fullfile(scenarioNameStr, 'Output'));
 mkdir(fullfile(scenarioNameStr, 'Output/Ns3'));
