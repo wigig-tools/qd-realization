@@ -177,7 +177,7 @@ RxInitial = Rx;
 if mobilitySwitch == 1
     timeDivisionValue = totalTimeDuration / numberOfTimeDivisions;
 else
-    numberOfTimeDivisions = 0;
+    numberOfTimeDivisions = 1;
     timeDivisionValue = 0;
 end
 
