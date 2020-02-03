@@ -150,12 +150,7 @@ end
 TxInitial = Tx;
 RxInitial = Rx;
 % t - total time period, n - number of divisions
-if paraCfgInput.mobilitySwitch == 1
-    timeDivisionValue = paraCfgInput.totalTimeDuration / paraCfgInput.numberOfTimeDivisions;
-else
-    paraCfgInput.numberOfTimeDivisions = 1;
-    timeDivisionValue = 0;
-end
+timeDivisionValue = paraCfgInput.totalTimeDuration / paraCfgInput.numberOfTimeDivisions;
 
 % Finite difference method to simulate mobility. x=x0 + v*dt.
 % This method ensures the next position wouldnt collide with any of the

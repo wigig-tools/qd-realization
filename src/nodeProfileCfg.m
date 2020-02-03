@@ -31,7 +31,7 @@ if switchRandomization == 1
     
     if mobilityType ~= 1
         mobilityType = 1;
-        warning('Changing mobilityType to %s', mobilityType)
+        warning('Changing mobilityType to %d', mobilityType)
     end
 end
 
@@ -102,6 +102,25 @@ if switchRandomization == 0
             warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
         end
         
+    end
+end
+
+if mobilitySwitch == 1
+    nodeVelocitiesTemp = nodeVelocities;
+    clear nodeVelocities;
+    nodeVelocities = nodeVelocitiesTemp(1:numberOfNodes, :);
+else
+    clear nodeVelocities;
+    nodeVelocities = zeros(numberOfNodes, 3);
+    
+    if numberOfTimeDivisions ~= 1
+        numberOfTimeDivisions = 1;
+        warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
+    end
+    
+    if paraCfg.totalTimeDuration ~= 0
+        paraCfg.totalTimeDuration = 0;
+        warning('Changing totalTimeDuration to %d', paraCfg.totalTimeDuration)
     end
 end
 
