@@ -1,5 +1,5 @@
 function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
-    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchCP,...
+    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchPolarization, switchCp,...
     PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes, frequency)
 % This part of code compute LOS between two nodes
 %
@@ -9,7 +9,9 @@ function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
 %Tx and Rx locations if using two nodes
 %velocityTx, velocityRx are velocities of tx and rx respectively
 %output - multipath parameters
-%switchCP - a boolean to describe whether cross polarization is selected
+%switchPolarization - a boolean to describe whether polarization is
+%selected
+%switchCp - a boolean to describe whether cross polarization is selected
 %or not. 1 means there is cross polarization and 0 means there is no cross
 %polarization
 %PolarizationTx - gives polarization information of Tx location
@@ -103,17 +105,19 @@ if switch3==1 % if DoA exists
     % Aoa elevation
     output1(13)=acosd(doa(3)/norm(doa));
     % Polarization Jones vector
-    output1(14:15) = PolarizationTx(1,:);
-    % Cross polarization Jones vector
-    if switchCP==1
-        output1(16:17) = PolarizationTx(2,:);
+    if switchPolarization
+        output1(14:15) = PolarizationTx(1,:);
+        % Cross polarization Jones vector
+        if switchCp
+            output1(16:17) = PolarizationTx(2,:);
+        end
     end
     output1(18) = 0;
     % Doppler Factor
     output1(20) = dopplerFactor*frequency;
     output1(21) = 0;
     % Cross polarization path gain
-    if switchCP==1
+    if switchCp==1
         output1(19) = 20*log10(lambda/(4*pi*delay));
     else
         output1(19) = 0;
