@@ -62,6 +62,6 @@ end
 
 % check equivalence of output file
 verifyInstanceOf(testCase, scenarioOut, class(exampleOut))
-verifyEqual(testCase, scenarioOut, exampleOut, 'RelTol', 1e-10)
+verifyEqual(testCase, scenarioOut, exampleOut, 'RelTol', 1e-4)
 
 end
