@@ -11,7 +11,7 @@ selectPlanesByDist	0
 switchQDGenerator	0
 switchRandomization	0
 totalNumberOfReflections	1
-totalTimeDuration	100
+totalTimeDuration	0
 switchSaveVisualizerFiles	1
 carrierFrequency	60e9
 qdFilesFloatPrecision	6
