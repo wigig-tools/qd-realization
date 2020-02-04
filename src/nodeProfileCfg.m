@@ -98,8 +98,10 @@ if switchRandomization == 0
             mobilityType = 1;
         elseif mobilityType == 2 && countListing == numberOfNodes
             % Cannot compute last velocity, so stop one iteration earlier
-            numberOfTimeDivisions = size(nodePosition, 1) - 1;
-            warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
+            if numberOfTimeDivisions ~= size(nodePosition, 1) - 1
+                numberOfTimeDivisions = size(nodePosition, 1) - 1;
+                warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
+            end
         end
         
     end
@@ -150,8 +152,10 @@ while iterateNumberOfNodes <= numberOfNodes
     iterateNumberOfNodes = iterateNumberOfNodes + 1;
 end
 
-switchRandomization = 0;
-warning('Changing switchRandomization to %d', switchRandomization)
+if switchRandomization ~=0
+    switchRandomization = 0;
+    warning('Changing switchRandomization to %d', switchRandomization)
+end
 
 % Check Temp Output Folder
 rmdirStatus = rmdir(fullfile(scenarioNameStr, 'Output'), 's');
