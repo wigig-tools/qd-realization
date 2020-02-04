@@ -26,6 +26,8 @@ app.UIAxes.XLabel.String = 'x';
 app.UIAxes.YLabel.String = 'y';
 app.UIAxes.ZLabel.String = 'z';
 
+axis(app.UIAxes, 'equal')
+
 % Do not overwrite plot from now on
 hold(app.UIAxes,'on')
 
