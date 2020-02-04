@@ -261,11 +261,9 @@ for iterateTimeDivision = 0:paraCfgInput.numberOfTimeDivisions-1
                 if size(output) > 0
                     output = [output; outputTemporary];
                     
-                elseif size(outputTemporary) > 0
+                else
                     output = outputTemporary;
                     
-                else
-                    warning('Unexpected condition on size(output) or size(outputTemporary)')
                 end
                 
             end
