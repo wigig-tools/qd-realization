@@ -68,15 +68,20 @@ switch(extension(2:end))
     case {'xml', 'amf'}
         copyfile(environmentFilePath, tmpXmlFilePath);
         
+        [CADop, switchMaterial] = xmlreader(tmpXmlFilePath,...
+            MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
+        
+        delete(tmpXmlFilePath);
+        
+    case 'obj'
+        [CADop, switchMaterial] = importObjFile(environmentFilePath,...
+            MaterialLibrary, referencePoint, selectPlanesByDist);
+        
     otherwise
         error('Cannot handle ''%s'' extension properly', extension)
         
 end
 
-[CADop, switchMaterial] = xmlreader(tmpXmlFilePath,...
-    MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
-
-delete(tmpXmlFilePath);
 save(cacheFilePath, 'CADop', 'switchMaterial');
 
 end
