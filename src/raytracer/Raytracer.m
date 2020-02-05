@@ -181,10 +181,8 @@ for iterateTimeDivision = 0:paraCfgInput.numberOfTimeDivisions-1
     end
     
     % save NodePositionsTrc
-    if paraCfgInput.switchSaveVisualizerFiles &&...
-            paraCfgInput.mobilitySwitch >=0
-        
-        filename = sprintf('NodePositionsTrc%d.csv', iterateTimeDivision);
+    if paraCfgInput.switchSaveVisualizerFiles
+        filename = sprintf('NodePositionsTrc%d.csv', iterateTimeDivision-1);
         csvwrite(fullfile(nodePositionsPath, filename),...
             nodeLoc);
     end
@@ -228,11 +226,6 @@ for iterateTimeDivision = 0:paraCfgInput.numberOfTimeDivisions-1
                     switchMaterial, [], 1, paraCfgInput.generalizedScenario);
                 
                 numberOfPlanes = numberOfPlanes - 1;
-                
-                if paraCfgInput.mobilitySwitch == -1
-                    vtx = [0, 0, 0];
-                    vrx = vtx;
-                end
                 
                 [~, ~, outputTemporary, multipathTemporary,...
                     count, ~] = multipath(...
