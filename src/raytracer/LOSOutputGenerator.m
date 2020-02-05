@@ -1,10 +1,9 @@
-function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
-    CADoutput, Rx, Tx, output, velocityTx, velocityRx, switchPolarization, switchCp,...
-    PolarizationTx, switchMaterial, MobilitySwitch, numberOfNodes, frequency)
+function [switchLOS, output] = LOSOutputGenerator(CADoutput, Rx, Tx,...
+    output, velocityTx, velocityRx, switchPolarization, switchCp,...
+    PolarizationTx, frequency)
 % This part of code compute LOS between two nodes
 %
 %Inputs:
-% timeDivision - it is the time instance number
 %CADoutput - CAD output
 %Tx and Rx locations if using two nodes
 %velocityTx, velocityRx are velocities of tx and rx respectively
@@ -17,11 +16,8 @@ function [switchLOS, output] = LOSOutputGenerator(timeDivision,...
 %PolarizationTx - gives polarization information of Tx location
 %f1 - figure that displays multipath
 %f2 - figure that displays channel model
-%switchMaterial - boolean which gives information whether material
 %properties are presnet in CAD output
 %output - multipath parameters
-%MobilitySwitch is boolean to either have mobility or not
-%numberOfNodes - total number of nodes
 % frequency: the carrier frequency at which the system operates
 %
 %Outputs:
