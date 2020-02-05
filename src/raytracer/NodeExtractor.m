@@ -61,10 +61,10 @@ function [node, nodeVelocity] = NodeExtractor(numberOfNodes,...
 % nodepositions
 node = nan(numberOfNodes, 3);
 for nodeIdx = 1:numberOfNodes
-    node(nodeIdx, :) = NodePosition(timeDivision+1, :, nodeIdx);
+    node(nodeIdx, :) = NodePosition(timeDivision, :, nodeIdx);
     
-    nodeVelocity(nodeIdx, :)= (NodePosition(timeDivision+1, :, nodeIdx)...
-        - NodePosition(timeDivision+2, :, nodeIdx)) / delt;
+    nodeVelocity(nodeIdx, :)= (NodePosition(timeDivision, :, nodeIdx)...
+        - NodePosition(timeDivision+1, :, nodeIdx)) / delt;
     
 end
 
