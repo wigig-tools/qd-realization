@@ -45,21 +45,13 @@ function setupOnce(testCase)
 % Save important folders & move to src folder
 testCase.TestData.testFolderPath = pwd;
 
-cd('../src')
+srcFolder = '../src';
 
-addpath('raytracer', 'utils')
-testCase.TestData.mainFolderPath = pwd;
+addpath(srcFolder,...
+    fullfile(srcFolder, 'raytracer'),...
+    fullfile(srcFolder,'utils'))
 
-[~,folderName] = fileparts(testCase.TestData.mainFolderPath);
-assert(strcmp(folderName, 'src'),...
-    'The root folder should be ''src''');
-
-testCase.TestData.examplesFolderPath = 'examples';
-end
-
-function teardownOnce(testCase)
-cd(testCase.TestData.testFolderPath)
-
+testCase.TestData.examplesFolderPath = fullfile(srcFolder,'examples');
 end
 
 
@@ -78,7 +70,7 @@ assert(~isfolder(testCase.TestData.scenarioFolderPath),...
     testCase.TestData.scenarioFolderPath)
 
 % Setup folder
-mkdir(sprintf('%s/Input',testCase.TestData.scenarioFolderPath));
+mkdir(fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
 
 % Reset RNG for reproducibility
 rng('default')
@@ -144,31 +136,28 @@ end
 %% Utils
 function runRaytracer(testCase, exampleName)
 
-copyfile(sprintf('%s/%s/Input/',...
-    testCase.TestData.examplesFolderPath, exampleName),...
-    sprintf('%s/Input/', testCase.TestData.scenarioFolderPath));
+% Copy example scenario to new temporary folder
+copyfile(fullfile(testCase.TestData.examplesFolderPath, exampleName, 'Input'),...
+    fullfile(testCase.TestData.scenarioFolderPath, 'Input'));
+delete(fullfile(testCase.TestData.scenarioFolderPath, 'Input/cachedCadOutput.mat'))
 
-% Input System Parameters
-paraCfg = parameterCfg(testCase.TestData.scenarioFolderPath);
-% Input Node related parameters
-[paraCfg, nodeCfg] = nodeProfileCfg(paraCfg);
 % Force settings
 paraCfg.switchSaveVisualizerFiles = 1;
-paraCfg.switchVisuals = 0;
-% Run raytracing function and generate outputs
-Raytracer(paraCfg, nodeCfg);
+% Run raytracing function and generate output files
+launchRaytracer(testCase.TestData.scenarioFolderPath,...
+    'Verbose', 0, 'forcedParaCfg', paraCfg);
 
 end
 
 
 function checkOutput(testCase, exampleName)
 % list of output files
-scenarioFiles = dir(sprintf('%s/Output/**',...
-    testCase.TestData.scenarioFolderPath));
+scenarioFiles = dir(fullfile(...
+    testCase.TestData.scenarioFolderPath, 'Output/**'));
 scenarioFiles = scenarioFiles(~[scenarioFiles.isdir]);
 
-exampleFiles = dir(sprintf('%s/%s/Output/**',...
-    testCase.TestData.examplesFolderPath, exampleName));
+exampleFiles = dir(fullfile(...
+    testCase.TestData.examplesFolderPath, exampleName, 'Output/**'));
 exampleFiles = exampleFiles(~[exampleFiles.isdir]);
 
 verifyLength(testCase, scenarioFiles, length(exampleFiles),...

@@ -25,12 +25,17 @@ function b = isNodePositions(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-splitPath = split(path,'/');
+[remainingPath, fileName, extension] = fileparts(path);
+b = ~isempty(regexp([fileName, extension],...
+    'NodePositionsTrc[\d]+.csv', 'once'));
 
-b = ~isempty(regexp(splitPath{end}, 'NodePositionsTrc[\d]+.csv', 'once'));
+[remainingPath, nodePositionsFolder] = fileparts(remainingPath);
+b = b && strcmp(nodePositionsFolder, 'NodePositions');
 
-b = b && strcmp(splitPath{end-1}, 'NodePositions');
-b = b && strcmp(splitPath{end-2}, 'Visualizer');
-b = b && strcmp(splitPath{end-3}, 'Output');
+[remainingPath, visualizerFolder] = fileparts(remainingPath);
+b = b && strcmp(visualizerFolder, 'Visualizer');
+
+[~, outputFolder] = fileparts(remainingPath);
+b = b && strcmp(outputFolder, 'Output');
 
 end

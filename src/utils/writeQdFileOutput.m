@@ -30,8 +30,9 @@ function writeQdFileOutput(output, useOptimizedOutputToFile,...
 % limitations under the License.
 
 if ~useOptimizedOutputToFile
-    filename = sprintf('%s/Tx%dRx%d.txt', qdFilesPath, iTx - 1, iRx - 1);
-    fid = fopen(filename, 'A');
+    filename = sprintf('Tx%dRx%d.txt', iTx - 1, iRx - 1);
+    filepath = fullfile(qdFilesPath, filename);
+    fid = fopen(filepath, 'A');
 else
     fid = fids(iTx, iRx);
 end
@@ -44,28 +45,32 @@ if isempty(output)
     return
 end
 
+if any(any(isnan(output(:, [8, 9, 18, 11, 10, 13, 12]))))
+    warning('Writing NaN in QD file')
+end
+
 floatFormat = sprintf('%%.%dg',precision);
 formatSpec = [repmat([floatFormat,','],1,numRays-1), [floatFormat,'\n']];
 
-% Stores delay (secs)
+% Stores delay [s]
 fprintf(fid,formatSpec,output(:,8));
 
-% Stores  path gain (dB)
+% Stores  path gain [dB]
 fprintf(fid,formatSpec,output(:,9));
 
-% Stores  phase (radians)
+% Stores  phase [rad]
 fprintf(fid,formatSpec,output(:,18));
 
-% Stores Angle of departure elevation
+% Stores Angle of departure elevation [deg]
 fprintf(fid,formatSpec,output(:,11));
 
-% Stores Angle of departure azimuth
+% Stores Angle of departure azimuth [deg]
 fprintf(fid,formatSpec,output(:,10));
 
-% Stores Angle of arrival elevation
+% Stores Angle of arrival elevation [deg]
 fprintf(fid,formatSpec,output(:,13));
 
-% Stores Angle of arrival azimuth
+% Stores Angle of arrival azimuth [deg]
 fprintf(fid,formatSpec,output(:,12));
 
 if ~useOptimizedOutputToFile

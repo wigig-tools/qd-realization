@@ -35,8 +35,8 @@ function checkOutputFile(testCase,scenarioFolder,scenarioFileName,...
 % Check if the same file was passed
 assertEqual(testCase,scenarioFileName,exampleFileName)
 
-scenarioFilePath = sprintf('%s/%s',scenarioFolder,scenarioFileName);
-exampleFilePath = sprintf('%s/%s',exampleFolder,exampleFileName);
+scenarioFilePath = fullfile(scenarioFolder, scenarioFileName);
+exampleFilePath = fullfile(exampleFolder, exampleFileName);
 
 if isNodesPosition(scenarioFilePath)
     scenarioOut = readNodesPosition(scenarioFilePath);
@@ -57,11 +57,11 @@ elseif isRoomCoordinates(scenarioFilePath)
     exampleOut = readRoomCoordinates(exampleFilePath);
 else
     verifyTrue(testCase,false,...
-        sprintf('File path ''%s'' not recognized',scenarioFilePath))
+        sprintf('File path ''%s'' not recognized', scenarioFilePath))
 end
 
 % check equivalence of output file
 verifyInstanceOf(testCase, scenarioOut, class(exampleOut))
-verifyEqual(testCase, scenarioOut, exampleOut, 'RelTol', 1e-10)
+verifyEqual(testCase, scenarioOut, exampleOut, 'RelTol', 1e-4)
 
 end

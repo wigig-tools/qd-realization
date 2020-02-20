@@ -25,11 +25,16 @@ function b = isRoomCoordinates(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-splitPath = split(path,'/');
+[remainingPath, fileName, extension] = fileparts(path);
+b = strcmp([fileName, extension], 'RoomCoordinates.csv');
 
-b = strcmp(splitPath{end}, 'RoomCoordinates.csv');
-b = b && strcmp(splitPath{end-1}, 'RoomCoordinates');
-b = b && strcmp(splitPath{end-2}, 'Visualizer');
-b = b && strcmp(splitPath{end-3}, 'Output');
+[remainingPath, roomCoordinatesFolder] = fileparts(remainingPath);
+b = b && strcmp(roomCoordinatesFolder, 'RoomCoordinates');
+
+[remainingPath, visualizerFolder] = fileparts(remainingPath);
+b = b && strcmp(visualizerFolder, 'Visualizer');
+
+[~, outputFolder] = fileparts(remainingPath);
+b = b && strcmp(outputFolder, 'Output');
 
 end

@@ -55,74 +55,16 @@ function [node, nodeVelocity] = NodeExtractor(numberOfNodes,...
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
 
 
-% This case is for number of nodes greater than 2 or when nodes are
-% randomly generated
-% For the first time division, the code extracts Tx position from
+
+% For the nth time division, the code extracts positions from
 % NodePosition parameter. The velocity is computed from the difference in
 % nodepositions
-
-if (numberOfNodes>2 || switchRandomization==1) && timeDivision==0
-    node = nan(numberOfNodes, 3);
-    for Tx_i = 1:numberOfNodes
-        node(Tx_i,:) = NodePosition(1,:,Tx_i);
-        
-        nodeVelocity(Tx_i,:)= (NodePosition(timeDivision+1,:,Tx_i)...
-            - NodePosition(timeDivision+2,:,Tx_i))./delt;
-    end
-end
-
-% This case is for number of nodes equal to 2 and when nodes are not
-% randomly generated
-% For the first time division, the code extracts Tx/Rx position from
-% NodePosition parameter. The velocity is computed from the difference in
-% nodepositions
-
-if timeDivision==0 && ~(numberOfNodes>2 || switchRandomization==1)
-    Tx = NodePosition(timeDivision+1,:,1);
-    Rx = NodePosition(timeDivision+1,:,2);
-    node(1,:)=Tx;
-    node(2,:)=Rx;
+node = nan(numberOfNodes, 3);
+for nodeIdx = 1:numberOfNodes
+    node(nodeIdx, :) = NodePosition(timeDivision, :, nodeIdx);
     
-    nodeVelocity(1,:)= (NodePosition(timeDivision+1,:,1)...
-        - NodePosition(timeDivision+2,:,1))./delt;
-    nodeVelocity(2,:)= (NodePosition(timeDivision+1,:,2)...
-        - NodePosition(timeDivision+2,:,2))./delt;
-    
-end
-
-% This case is for number of nodes greater than 2 or when nodes are
-% randomly generated
-% For the nth time division, the code extracts Tx position from
-% NodePosition parameter. The velocity is computed from the difference in
-% nodepositions
-
-if (numberOfNodes>2 || switchRandomization==1) && timeDivision>0
-    node = nan(numberOfNodes, 3);
-    for Tx_i = 1:numberOfNodes
-        node(Tx_i, :) = NodePosition(timeDivision+1,:,Tx_i);
-        
-        nodeVelocity(Tx_i,:)= (NodePosition(timeDivision+1,:,Tx_i)...
-            - NodePosition(timeDivision+2,:,Tx_i))./delt;
-        
-    end
-end
-
-% This case is for number of nodes equal to 2 and when nodes are not
-% randomly generated
-% For the first nth division, the code extracts Tx/Rx position from
-% NodePosition parameter. The velocity is computed from the difference in
-% nodepositions
-
-if timeDivision>0 && ~(numberOfNodes>2 || switchRandomization==1)
-    Tx = NodePosition(timeDivision+1,:,1);
-    Rx = NodePosition(timeDivision+1,:,2);
-    node(1,:)=Tx;
-    node(2,:)=Rx;
-    
-    nodeVelocity(1,:)= (NodePosition(timeDivision+1,:,1)...
-        - NodePosition(timeDivision+2,:,1))./delt;
-    nodeVelocity(2,:)= (NodePosition(timeDivision+1,:,2)...
-        - NodePosition(timeDivision+2,:,2))./delt;
+    nodeVelocity(nodeIdx, :)= (NodePosition(timeDivision+1, :, nodeIdx) -...
+        NodePosition(timeDivision, :, nodeIdx)) / delt;
     
 end
 

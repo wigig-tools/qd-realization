@@ -65,25 +65,7 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
 
 
 %% Input Parameters Management
-environmentFileName = paraCfgInput.environmentFileName;
-generalizedScenario = paraCfgInput.generalizedScenario;
-indoorSwitch = paraCfgInput.indoorSwitch;
-inputScenarioName = paraCfgInput.inputScenarioName;
-mobilitySwitch = paraCfgInput.mobilitySwitch;
-mobilityType = paraCfgInput.mobilityType;
-numberOfNodes = paraCfgInput.numberOfNodes;
-numberOfTimeDivisions = paraCfgInput.numberOfTimeDivisions;
-selectPlanesByDist = paraCfgInput.selectPlanesByDist;
-referencePoint = paraCfgInput.referencePoint;
-switchQDGenerator = paraCfgInput.switchQDGenerator;
-switchRandomization = paraCfgInput.switchRandomization;
-totalNumberOfReflections = paraCfgInput.totalNumberOfReflections;
-totalTimeDuration = paraCfgInput.totalTimeDuration;
-
 nodeLoc = nodeCfgInput.nodeLoc;
-nodeAntennaOrientation = nodeCfgInput.nodeAntennaOrientation;
-nodePolarization = nodeCfgInput.nodePolarization;
-nodePosition = nodeCfgInput.nodePosition;
 nodeVelocities = nodeCfgInput.nodeVelocities;
 
 % Input checking
@@ -94,18 +76,18 @@ if paraCfgInput.switchQDGenerator == 1 &&...
 end
 
 % List of paths
-inputPath = strcat(inputScenarioName, '/Input');
-outputPath = strcat(inputScenarioName, '/Output');
+inputPath = fullfile(paraCfgInput.inputScenarioName, 'Input');
+outputPath = fullfile(paraCfgInput.inputScenarioName, 'Output');
 
-ns3Path = strcat(outputPath, '/Ns3');
-qdFilesPath = strcat(ns3Path, '/QdFiles');
+ns3Path = fullfile(outputPath, 'Ns3');
+qdFilesPath = fullfile(ns3Path, 'QdFiles');
 
 if paraCfgInput.switchSaveVisualizerFiles == 1
-    visualizerPath = strcat(outputPath, '/Visualizer');
+    visualizerPath = fullfile(outputPath, 'Visualizer');
     
-    nodePositionsPath = strcat(visualizerPath, '/NodePositions');
-    roomCoordinatesPath = strcat(visualizerPath, '/RoomCoordinates');
-    mpcCoordinatesPath = strcat(visualizerPath, '/MpcCoordinates');
+    nodePositionsPath = fullfile(visualizerPath, 'NodePositions');
+    roomCoordinatesPath = fullfile(visualizerPath, 'RoomCoordinates');
+    mpcCoordinatesPath = fullfile(visualizerPath, 'MpcCoordinates');
 end
 
 % Subfolders creation
@@ -128,37 +110,34 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
 end
 
 % Init output files
-fids = getQdFilesIds(qdFilesPath, numberOfNodes,...
+fids = getQdFilesIds(qdFilesPath, paraCfgInput.numberOfNodes,...
     paraCfgInput.useOptimizedOutputToFile);
 
-%% ------------ Original Raytracer --------------
-
+%% Init
 Tx = nodeLoc(1,:);
 Rx = nodeLoc(2,:);
 vtx = nodeVelocities(1,:);
 vrx = nodeVelocities(2,:);
 
-colorArray = ['selectPlanesByDistInput', 'c', 'g', 'y', 'y', 'b', 'k'];
-lineArray = [1.8, 0.3];
-AntennaOrientationTx = [1, 0, 0; 0, 1, 0; 0, 0, 1];
+switchPolarization = 0;
+switchCp = 0;
 
-AntennaOrientationRx = [1, 0, 0; 0, 1, 0; 0, 0, 1];
-multipath1 = [];
-output = [];
+polarizationTx = [1, 0];
+polarizationRx = [1, 0];
+
 MaterialLibrary = importMaterialLibrary('raytracer/Material_library.txt');
 
-%% Extracting CAD file and storing in an XMl file, CADFile.xml
-[CADop, switchMaterial] = getCadOutput(environmentFileName,...
-    inputPath, MaterialLibrary, referencePoint, selectPlanesByDist, indoorSwitch);
+% Extracting CAD file and storing in an XMl file, CADFile.xml
+[CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
+    inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
+    paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
 
 if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
-    csvwrite(sprintf('%s/RoomCoordinates.csv',roomCoordinatesPath),...
+    csvwrite(fullfile(roomCoordinatesPath, 'RoomCoordinates.csv'),...
         RoomCoordinates);
 end
-
-str = cell(numberOfNodes, numberOfNodes);
 
 
 %% Randomization
@@ -171,123 +150,112 @@ str = cell(numberOfNodes, numberOfNodes);
 TxInitial = Tx;
 RxInitial = Rx;
 % t - total time period, n - number of divisions
-if mobilitySwitch == 1
-    timeDivisionValue = totalTimeDuration / numberOfTimeDivisions;
-else
-    numberOfTimeDivisions = 0;
-    timeDivisionValue = 0;
-end
+timeDivisionValue = paraCfgInput.totalTimeDuration / paraCfgInput.numberOfTimeDivisions;
 
 % Finite difference method to simulate mobility. x=x0 + v*dt.
 % This method ensures the next position wouldnt collide with any of the
 % planes. If that occurs then the velocities are simply reversed (not
 % reflected). At every time step the positions of all nodes are updated
-
-for iterateTimeDivision = 0:numberOfTimeDivisions
-    
-    if mobilityType == 1
-        if numberOfNodes == 2
-            [nodeLoc,Tx,Rx,vtx, vrx, nodeVelocities] = LinearMobility...
-                (numberOfNodes, switchRandomization, ...
-                iterateTimeDivision, nodeLoc, nodeVelocities, vtx,...
+for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
+    % update mobility
+    if paraCfgInput.mobilityType == 1
+        if paraCfgInput.numberOfNodes == 2
+            [nodeLoc, Tx, Rx, vtx, vrx, nodeVelocities] = LinearMobility...
+                (paraCfgInput.numberOfNodes, paraCfgInput.switchRandomization, ...
+                iterateTimeDivision-1, nodeLoc, nodeVelocities, vtx,...
                 vrx,TxInitial, RxInitial, timeDivisionValue,...
                 CADop, Tx, Rx);
         else
-            [nodeLoc,Tx,Rx,vtx, vrx, nodeVelocities] = LinearMobility...
-                (numberOfNodes, switchRandomization,...
-                iterateTimeDivision, nodeLoc, nodeVelocities,...
+            [nodeLoc, Tx, Rx, vtx, vrx, nodeVelocities] = LinearMobility...
+                (paraCfgInput.numberOfNodes, paraCfgInput.switchRandomization,...
+                iterateTimeDivision-1, nodeLoc, nodeVelocities,...
                 [], [], TxInitial, RxInitial, timeDivisionValue, ...
                 CADop, Tx, Rx);
         end
         
-    elseif mobilityType == 2
+    elseif paraCfgInput.mobilityType == 2
         [nodeLoc, nodeVelocities] = NodeExtractor...
-            (numberOfNodes,  switchRandomization, ...
-            iterateTimeDivision, nodeLoc, nodeVelocities, nodePosition, timeDivisionValue);
+            (paraCfgInput.numberOfNodes,  paraCfgInput.switchRandomization, ...
+            iterateTimeDivision, nodeLoc, nodeVelocities,...
+            nodeCfgInput.nodePosition, timeDivisionValue);
     end
     
-    if paraCfgInput.switchSaveVisualizerFiles == 1 && mobilitySwitch >=0
-        csvwrite(sprintf('%s/NodePositionsTrc%d.csv',...
-            nodePositionsPath, iterateTimeDivision),...
+    % save NodePositionsTrc
+    if paraCfgInput.switchSaveVisualizerFiles
+        filename = sprintf('NodePositionsTrc%d.csv', iterateTimeDivision-1);
+        csvwrite(fullfile(nodePositionsPath, filename),...
             nodeLoc);
     end
     
     % Iterates through all the nodes
-    for iterateTx = 1:numberOfNodes
-        for iterateRx = iterateTx+1:numberOfNodes
-            
+    for iterateTx = 1:paraCfgInput.numberOfNodes
+        for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
+            % reset output
             output = [];
-            if (numberOfNodes >= 2 || switchRandomization == 1)
-                Tx = nodeLoc(iterateTx, :);
-                Rx = nodeLoc(iterateRx, :);
-                
-                vtx = nodeVelocities(iterateTx, :);
-                vrx = nodeVelocities(iterateRx, :);
-            end
             
-            %% LOS Path generation
-            % Plot the figure outside
-            [switchLOS, output] = LOSOutputGenerator(iterateTimeDivision, ...
-                CADop, Rx, Tx, output, vtx, vrx, 0,...
-                [1, 0], switchMaterial, mobilitySwitch, numberOfNodes,...
-                paraCfgInput.carrierFrequency);
+            % update positions and velocities
+            Tx = nodeLoc(iterateTx, :);
+            Rx = nodeLoc(iterateRx, :);
+
+            vtx = nodeVelocities(iterateTx, :);
+            vrx = nodeVelocities(iterateRx, :);
             
-            if paraCfgInput.switchSaveVisualizerFiles == 1 &&...
-                    switchLOS == 1 &&...
-                    iterateTx < iterateRx
-                
-                multipath1 = [Tx,Rx];
-                csvwrite(sprintf('%s/MpcTx%dRx%dRefl%dTrc%d.csv',...
-                    mpcCoordinatesPath, iterateTx-1, iterateRx-1, 0, iterateTimeDivision),...
+            % LOS Path generation
+            [switchLOS, output] = LOSOutputGenerator(CADop, Rx, Tx,...
+                output, vtx, vrx, switchPolarization, switchCp,...
+                polarizationTx, paraCfgInput.carrierFrequency);
+            
+            if paraCfgInput.switchSaveVisualizerFiles && switchLOS
+                multipath1 = [Tx, Rx];
+                filename = sprintf('MpcTx%dRx%dRefl%dTrc%d.csv',...
+                    iterateTx-1, iterateRx-1, 0, iterateTimeDivision-1);
+                csvwrite(fullfile(mpcCoordinatesPath, filename),...
                     multipath1);
                 
             end
             
-            %% Higher order reflections (Non LOS)
-            for iterateOrderOfReflection = 1:totalNumberOfReflections
+            % Higher order reflections (Non LOS)
+            for iterateOrderOfReflection = 1:paraCfgInput.totalNumberOfReflections
                 numberOfReflections = iterateOrderOfReflection;
                 
                 [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
                     ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
                     numberOfReflections, numberOfReflections,...
                     0, 1, 1, 1, Rx, Tx, [], [],...
-                    switchMaterial, [], 1,generalizedScenario);
+                    switchMaterial, [], 1, paraCfgInput.generalizedScenario);
                 
                 numberOfPlanes = numberOfPlanes - 1;
                 
-                if mobilitySwitch == -1
-                    vtx = [0, 0, 0];
-                    vrx = vtx;
-                end
-                
-                [QD, switchQD, outputTemporary, multipathTemporary,...
-                    count, countQD] = multipath(...
+                [~, ~, outputTemporary, multipathTemporary,...
+                    count, ~] = multipath(...
                     ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
                     CADop, numberOfPlanes, ...
                     MaterialLibrary, arrayOfMaterials, ...
                     switchMaterial, vtx, vrx, ...
-                    0, [1, 0], ...
-                    AntennaOrientationTx, [1, 0], ...
-                    AntennaOrientationRx, 0, switchQDGenerator,paraCfgInput.carrierFrequency);
+                    switchPolarization, polarizationTx, [],...
+                    polarizationRx, [], switchCp,...
+                    paraCfgInput.switchQDGenerator,...
+                    paraCfgInput.carrierFrequency);
                 
-                % Plots channel model if material switch is 1
-                if paraCfgInput.switchSaveVisualizerFiles == 1 &&...
-                        iterateTx < iterateRx &&...
-                        size(multipathTemporary,1) ~= 0
+                if paraCfgInput.switchSaveVisualizerFiles &&...
+                        size(multipathTemporary,1) > 0
                     
-                    multipath1 = multipathTemporary(1:count, 2:size(multipathTemporary,2));
-                    csvwrite(sprintf('%s/MpcTx%dRx%dRefl%dTrc%d.csv',...
-                        mpcCoordinatesPath, iterateTx-1, iterateRx-1,...
-                        iterateOrderOfReflection, iterateTimeDivision),...
+                    multipath1 = multipathTemporary(1:count,...
+                        2:size(multipathTemporary,2));
+                    filename = sprintf('MpcTx%dRx%dRefl%dTrc%d.csv',...
+                        iterateTx-1, iterateRx-1,...
+                        iterateOrderOfReflection, iterateTimeDivision-1);
+                    
+                    csvwrite(fullfile(mpcCoordinatesPath, filename),...
                         multipath1);
                 end
                 
                 if size(output) > 0
-                    output = [output;outputTemporary];
-                    multipath1 = multipathTemporary;
-                elseif size(outputTemporary) > 0
+                    output = [output; outputTemporary];
+                    
+                else
                     output = outputTemporary;
-                    multipath1 = multipathTemporary;
+                    
                 end
                 
             end

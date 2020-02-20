@@ -7,6 +7,7 @@
 !/src/input/
 !/src/utils/
 !/src/examples/
+!/src/visualizer/
 
 # Ignore cached files
 **/cachedCadOutput.mat

@@ -25,14 +25,18 @@ function b = isMpcCoordinates(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-splitPath = split(path,'/');
-
-b = ~isempty(regexp(splitPath{end},...
+[remainingPath, fileName, extension] = fileparts(path);
+b = ~isempty(regexp([fileName, extension],...
     'MpcTx[\d]+Rx[\d]+Refl[\d]+Trc[\d]+.csv',...
     'once'));
 
-b = b && strcmp(splitPath{end-1}, 'MpcCoordinates');
-b = b && strcmp(splitPath{end-2}, 'Visualizer');
-b = b && strcmp(splitPath{end-3}, 'Output');
+[remainingPath, mpCoordinatesFolder] = fileparts(remainingPath);
+b = b && strcmp(mpCoordinatesFolder, 'MpcCoordinates');
+
+[remainingPath, visualizerFolder] = fileparts(remainingPath);
+b = b && strcmp(visualizerFolder, 'Visualizer');
+
+[~, outputFolder] = fileparts(remainingPath);
+b = b && strcmp(outputFolder, 'Output');
 
 end

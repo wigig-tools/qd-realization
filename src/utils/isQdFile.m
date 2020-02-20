@@ -25,12 +25,16 @@ function b = isQdFile(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-splitPath = split(path,'/');
+[remainingPath, fileName, extension] = fileparts(path);
+b = ~isempty(regexp([fileName, extension], 'Tx[\d]+Rx[\d]+.txt', 'once'));
 
-b = ~isempty(regexp(splitPath{end}, 'Tx[\d]+Rx[\d]+.txt', 'once'));
+[remainingPath, qdFilesFolder] = fileparts(remainingPath);
+b = b && strcmp(qdFilesFolder, 'QdFiles');
 
-b = b && strcmp(splitPath{end-1}, 'QdFiles');
-b = b && strcmp(splitPath{end-2}, 'Ns3');
-b = b && strcmp(splitPath{end-3}, 'Output');
+[remainingPath, ns3Folder] = fileparts(remainingPath);
+b = b && strcmp(ns3Folder, 'Ns3');
+
+[~, outputFolder] = fileparts(remainingPath);
+b = b && strcmp(outputFolder, 'Output');
 
 end
