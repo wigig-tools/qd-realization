@@ -1,0 +1,17 @@
+ParameterName	ParameterValue
+environmentFileName	StreetCanyon.xml
+generalizedScenario	1
+indoorSwitch	0
+mobilitySwitch	1
+mobilityType	2
+numberOfNodes	2
+numberOfTimeDivisions	14
+referencePoint	[0,0,0]
+selectPlanesByDist	0
+switchQDGenerator	0
+switchRandomization	0
+totalNumberOfReflections	2
+totalTimeDuration	280
+switchSaveVisualizerFiles	1
+carrierFrequency	60e9
+qdFilesFloatPrecision	6

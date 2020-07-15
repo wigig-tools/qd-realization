@@ -64,7 +64,8 @@ function [output, count1, switch_QD] = QDGenerator(order_of_R,output,...
 % States.
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Improved access to MaterialLibrary
-
+% Modified by: Neeraj Varshney <neeraj.varshney@nist.gov>, Included residual
+% error in QD model
 
 c = 3e8;
 % if  switch_material==1 && QD_gen==1
@@ -74,6 +75,7 @@ c = 3e8;
 % are in progress.
 %  if  switch_material==1 && order_of_R==1
 Pathloss1 = 0;
+switch_QD = 0;
 for order_of_R_temp = 1:order_of_R
     
     
@@ -87,7 +89,7 @@ for order_of_R_temp = 1:order_of_R
     Pathloss1=Pathloss1+Pathloss;
 end
 output(count1-1,9) = output(count1-1,9)-(Pathloss1);
-New_pathgain = output(count1-1,9);
+pathGain = output(count1-1,9);
 
 % i1 is for generating precursors and i2 is for generating postcursors.
 for i1 = 1:2
@@ -101,6 +103,8 @@ for i1 = 1:2
         sigmay = MaterialLibrary.sigma_Y_Precursor(Material);
         mul = MaterialLibrary.mu_lambda_Precursor(Material);
         sigmal = MaterialLibrary.sigma_lambda_Precursor(Material);
+        muSigmas = MaterialLibrary.mu_SigmaS_Precursor(Material);
+        sigmaSigmas = MaterialLibrary.sigma_SigmaS_Precursor(Material);
         % A total of 3 precursors are generated. they can be adjusted by
         % changing n
         n = 3;
@@ -112,25 +116,30 @@ for i1 = 1:2
         sigmay = MaterialLibrary.sigma_Y_Postcursor(Material);
         mul = MaterialLibrary.mu_lambda_Postcursor(Material);
         sigmal = MaterialLibrary.sigma_lambda_Postcursor(Material);
+        muSigmas = MaterialLibrary.mu_SigmaS_Postcursor(Material);
+        sigmaSigmas = MaterialLibrary.sigma_SigmaS_Postcursor(Material);
         % A total of 16 post cursors are genearted
         n = 16;
         
     end
     
-    mus = MaterialLibrary.mu_sigmaTheta(Material);
-    sigmas = MaterialLibrary.sigma_sigmaTheta(Material);
+    muTheta = MaterialLibrary.mu_sigmaThetaAZ(Material);
+    sigmaTheta = MaterialLibrary.sigma_sigmaThetaAZ(Material);
+    muPhi = MaterialLibrary.mu_sigmaThetaEL(Material);
+    sigmaPhi = MaterialLibrary.sigma_sigmaThetaEL(Material);
     
     %%
     if  muk~=0
-        Kfactor = normalRandomGenerator(muk,sigmak);
-        gamma = normalRandomGenerator(muy,sigmay);
-        lambda1 = normalRandomGenerator(mul,sigmal);
-        sigma_Aod_E = abs(normalRandomGenerator(mus,sigmas));
-        sigma_Aod_A = abs(normalRandomGenerator(mus,sigmas));
-        sigma_Aoa_E = abs(normalRandomGenerator(mus,sigmas));
-        sigma_Aoa_A = abs(normalRandomGenerator(mus,sigmas));
+        sigmaS = db2pow(normalRandomGenerator(muSigmas, sigmaSigmas)); 
+        kFactor = db2pow(normalRandomGenerator(muk, sigmak));           
+        gamma = normalRandomGenerator(muy, sigmay);
+        lambda = normalRandomGenerator(mul, sigmal);
+        sigmaAodEl = abs(normalRandomGenerator(muPhi, sigmaPhi));
+        sigmaAodAz = abs(normalRandomGenerator(muTheta, sigmaTheta));
+        sigmaAoaEl = abs(normalRandomGenerator(muPhi, sigmaPhi));
+        sigmaAoaAz = abs(normalRandomGenerator(muTheta, sigmaTheta));
         
-        lambda1 = abs(normalRandomGenerator(mul,sigmal));
+        lambda = abs(normalRandomGenerator(mul, sigmal));
         tau_set = nan(n+1, 1);
         tau_set(1) = (distance/c) * 1e9; % convert to ns
         
@@ -139,7 +148,7 @@ for i1 = 1:2
         % generates delays
         while i<=n
             
-            diff = randomExponetialGenerator(lambda1);
+            diff = randomExponetialGenerator(lambda);
             if i1 == 1
                 tau_set(i+1) = tau_set(i)-diff;
             else
@@ -157,23 +166,21 @@ for i1 = 1:2
             i=i+1;
         end
         
-        PGcursor = New_pathgain;
-        
+        pgCursor = db2pow(pathGain);
         % generates path loss
         
         for i=1:n
             
             if i~=0
+                s = normalRandomGenerator(0,sigmaS);
                 if i1==1
-                    output(count1+i-1,9) = ((PGcursor)-...
-                        Kfactor+(((tau_set(i+1))-...
-                        (tau_set(1)))/gamma));
+                       output(count1+i-1,9) = pow2db((pgCursor/kFactor).*...
+                           exp(((tau_set(i+1)-tau_set(1))/gamma)+s));
                 else
-                    output(count1+i-1,9) = ((PGcursor)-...
-                        Kfactor-(((tau_set(i+1))-...
-                        (tau_set(1)))/gamma));
+                    output(count1+i-1,9) =  pow2db((pgCursor/kFactor).*...
+                           exp(-((tau_set(i+1)-tau_set(1))/gamma)+s));
                     if i == 1
-                        output(indexReference,9) = 20*log10(10^(PGcursor/10)-10^((PGcursor-Kfactor)/10));
+                        output(indexReference,9) =  20*log10(pgCursor-(pgCursor/kFactor));
                     end
                 end
             end
@@ -200,7 +207,7 @@ for i1 = 1:2
         sigma_1 = sqrt(((sum(PG.*((Aod_el-mu_1).*...
             (Aod_el-mu_1))))+(PG_cursor*...
             ((theta_cursor-mu_1)^2)))/(sum(PG)+PG_cursor));
-        s = sigma_Aod_E/sigma_1;
+        s = sigmaAodEl/sigma_1;
         Aod_el1 = [theta_cursor,Aod_el]';
         x = (s^2)-((PG_cursor*((theta_cursor-mu_1)^2))/...
             ((sum(PG.*((Aod_el-mu_1).*(Aod_el-mu_1))))+...
@@ -223,7 +230,7 @@ for i1 = 1:2
         
         mu_1=sum(PG.*Aod_az)/sum(PG);
         sigma_1=sqrt((sum(PG.*((Aod_az-mu_1).*(Aod_az-mu_1))))/sum(PG));
-        s=sigma_Aod_A/sigma_1;
+        s=sigmaAodAz/sigma_1;
         Aod_az1=[theta_cursor,Aod_az]';
         x=(s^2)-((PG_cursor*((theta_cursor-mu_1)^2))/((sum(PG.*((Aod_az-mu_1).*(Aod_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2))));
         a=((sum(PG.*((Aod_az-mu_1).*(Aod_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
@@ -245,7 +252,7 @@ for i1 = 1:2
         
         mu_1=sum(PG.*Aoa_az)/sum(PG);
         sigma_1=sqrt((sum(PG.*((Aoa_az-mu_1).*(Aoa_az-mu_1))))/sum(PG));
-        s=sigma_Aoa_E/sigma_1;
+        s=sigmaAoaAz/sigma_1;
         Aoa_az1=[theta_cursor,Aoa_az]';
         x=(s^2)-((PG_cursor*((theta_cursor-mu_1)^2))/((sum(PG.*((Aoa_az-mu_1).*(Aoa_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2))));
         a=((sum(PG.*((Aoa_az-mu_1).*(Aoa_az-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));
@@ -265,7 +272,7 @@ for i1 = 1:2
         
         mu_1=sum(PG.*Aoa_el)/sum(PG);
         sigma_1=sqrt((sum(PG.*((Aoa_el-mu_1).*(Aoa_el-mu_1))))/sum(PG));
-        s=sigma_Aoa_E/sigma_1;
+        s=sigmaAoaEl/sigma_1;
         Aoa_el1=[theta_cursor,Aoa_el]';
         x=(s^2)-((PG_cursor*((theta_cursor-mu_1)^2))/((sum(PG.*((Aoa_el-mu_1).*(Aoa_el-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2))));
         a=((sum(PG.*((Aoa_el-mu_1).*(Aoa_el-mu_1))))+(PG_cursor*((theta_cursor-mu_1)^2)));

@@ -125,7 +125,17 @@ switchCp = 0;
 polarizationTx = [1, 0];
 polarizationRx = [1, 0];
 
-MaterialLibrary = importMaterialLibrary('raytracer/Material_library.txt');
+% Define Material library for various environments    
+switch paraCfgInput.inputScenarioName
+    case 'LectureRoom'
+            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_LectureRoom.txt');
+    case 'ParkingLot'
+            % MaterialLibrary = importMaterialLibrary('raytracer/Material_library_ParkingLot.txt');
+    case 'DataCenter'
+            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
+    otherwise
+            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
+end
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
