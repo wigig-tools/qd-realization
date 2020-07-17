@@ -125,16 +125,13 @@ switchCp = 0;
 polarizationTx = [1, 0];
 polarizationRx = [1, 0];
 
-% Define Material library for various environments    
-switch paraCfgInput.inputScenarioName
-    case 'LectureRoom'
-            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_LectureRoom.txt');
-    case 'ParkingLot'
-            % MaterialLibrary = importMaterialLibrary('raytracer/Material_library_ParkingLot.txt');
-    case 'DataCenter'
-            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
+% Define Material library for various environments
+switch(paraCfgInput.environmentFileName)
+    case 'DataCenter.xml'
+        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
     otherwise
-            MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
+        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
+        warning('Environment file ''%s'' not recognized. Using default material library.')
 end
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
@@ -206,7 +203,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
             % update positions and velocities
             Tx = nodeLoc(iterateTx, :);
             Rx = nodeLoc(iterateRx, :);
-
+            
             vtx = nodeVelocities(iterateTx, :);
             vrx = nodeVelocities(iterateRx, :);
             

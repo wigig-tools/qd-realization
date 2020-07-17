@@ -42,10 +42,9 @@ if isNodesPosition(scenarioFilePath)
     scenarioOut = readNodesPosition(scenarioFilePath);
     exampleOut = readNodesPosition(exampleFilePath);
 elseif isQdFile(scenarioFilePath)
-    scenarioOut = readQdFile(scenarioFilePath,...
-        {'delay','pathGain','phaseOffset','aodEl','aodAz','aoaEl','aoaAz'});
-    exampleOut = readQdFile(exampleFilePath,...
-        {'delay','pathGain','phaseOffset','aodEl','aodAz','aoaEl','aoaAz'});
+    sortBy = {'delay','pathGain','phaseOffset','aodEl','aodAz','aoaEl','aoaAz'};
+    scenarioOut = readQdFile(scenarioFilePath, sortBy);
+    exampleOut = readQdFile(exampleFilePath, sortBy);
 elseif isMpcCoordinates(scenarioFilePath)
     scenarioOut = readMpcCoordinates(scenarioFilePath);
     exampleOut = readMpcCoordinates(exampleFilePath);
