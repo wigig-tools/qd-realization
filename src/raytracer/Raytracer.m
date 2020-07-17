@@ -131,7 +131,8 @@ switch(paraCfgInput.environmentFileName)
         MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
     otherwise
         MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
-        warning('Environment file ''%s'' not recognized. Using default material library.')
+        warning('Environment file ''%s'' not recognized. Using default material library.',...
+            paraCfgInput.environmentFileName)
 end
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
