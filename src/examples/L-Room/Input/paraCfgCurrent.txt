@@ -5,7 +5,7 @@ indoorSwitch	1
 mobilitySwitch	1
 mobilityType	2
 numberOfNodes	2
-numberOfTimeDivisions	200
+numberOfTimeDivisions	199
 referencePoint	[0,0,0]
 selectPlanesByDist	0
 switchQDGenerator	0

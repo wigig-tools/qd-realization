@@ -85,6 +85,13 @@ end
 
 
 %% Tests
+% DataCenter
+function dataCenterTest(testCase)
+exampleName = 'DataCenter';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
 % DenserScenario
 function denserScenarioTest(testCase)
 exampleName = 'DenserScenario';
@@ -128,6 +135,13 @@ end
 % SpatialSharing
 function spatialSharingTest(testCase)
 exampleName = 'SpatialSharing';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% StreetCanyon
+function streetCanyonTest(testCase)
+exampleName = 'StreetCanyon';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end

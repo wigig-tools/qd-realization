@@ -125,7 +125,15 @@ switchCp = 0;
 polarizationTx = [1, 0];
 polarizationRx = [1, 0];
 
-MaterialLibrary = importMaterialLibrary('raytracer/Material_library.txt');
+% Define Material library for various environments
+switch(paraCfgInput.environmentFileName)
+    case 'DataCenter.xml'
+        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
+    otherwise
+        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
+        warning('Environment file ''%s'' not recognized. Using default material library.',...
+            paraCfgInput.environmentFileName)
+end
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
@@ -196,7 +204,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
             % update positions and velocities
             Tx = nodeLoc(iterateTx, :);
             Rx = nodeLoc(iterateRx, :);
-
+            
             vtx = nodeVelocities(iterateTx, :);
             vrx = nodeVelocities(iterateRx, :);
             

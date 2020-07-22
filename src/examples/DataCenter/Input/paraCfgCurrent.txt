@@ -1,0 +1,17 @@
+ParameterName	ParameterValue
+environmentFileName	DataCenter.xml
+generalizedScenario	0
+indoorSwitch	1
+mobilitySwitch	0
+mobilityType	1
+numberOfNodes	2
+numberOfTimeDivisions	1
+referencePoint	[0,0,0]
+selectPlanesByDist	0
+switchQDGenerator	1
+switchRandomization	0
+totalNumberOfReflections	2
+totalTimeDuration	0
+switchSaveVisualizerFiles	1
+carrierFrequency	60e9
+qdFilesFloatPrecision	6
