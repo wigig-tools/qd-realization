@@ -1,9 +1,8 @@
-function [QD, switchQD, output, multipath, indexMultipath, indexQD] =...
+function [qdRay, multipath] =...
     multipath(ArrayOfPlanes, ArrayOfPoints, Rx, Tx, CADOutput,...
     numberOfRowsArraysOfPlanes, MaterialLibrary, arrayOfMaterials,...
-    switchMaterial, velocityTx, velocityRx, PolarizationSwitch,...
-    PolarizationTx, AntennaOrientationTx, PolarizationRx,...
-    AntennaOrientationRx, switchCrossPolarization, QDGeneratorSwitch, frequency)
+    switchMaterial, velocityTx, velocityRx, ...
+   qdGeneratorSwitch, frequency, varargin)
 %INPUT -
 %ArrayOfPoints - combinations of multiple triangles, every row is a unique
 %combination. every triangle occupies 9 columns (3 vertices). (o/p of
@@ -14,31 +13,19 @@ function [QD, switchQD, output, multipath, indexMultipath, indexQD] =...
 %Rx - Rx position
 %Tx - Tx position
 %CADop - CAD output
-%number1 -
 %MaterialLibrary - Similar to Array of points. Each triangle occupies 1
 %triangle. The data is the row number of material from Material library
 %arrayOfMaterials - Similar to Array of points. Each triangle occupies 1
 %triangle. The data is the row number of material from Material library
 %switchMaterial - whether triangle materials properties are present
 % vtx, vrx are velocities of tx and rx respectively
-% PolarizationSwitch - switch to enable or disable polarization module
-% PolarizationTx/ PolarizationRx - Tx/Rx Polarization
-% AntennaOrientationTx/ AntennaOrientationRx - Tx/Rx antenna
-% oreientation
-%switchCrossPolarization - a boolean to describe whether cross polarization is selected
-%or not. 1 means there is cross polarization and 0 means there is no cross
-%polarization
 % QDGeneratorSwitch - Switch to turn ON or OFF the Qausi dterministic module
 % 1 = ON, 0 = OFF
 % frequency: the carrier frequency at which the system operates
 %
 %OUTPUT -
-%QD - output to be plotted on f2 channel plot
-%switchQD - whether QD output exists
 %output - multipath parameters
 %multipath - output to be plottd on f1 multipath plot
-%indexMultipath - number of rows in multipath
-%countQD - number of QD component
 %
 % The phase information in case of presence of polarization information and is
 % encoded in the Jones vector. In case of absence of polarization, order of
@@ -80,18 +67,30 @@ function [QD, switchQD, output, multipath, indexMultipath, indexQD] =...
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones,
 %    vectorized code, improved access to MaterialLibrary
 
+%% Varargin processing 
+p = inputParser;
+addParameter(p,'indStoc',1)
+addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
+addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
+addParameter(p,'reflectionLoss',10);
+parse(p, varargin{:});
+qTx = p.Results.qTx;
+qRx = p.Results.qRx;
+rl  = p.Results.reflectionLoss;
 
-switchQD = 0;
-QD = [];
+%% Init
 indexMultipath = 1;
 indexOutput = 1;
-indexQD = 1;
+nVarOut = 21;
 sizeArrayOfPlanes = size(ArrayOfPlanes);
-
-output = zeros(sizeArrayOfPlanes(1),21);
+dRay = zeros(1, nVarOut);
 multipath = [];
-LIGHTVELOCITY = 3e8;
-wavelength = LIGHTVELOCITY / frequency;
+c = getLightSpeed;
+wavelength = c / frequency;
+outputQd = struct('dRay', cell(sizeArrayOfPlanes(1),1), ...
+    'rPreCursor', cell(sizeArrayOfPlanes(1),1), ...
+    'rPostCursor', cell(sizeArrayOfPlanes(1),1));
+%%
 if numberOfRowsArraysOfPlanes>0
     orderOfReflection = ArrayOfPlanes(1,1);
     
@@ -102,7 +101,6 @@ if numberOfRowsArraysOfPlanes>0
     multipath = zeros(numberOfRowsArraysOfPlanes,orderOfReflection * 3 + 1);
     for iterateNumberOfRowsArraysOfPlanes = 1:numberOfRowsArraysOfPlanes
         
-        
         indexOrderOfReflection = 1;
         multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1) = orderOfReflection;
         multipath(indexMultipath, (indexOrderOfReflection-1)*3 + 1 + (1:3)) = Rx;
@@ -111,111 +109,88 @@ if numberOfRowsArraysOfPlanes>0
         % a single row of ArrayOfPlanes,ArrayOfPoints is fed to
         % singleMultipathGenerator function to know whether a path exists. If a
         % path exists then what are vectors that form the path (stored in
-        % multipath parameter)
-        
-        PolarizationSwitchTemporary = 1;
-        if PolarizationSwitch == 1 && switchMaterial == 1
-            for orderOfReflectionTemporary = 1:orderOfReflection
-                dielectricConstant = MaterialLibrary.DielectricConstant(...
-                    arrayOfMaterials(indexMultipath,orderOfReflectionTemporary));
-                if dielectricConstant ~= 0
-                    nt_array(orderOfReflectionTemporary) = dielectricConstant;
-                else
-                    nt_array = [];
-                    PolarizationSwitchTemporary = 0;
-                    break
-                end
-            end
-        else
-            nt_array = [];
-            PolarizationSwitchTemporary = 0;
-        end
-        
-        [switch1,~,dod,doa,multipath,distance,dopplerFactor,PathLoss,...
-            ~,~,~,~,velocityTemp] = singleMultipathGenerator...
+        % multipath parameter)                
+        [isMpc,~,dod,doa,multipath,distance,dopplerFactor,...
+           ~] = singleMultipathGenerator...
             (iterateNumberOfRowsArraysOfPlanes,orderOfReflection,indexOrderOfReflection,ArrayOfPlanes,...
             ArrayOfPoints,Reflected,Rx,Tx,CADOutput,...
-            multipath,indexMultipath,velocityTx,velocityRx,PolarizationSwitchTemporary,...
-            PolarizationTx,AntennaOrientationTx,PolarizationRx,...
-            AntennaOrientationRx,nt_array,switchCrossPolarization);
+            multipath,indexMultipath,velocityTx,velocityRx);
         
+        % Apply node rotation
+        dod = coordinateRotation(dod,[0 0 0], qTx.angle, 'frame');
+        doa = coordinateRotation(doa,[0 0 0], qRx.angle, 'frame');
         
-        if switch1 == 1
+        % Compute reflection loss
+        if  switchMaterial == 1
+            reflectionLoss = getReflectionLoss(MaterialLibrary,...
+                arrayOfMaterials(iterateNumberOfRowsArraysOfPlanes,:), 'randOn', qdGeneratorSwitch);
+        else
+            % Assumption: rl loss at each reflection
+            reflectionLoss = rl*orderOfReflection; 
+        end
+        
+        % Corner case: MPC on the edge of triangles would be considered
+        % twice. Check if it has been already stored otherwise discard.
+        if isMpc == 1
             for i = 1:indexMultipath - 1
-                switch3 = 1;
+                isMpcNonUnique = 1;
                 for j = 1:(orderOfReflection * 3) + 6
-                    switch3 = switch3 && (multipath(i,j) == multipath(indexMultipath,j));
+                    isMpcNonUnique = isMpcNonUnique && (multipath(i,j) == multipath(indexMultipath,j));
                 end
-                switch1 = switch1 && (~switch3);
+                isMpc = isMpc && ~isMpcNonUnique;
             end
         end
         
         % the delay, AoA, AoD, path loss of the path are stored in output parameter
-        
-        if  switch1 == 1
+        if  isMpc == 1
             
-            output(indexOutput,1) = indexMultipath;
+            dRay(1) = indexMultipath;
             % dod - direction of departure
-            output(indexOutput,2:4) = dod;
+            dRay(2:4) = dod;
             % doa - direction of arrival
-            output(indexOutput,5:7) = doa;
+            dRay(5:7) = doa;
             % Time delay
-            output(indexOutput,8) = distance / LIGHTVELOCITY;
+            dRay(8) = distance/c;
             % Friis transmission loss
-            if PathLoss(1) < 0
-                output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) + PathLoss(1);
-            else
-                output(indexOutput,9) = 20*log10(wavelength / (4*pi*distance)) - 10;
-            end
+            dRay(9) = 20*log10(wavelength / (4*pi*distance)) - reflectionLoss;            
             % Aod azimuth
-            output(indexOutput,10) = mod(atan2d(dod(2),dod(1)), 360);
+            dRay(10) = mod(atan2d(dod(2),dod(1)), 360);
             % Aod elevation
-            output(indexOutput,11) = acosd(dod(3) / norm(dod));
+            dRay(11) = acosd(dod(3) / norm(dod));
             % Aoa azimuth
-            output(indexOutput,12) = mod(atan2d(doa(2),doa(1)), 360);
+            dRay(12) = mod(atan2d(doa(2),doa(1)), 360);
             % Aoa elevation
-            output(indexOutput,13) = acosd(doa(3) / norm(doa));
-            output(indexOutput,18) = orderOfReflection*pi;% + dopplerFactor*delay;
-            output(indexOutput,20) = dopplerFactor * frequency;
-            indexReference = indexOutput;
-            indexMultipath = indexMultipath + 1;
-            indexOutput = indexOutput + 1;
-            output(indexOutput - 1,21) = 0;
+            dRay(13) = acosd(doa(3) / norm(doa));
+            dRay(18) = orderOfReflection*pi;
+            dRay(20) = dopplerFactor * frequency;
+            dRay(21) = 0;
+            outputQd(indexOutput).dRay = dRay;
             
             % refer to "multipath - WCL17_revised.pdf" in this folder for QD model
-            if  switchMaterial == 1 && QDGeneratorSwitch == 1
-                [output,indexOutput,switchQD] = QDGenerator(orderOfReflection,...
-                    output,arrayOfMaterials,iterateNumberOfRowsArraysOfPlanes,MaterialLibrary,distance,...
-                    frequency,indexOutput,dod,doa,velocityTx,velocityTemp,indexMultipath,indexReference);
+            if  switchMaterial == 1 && qdGeneratorSwitch == 1
+                [~, rPreCursor, rPostCursor] =...
+                    qdGenerator(outputQd(indexOutput).dRay, arrayOfMaterials(iterateNumberOfRowsArraysOfPlanes,:), MaterialLibrary);
+                outputQd(indexOutput).rPreCursor  = rPreCursor;
+                outputQd(indexOutput).rPostCursor = rPostCursor;
+
             end
-        end
-        
-    end
-    
-    switch2 = 1;
-    
-    try
-        ioi = output(indexMultipath,1)==0;
-    catch
-        switch2 = 0;
-        indexMultipath = indexMultipath -1;
-    end
-    
-    if switch2==1
-        if output(indexMultipath,1)==0
-            indexMultipath = indexMultipath-1 ;
+            
+            indexOutput = indexOutput + 1;
+            indexMultipath = indexMultipath + 1;
+
         end
     end
     
-    indexQD = indexOutput - 1;
-    output1 = output;
-    output = output1(1:indexQD,1:21);
-    mp1 = multipath;
-    multipath = [];
+    qdRay =     [ ...
+    reshape([outputQd.dRay],nVarOut, []).';...
+    reshape([outputQd.rPreCursor].', nVarOut, []).';...
+    reshape([outputQd.rPostCursor].', nVarOut, []).'];
+    qdRay(isnan(qdRay(:,1)),:) =[];
     
     if indexMultipath>=1
-        multipath = mp1(1:indexMultipath,:);
+        multipath(indexMultipath:end,:) = [];
     end
+    
 end
 
 end

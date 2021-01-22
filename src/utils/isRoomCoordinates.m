@@ -28,11 +28,7 @@ function b = isRoomCoordinates(path)
 [remainingPath, fileName, extension] = fileparts(path);
 b = strcmp([fileName, extension], 'RoomCoordinates.csv');
 
-[remainingPath, roomCoordinatesFolder] = fileparts(remainingPath);
-b = b && strcmp(roomCoordinatesFolder, 'RoomCoordinates');
-
 [remainingPath, visualizerFolder] = fileparts(remainingPath);
-b = b && strcmp(visualizerFolder, 'Visualizer');
 
 [~, outputFolder] = fileparts(remainingPath);
 b = b && strcmp(outputFolder, 'Output');

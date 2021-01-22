@@ -40,7 +40,7 @@ function para = parameterCfg(scenarioNameStr)
 
 % Load Parameters
 cfgPath = fullfile(scenarioNameStr, 'Input/paraCfgCurrent.txt');
-paraList = readtable(cfgPath,'Delimiter','\t');
+paraList = readtable(cfgPath,'Delimiter','\t', 'Format','auto' );
 
 paraCell = (table2cell(paraList))';
 para = cell2struct(paraCell(2,:), paraCell(1,:), 2);
@@ -56,18 +56,6 @@ para = fieldToNum(para, 'indoorSwitch', [0,1], 1);
 % Input Scenario Filename
 % = 'Case1'
 para.inputScenarioName = scenarioNameStr;
-
-% This is switch to turn on or off mobility.
-% 1 = mobility ON, 0 = mobility OFF (Default)
-% TODO: can be made smart checking if file exists
-defaultMobilitySwitch = getDefaultMobilitySwitch(scenarioNameStr);
-para = fieldToNum(para, 'mobilitySwitch', [0,1], defaultMobilitySwitch);
-
-% This switch lets the user to decide the input to mobility
-% 1 = Linear (Default), 2 = input from File
-% TODO: make it smart: is a valid mobility file is present, set 2
-defaultMobilityType = getDefaultMobilityType(scenarioNameStr, para.mobilitySwitch);
-para = fieldToNum(para, 'mobilityType', [0,1,2], defaultMobilityType); % TODO: 0 should not be valid
 
 % n is the total number of time divisions. If n  = 100 and t  = 10, then we
 % have 100 time divisions for 10 seconds. Each time division is 0.1 secs in
@@ -91,22 +79,6 @@ para = fieldToNum(para, 'selectPlanesByDist', [], 0);
 % Switch to turn ON or OFF the Qausi dterministic module
 % 1 = ON, 0 = OFF (Default)
 para = fieldToNum(para, 'switchQDGenerator', [0,1], 0);
-
-% This is switch to turn ON or OFF randomization.
-% 1 = random (Default), 0 = Tx,Rx are determined by Tx,Rx paramters
-para = fieldToNum(para, 'switchRandomization', [0,1], 1);
-
-% This parameter denotes the number of nodes
-% = 2  (Default)
-switch(para.switchRandomization)
-    case 0
-        defaultNumberOfNodes = []; % specified by nodes.dat
-    case 1
-        defaultNumberOfNodes = 2;
-    otherwise
-        error('Cannot handle switchRandomization=%f',para.switchRandomization)
-end
-para = fieldToNum(para, 'numberOfNodes', [], defaultNumberOfNodes);
 
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
@@ -133,6 +105,32 @@ para = fieldToNum(para, 'qdFilesFloatPrecision', [], 6);
 % many, especially on servers. In this case, try to disable it (=0)
 % Default: 1 (true)
 para = fieldToNum(para, 'useOptimizedOutputToFile', [], 1);
+
+% Path to material library
+if ~isfield(para, 'materialLibraryPath')
+    warning('Environment file path not defined. Using default material library.')
+    para.materialLibraryPath = 'material_libraries/materialLibraryEmpty.csv';
+    cache = fullfile(scenarioNameStr, 'Input/cachedCadOutput.mat');
+    if isfile(cache)
+        delete(cache)
+    end
+end
+
+% Reflection Loss used if material library is not defined
+para = fieldToNum(para, 'reflectionLoss', [], 10);
+
+% Use output in Json format. Json output reduces number of output files and
+% reduces execution time as output is written only once at the end of the 
+% raytracing operations instead to be written at run-time. 
+% On the contrary it might be heavy on RAM as it will retain data in memory
+% during raytracing.
+% Default: 0 
+if isfield(para, 'outputFormat')
+    assert(ismember(para.outputFormat, {'json', 'txt', 'both'}), 'Output format not valid')
+else
+    para.outputFormat = 'txt';
+    warning('Output format set to .txt')
+end
 
 end
 

@@ -2,14 +2,10 @@ ParameterName	ParameterValue
 environmentFileName	Box.xml
 generalizedScenario	0
 indoorSwitch	1
-mobilitySwitch	1
-mobilityType	1
-numberOfNodes	4
 numberOfTimeDivisions	100
 referencePoint	[0,0,0]
 selectPlanesByDist	0
 switchQDGenerator	0
-switchRandomization	0
 totalNumberOfReflections	1
 totalTimeDuration	100
 switchSaveVisualizerFiles	1

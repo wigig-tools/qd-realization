@@ -1,6 +1,6 @@
-function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes,...
+function [node,Tx,Rx,vtx, vrx,node_v, varargout] = LinearMobility(number_of_nodes,...
     switch_randomization, time_division, node, node_v, vtx, vrx,...
-    Tx_initial, Rx_initial, delt, CADop, Tx, Rx)
+    Tx_initial, Rx_initial, delt, CADop, Tx, Rx, varargin)
 % This function is to generate node locations according linear mobility
 % model and to avoid nodes crashing into walls.
 %
@@ -64,11 +64,22 @@ function [node,Tx,Rx,vtx, vrx,node_v] = LinearMobility(number_of_nodes,...
 % velocity and time difference, delt. The newly determined Tx postion is
 % checked if it exists in the box (room) or not
 
+node = squeeze(node);
+
+if isempty(varargin)
+    nodePAA = [];
+else
+    nodePAA = varargin{1};
+end
+
 if (number_of_nodes>=2 || switch_randomization==1) && time_division==0
     for Tx_i=1:number_of_nodes
-        Tx=node(Tx_i,:)+(node_v(Tx_i,:).*delt.*time_division);
+        
+        nodeShift = node_v(Tx_i,:).*delt.*time_division;
+        Tx=node(Tx_i,:)+nodeShift;
         
         node(Tx_i,:)=Tx;
+        nodePAA{Tx_i} = updatePAAposition(nodePAA{Tx_i}, nodeShift,time_division); %#ok<AGROW>
         
         Tx_test=node(Tx_i,:)+(node_v(Tx_i,:).*delt...
             .*(time_division+1));
@@ -86,6 +97,7 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division==0
         end
     end
     
+    varargout{1} = nodePAA;
 end
 
 % This case is for number of nodes greater than 2 or when nodes are
@@ -96,9 +108,12 @@ end
 
 if (number_of_nodes>=2 || switch_randomization==1) && time_division>0
     for Tx_i=1:number_of_nodes
-        Tx=node(Tx_i,:)+(node_v(Tx_i,:).*delt);
+        
+        nodeShift = node_v(Tx_i,:).*delt;
+        Tx=node(Tx_i,:)+nodeShift;
         
         node(Tx_i,:)=Tx;
+        nodePAA{Tx_i} = updatePAAposition(nodePAA{Tx_i}, nodeShift,time_division); %#ok<AGROW>
         
         Tx_test=node(Tx_i,:)+(node_v(Tx_i,:).*delt.*(1+1));
         
@@ -112,6 +127,21 @@ if (number_of_nodes>=2 || switch_randomization==1) && time_division>0
             node_v(Tx_i,:)=-node_v(Tx_i,:);
         end
     end
+    
+    varargout{1} = nodePAA;
+
+end
+node = reshape(node, [1 size(node)]);
 end
 
+function nodePAA = updatePAAposition(nodePAA, nodeShift, t)
+squeezeAndReshape = @(x) reshape(squeeze(x), [], 3); 
+
+if isempty(nodePAA)
+else
+    if t ~= 0
+        nodePAA.centroidTimePosition(t+1,:,:) = squeezeAndReshape(nodePAA.centroidTimePosition(t,:,:)) + nodeShift;
+        nodePAA.node_centroid(t+1,:) = nodePAA.node_centroid(t,:) + nodeShift;
+    end
+end
 end

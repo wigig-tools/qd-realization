@@ -38,22 +38,25 @@ assertEqual(testCase,scenarioFileName,exampleFileName)
 scenarioFilePath = fullfile(scenarioFolder, scenarioFileName);
 exampleFilePath = fullfile(exampleFolder, exampleFileName);
 
-if isNodesPosition(scenarioFilePath)
-    scenarioOut = readNodesPosition(scenarioFilePath);
-    exampleOut = readNodesPosition(exampleFilePath);
-elseif isQdFile(scenarioFilePath)
+if isQdFile(scenarioFilePath)
     sortBy = {'delay','pathGain','phaseOffset','aodEl','aodAz','aoaEl','aoaAz'};
     scenarioOut = readQdFile(scenarioFilePath, sortBy);
     exampleOut = readQdFile(exampleFilePath, sortBy);
-elseif isMpcCoordinates(scenarioFilePath)
-    scenarioOut = readMpcCoordinates(scenarioFilePath);
-    exampleOut = readMpcCoordinates(exampleFilePath);
-elseif isNodePositions(scenarioFilePath)
-    scenarioOut = readNodePositions(scenarioFilePath);
-    exampleOut = readNodePositions(exampleFilePath);
 elseif isRoomCoordinates(scenarioFilePath)
     scenarioOut = readRoomCoordinates(scenarioFilePath);
     exampleOut = readRoomCoordinates(exampleFilePath);
+elseif isQdJsonFile(scenarioFilePath)
+    scenarioOut = readQdJsonFile(scenarioFilePath);
+    exampleOut  = readQdJsonFile(exampleFilePath);
+elseif isMpcJsonCoordinates(scenarioFilePath)
+    scenarioOut = readMpcJsonFile(scenarioFilePath);
+    exampleOut  = readMpcJsonFile(exampleFilePath);
+elseif isNodePositionsJson(scenarioFilePath)
+    scenarioOut = readNodeJsonFile(scenarioFilePath);
+    exampleOut  = readNodeJsonFile(exampleFilePath);
+elseif isPaaPositionsJson(scenarioFilePath)
+    scenarioOut = readPaaJsonFile(scenarioFilePath);
+    exampleOut  = readPaaJsonFile(exampleFilePath);
 else
     verifyTrue(testCase,false,...
         sprintf('File path ''%s'' not recognized', scenarioFilePath))

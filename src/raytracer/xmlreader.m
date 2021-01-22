@@ -158,7 +158,7 @@ for iterateObjects = 1:lengthObject                            % For multiple ob
                 
                 for iterateMaterials=1:size(MaterialLibrary, 1)
                     if strcmpi(MaterialLibrary.Reflector{iterateMaterials}, material)
-                        CADOutputTemp(14) = MaterialLibrary.PrimaryKey(iterateMaterials);
+                        CADOutputTemp(14) = iterateMaterials;
                         materialFound = true;
                         break
                     end

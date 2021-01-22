@@ -36,45 +36,48 @@ if ~useOptimizedOutputToFile
 else
     fid = fids(iTx, iRx);
 end
-    
 
 numRays = size(output,1);
-fprintf(fid, '%d\n', numRays);
+numProperties = size(output,2);
+numChannels = size(output,3);
+output = mat2cell(output, numRays, numProperties, ones(1, numChannels));
 
-if isempty(output)
-    return
-end
-
-if any(any(isnan(output(:, [8, 9, 18, 11, 10, 13, 12]))))
-    warning('Writing NaN in QD file')
-end
-
+idEmpty = cellfun(@isempty, output);
 floatFormat = sprintf('%%.%dg',precision);
 formatSpec = [repmat([floatFormat,','],1,numRays-1), [floatFormat,'\n']];
+numChanV = 1:numChannels;
+for id = numChanV(~idEmpty)
+    outputId = output{id};
+    numRays = size(outputId,1);
+    fprintf(fid, '%d\n', numRays);
+    formatSpec = [repmat([floatFormat,','],1,numRays-1), [floatFormat,'\n']];
 
-% Stores delay [s]
-fprintf(fid,formatSpec,output(:,8));
-
-% Stores  path gain [dB]
-fprintf(fid,formatSpec,output(:,9));
-
-% Stores  phase [rad]
-fprintf(fid,formatSpec,output(:,18));
-
-% Stores Angle of departure elevation [deg]
-fprintf(fid,formatSpec,output(:,11));
-
-% Stores Angle of departure azimuth [deg]
-fprintf(fid,formatSpec,output(:,10));
-
-% Stores Angle of arrival elevation [deg]
-fprintf(fid,formatSpec,output(:,13));
-
-% Stores Angle of arrival azimuth [deg]
-fprintf(fid,formatSpec,output(:,12));
+    % Stores delay [s]
+    fprintf(fid,formatSpec,outputId(:,8));
+    
+    % Stores  path gain [dB]
+    fprintf(fid,formatSpec,outputId(:,9));
+    
+    % Stores  phase [rad]
+    fprintf(fid,formatSpec,outputId(:,18));
+    
+    % Stores Angle of departure elevation [deg]
+    fprintf(fid,formatSpec,outputId(:,11));
+    
+    % Stores Angle of departure azimuth [deg]
+    fprintf(fid,formatSpec,outputId(:,10));
+    
+    % Stores Angle of arrival elevation [deg]
+    fprintf(fid,formatSpec,outputId(:,13));
+    
+    % Stores Angle of arrival azimuth [deg]
+    fprintf(fid,formatSpec,outputId(:,12));
+end
+if isempty(id)
+    fprintf(fid,formatSpec,0);
+end
 
 if ~useOptimizedOutputToFile
     fclose(fid);
 end
-
 end

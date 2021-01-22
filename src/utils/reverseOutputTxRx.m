@@ -39,11 +39,11 @@ end
 
 % Flip all columns containing directional information between Rx and Tx
 % Flip DoD/DoA
-outrev(:,2:4) = output(:,5:7);
-outrev(:,5:7) = output(:,2:4);
+outrev(:,2:4,:) = output(:,5:7,:);
+outrev(:,5:7,:) = output(:,2:4,:);
 
 % Flip AoD/AoA Az/El
-outrev(:,10:11) = output(:,12:13);
-outrev(:,12:13) = output(:,10:11);
+outrev(:,10:11,:) = output(:,12:13,:);
+outrev(:,12:13,:) = output(:,10:11,:);
 
 end

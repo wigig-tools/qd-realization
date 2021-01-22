@@ -2,14 +2,10 @@ ParameterName	ParameterValue
 environmentFileName	L-Room.xml
 generalizedScenario	0
 indoorSwitch	1
-mobilitySwitch	1
-mobilityType	2
-numberOfNodes	2
 numberOfTimeDivisions	199
 referencePoint	[0,0,0]
 selectPlanesByDist	0
 switchQDGenerator	0
-switchRandomization	0
 totalNumberOfReflections	1
 totalTimeDuration	1
 switchSaveVisualizerFiles	1
