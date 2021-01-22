@@ -1,35 +1,11 @@
 function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
+%%RAYTRACER generates the QD channel model.
 % Inputs:
-% RootFolderPath - it is the current location of the folder where the function is called from
-% environmentFileName - it is the CAD file name
-% switchRandomization - boolean to either randomly generates nodes and velocity or not
-% mobilitySwitch -  is boolean to either have mobility or not
-% totalNumberOfReflections - is the highest order of reflections to be computed
-% switchQDGenerator - Switch to turn ON or OFF the Qausi dterministic module 1 = ON, 0 = OFF
-% nodeLoc - 2d array which contains all node locations
-% nodeVelocities - 2d array which contains all node velocities
-% nodePolarization - 2d array which contains all node polarization
-% nodeAntennaOrientation - 2d array which contains all node antenna orientation
-% totalTimeDuration, n1 are for granularity in time domain. t is total period and n is the
-% number of divisions of that time period
-% mobilityType - This switch lets the user to decide the input to mobility
-% 1 = Linear, 2 = input from File
-% nodePosition - these are positions of nodes in a 2D array which are
-% extracted from a file
-% indoorSwitch - This boolean lets user say whether the given CAD file
-% is indoor or outdorr. If indoor, then the value is 1 else the value is 0.
-% generalizedScenario - This boolean lets user say whether a scenario
-% conforms to a regular indoor or outdoor environment or it is a more
-% general scenario.
-% selectPlanesByDist - This is selection of planes/nodes by distance.
-% r = 0 means that there is no limitation.
-% referencePoint - Reference point is the center of limiting sphere
-%
-% Outputs:
-% N/A
+% paraCfgInput - Simulation configuration
+% nodeCfgInput - Node configuration 
 
 
-% -------------Software Disclaimer---------------
+%% -------------Software Disclaimer---------------
 %
 % NIST-developed software is provided by NIST as a public service. You may use, copy
 % and distribute copies of the software in any medium, provided that you keep intact this
@@ -62,11 +38,22 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
 % States.
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Refactored code
+%              Steve Blandino <steve.blandino@nist.gov>
 
-
-%% Input Parameters Management
-nodeLoc = nodeCfgInput.nodeLoc;
-nodeVelocities = nodeCfgInput.nodeVelocities;
+%% Input Parameters Management and preallocation
+nodePosition = nodeCfgInput.nodePosition;
+nPAA_centroids = cellfun(@(x) x.nPAA_centroids, nodeCfgInput.paaInfo );
+Mpc = cell(paraCfgInput.numberOfNodes,...
+    max(nPAA_centroids),...
+    paraCfgInput.numberOfNodes,...
+    max(nPAA_centroids),...
+    paraCfgInput.totalNumberOfReflections+1,...
+    paraCfgInput.numberOfTimeDivisions+1 );
+keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both'); 
+isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
+displayProgress = 1;
+ts = paraCfgInput.totalTimeDuration/paraCfgInput.numberOfTimeDivisions;
+outputPaa = cell(paraCfgInput.numberOfNodes,paraCfgInput.numberOfNodes);
 
 % Input checking
 if paraCfgInput.switchQDGenerator == 1 &&...
@@ -78,16 +65,11 @@ end
 % List of paths
 inputPath = fullfile(paraCfgInput.inputScenarioName, 'Input');
 outputPath = fullfile(paraCfgInput.inputScenarioName, 'Output');
-
 ns3Path = fullfile(outputPath, 'Ns3');
 qdFilesPath = fullfile(ns3Path, 'QdFiles');
 
 if paraCfgInput.switchSaveVisualizerFiles == 1
     visualizerPath = fullfile(outputPath, 'Visualizer');
-    
-    nodePositionsPath = fullfile(visualizerPath, 'NodePositions');
-    roomCoordinatesPath = fullfile(visualizerPath, 'RoomCoordinates');
-    mpcCoordinatesPath = fullfile(visualizerPath, 'MpcCoordinates');
 end
 
 % Subfolders creation
@@ -95,45 +77,18 @@ if ~isfolder(qdFilesPath)
     mkdir(qdFilesPath)
 end
 
-if paraCfgInput.switchSaveVisualizerFiles == 1
-    
-    if ~isfolder(nodePositionsPath)
-        mkdir(nodePositionsPath)
-    end
-    if ~isfolder(roomCoordinatesPath)
-        mkdir(roomCoordinatesPath)
-    end
-    if ~isfolder(mpcCoordinatesPath)
-        mkdir(mpcCoordinatesPath)
-    end
-    
-end
-
 % Init output files
-fids = getQdFilesIds(qdFilesPath, paraCfgInput.numberOfNodes,...
-    paraCfgInput.useOptimizedOutputToFile);
+if ~isJsonOutput || keepBothQDOutput
+    fids = getQdFilesIds(qdFilesPath, paraCfgInput.numberOfNodes,...
+        paraCfgInput.useOptimizedOutputToFile);
+end
 
 %% Init
-Tx = nodeLoc(1,:);
-Rx = nodeLoc(2,:);
-vtx = nodeVelocities(1,:);
-vrx = nodeVelocities(2,:);
-
 switchPolarization = 0;
 switchCp = 0;
-
 polarizationTx = [1, 0];
-polarizationRx = [1, 0];
 
-% Define Material library for various environments
-switch(paraCfgInput.environmentFileName)
-    case 'DataCenter.xml'
-        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_DataCenter.txt');
-    otherwise
-        MaterialLibrary = importMaterialLibrary('raytracer/Material_library_Default.txt');
-        warning('Environment file ''%s'' not recognized. Using default material library.',...
-            paraCfgInput.environmentFileName)
-end
+MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
@@ -143,148 +98,177 @@ end
 if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
-    csvwrite(fullfile(roomCoordinatesPath, 'RoomCoordinates.csv'),...
+    csvwrite(fullfile(visualizerPath, 'RoomCoordinates.csv'),...
         RoomCoordinates);
 end
 
-
-%% Randomization
-% if number of nodes is greater than 1 or switch_randomization is set to 1,
-% the program generates nodes randomly. If one has more than 2 nodes but
-% know the exact locations of nodes, then disable this if statement and
-% replace node and node_v with the values of node positions and node
-% velocities repsectively
-
-TxInitial = Tx;
-RxInitial = Rx;
-% t - total time period, n - number of divisions
-timeDivisionValue = paraCfgInput.totalTimeDuration / paraCfgInput.numberOfTimeDivisions;
-
-% Finite difference method to simulate mobility. x=x0 + v*dt.
-% This method ensures the next position wouldnt collide with any of the
-% planes. If that occurs then the velocities are simply reversed (not
-% reflected). At every time step the positions of all nodes are updated
+%% Loop over time instances
 for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
-    % update mobility
-    if paraCfgInput.mobilityType == 1
-        if paraCfgInput.numberOfNodes == 2
-            [nodeLoc, Tx, Rx, vtx, vrx, nodeVelocities] = LinearMobility...
-                (paraCfgInput.numberOfNodes, paraCfgInput.switchRandomization, ...
-                iterateTimeDivision-1, nodeLoc, nodeVelocities, vtx,...
-                vrx,TxInitial, RxInitial, timeDivisionValue,...
-                CADop, Tx, Rx);
-        else
-            [nodeLoc, Tx, Rx, vtx, vrx, nodeVelocities] = LinearMobility...
-                (paraCfgInput.numberOfNodes, paraCfgInput.switchRandomization,...
-                iterateTimeDivision-1, nodeLoc, nodeVelocities,...
-                [], [], TxInitial, RxInitial, timeDivisionValue, ...
-                CADop, Tx, Rx);
-        end
-        
-    elseif paraCfgInput.mobilityType == 2
-        [nodeLoc, nodeVelocities] = NodeExtractor...
-            (paraCfgInput.numberOfNodes,  paraCfgInput.switchRandomization, ...
-            iterateTimeDivision, nodeLoc, nodeVelocities,...
-            nodeCfgInput.nodePosition, timeDivisionValue);
+    if mod(iterateTimeDivision,100)==0 && displayProgress 
+        disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
     end
+             
+    %% Point rotation
+    % PAAs not centered [0,0,0] have a
+    % different position in the global frame if the node rotates. Compute
+    % the new PAAs position as well as the equivalent angle resulting from
+    % successive transformations (initial PAA orientation + rotation of the
+    % node over time)
+    for nodeId = 1:paraCfgInput.numberOfNodes
+            centerRotation = nodePosition(iterateTimeDivision,:, nodeId);
+            nodeRotationEucAngles = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
+            paaInitialPosition = reshape(squeeze(...
+                nodeCfgInput.paaInfo{nodeId}.centroidTimePosition(iterateTimeDivision,:,:)), [], 3);
+            [paaRotatedPosition, nodeEquivalentRotationAngle] = coordinateRotation(paaInitialPosition, ...
+                centerRotation,...
+                nodeRotationEucAngles ...
+                );
+            nodeCfgInput.nodeEquivalentRotationAngle(iterateTimeDivision,:, nodeId) = nodeEquivalentRotationAngle;
+            nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,:,:) =paaRotatedPosition;
+    end   
     
-    % save NodePositionsTrc
-    if paraCfgInput.switchSaveVisualizerFiles
-        filename = sprintf('NodePositionsTrc%d.csv', iterateTimeDivision-1);
-        csvwrite(fullfile(nodePositionsPath, filename),...
-            nodeLoc);
-    end
-    
-    % Iterates through all the nodes
+    %% Iterates through all the PAA centroids
     for iterateTx = 1:paraCfgInput.numberOfNodes
+        
         for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
-            % reset output
-            output = [];
             
-            % update positions and velocities
-            Tx = nodeLoc(iterateTx, :);
-            Rx = nodeLoc(iterateRx, :);
-            
-            vtx = nodeVelocities(iterateTx, :);
-            vrx = nodeVelocities(iterateRx, :);
-            
-            % LOS Path generation
-            [switchLOS, output] = LOSOutputGenerator(CADop, Rx, Tx,...
-                output, vtx, vrx, switchPolarization, switchCp,...
-                polarizationTx, paraCfgInput.carrierFrequency);
-            
-            if paraCfgInput.switchSaveVisualizerFiles && switchLOS
-                multipath1 = [Tx, Rx];
-                filename = sprintf('MpcTx%dRx%dRefl%dTrc%d.csv',...
-                    iterateTx-1, iterateRx-1, 0, iterateTimeDivision-1);
-                csvwrite(fullfile(mpcCoordinatesPath, filename),...
-                    multipath1);
+            for iteratePaaTx = 1:nPAA_centroids(iterateTx)
                 
-            end
-            
-            % Higher order reflections (Non LOS)
-            for iterateOrderOfReflection = 1:paraCfgInput.totalNumberOfReflections
-                numberOfReflections = iterateOrderOfReflection;
-                
-                [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
-                    ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
-                    numberOfReflections, numberOfReflections,...
-                    0, 1, 1, 1, Rx, Tx, [], [],...
-                    switchMaterial, [], 1, paraCfgInput.generalizedScenario);
-                
-                numberOfPlanes = numberOfPlanes - 1;
-                
-                [~, ~, outputTemporary, multipathTemporary,...
-                    count, ~] = multipath(...
-                    ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
-                    CADop, numberOfPlanes, ...
-                    MaterialLibrary, arrayOfMaterials, ...
-                    switchMaterial, vtx, vrx, ...
-                    switchPolarization, polarizationTx, [],...
-                    polarizationRx, [], switchCp,...
-                    paraCfgInput.switchQDGenerator,...
-                    paraCfgInput.carrierFrequency);
-                
-                if paraCfgInput.switchSaveVisualizerFiles &&...
-                        size(multipathTemporary,1) > 0
+                for iteratePaaRx = 1:nPAA_centroids(iterateRx)
+                    output = [];
+                        
+                    % Update centroids position
+                    Tx = squeeze(nodeCfgInput.paaInfo{iterateTx}.centroid_position_rot(iterateTimeDivision,iteratePaaTx,:)).';
+                    Rx = squeeze(nodeCfgInput.paaInfo{iterateRx}.centroid_position_rot(iterateTimeDivision,iteratePaaRx,:)).';
                     
-                    multipath1 = multipathTemporary(1:count,...
-                        2:size(multipathTemporary,2));
-                    filename = sprintf('MpcTx%dRx%dRefl%dTrc%d.csv',...
-                        iterateTx-1, iterateRx-1,...
-                        iterateOrderOfReflection, iterateTimeDivision-1);
+                    % Update rotation Tx struct
+                    QTx.center(1,:) = nodePosition(iterateTimeDivision,:,iterateTx);
+                    QTx.angle(1,:) = nodeCfgInput.nodeRotation(iterateTimeDivision,:, iterateTx);
                     
-                    csvwrite(fullfile(mpcCoordinatesPath, filename),...
-                        multipath1);
+                    % Update rotation Rx struct
+                    QRx.center(1,:) = nodePosition(iterateTimeDivision,:,iterateRx);
+                    QRx.angle(1,:) = nodeCfgInput.nodeRotation(iterateTimeDivision,:, iterateRx);
+                    
+                    % Update node velocity
+                    previousTxPosition =  squeeze(nodeCfgInput.paaInfo{iterateTx}.centroid_position_rot(max(iterateTimeDivision-1,1),iteratePaaTx,:)).';
+                    previousRxPosition =  squeeze(nodeCfgInput.paaInfo{iterateRx}.centroid_position_rot(max(iterateTimeDivision-1,1),iteratePaaRx,:)).';
+                    
+                    vtx = (Tx-previousTxPosition)./ts;
+                    vrx = (Rx-previousRxPosition)./ts;
+  
+                    % LOS Path generation
+                    [isLos, output] = LOSOutputGenerator(CADop, Rx, Tx,...
+                        output, vtx, vrx, switchPolarization, switchCp,...
+                        polarizationTx, paraCfgInput.carrierFrequency, 'qTx', QTx, 'qRx', QRx);
+                    
+                    % Store MPC
+                    if paraCfgInput.switchSaveVisualizerFiles && isLos
+                        multipath1 = [Tx, Rx];
+                        Mpc{iterateTx,iteratePaaTx,iterateRx,iteratePaaRx, 1, iterateTimeDivision+1} =multipath1;
+                    end
+                    
+                    % Higher order reflections (Non LOS)
+                    for iterateOrderOfReflection = 1:paraCfgInput.totalNumberOfReflections
+                        numberOfReflections = iterateOrderOfReflection;
+                        
+                        [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
+                            ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
+                            numberOfReflections, numberOfReflections,...
+                            0, 1, 1, 1, Rx, Tx, [], [],...
+                            switchMaterial, [], 1, paraCfgInput.generalizedScenario);
+                        
+                        numberOfPlanes = numberOfPlanes - 1;
+                        
+                        [outputTemporary, multipathTemporary] = ...
+                            multipath(...
+                            ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
+                            CADop, numberOfPlanes, ...
+                            MaterialLibrary, arrayOfMaterials, ...
+                            switchMaterial, vtx, vrx, ...
+                            paraCfgInput.switchQDGenerator,...
+                            paraCfgInput.carrierFrequency,...
+                            'qTx', QTx, 'qRx', QRx, 'reflectionLoss', paraCfgInput.reflectionLoss);
+                        
+                        nMpc = size(multipathTemporary,1);
+                        %Store MPC
+                        if paraCfgInput.switchSaveVisualizerFiles &&...
+                                nMpc > 0                            
+                            multipath1 = multipathTemporary(:,...
+                                2:end); %Discard reflection order column
+                                Mpc{iterateTx,iteratePaaTx,...
+                                    iterateRx,iteratePaaRx, ...
+                                    iterateOrderOfReflection+1, iterateTimeDivision+1} =multipath1;                            
+                        end
+                        
+                        %Store QD output                        
+                        if size(output) > 0
+                            output = [output;outputTemporary]; %#ok<AGROW>
+                            
+                        elseif size(outputTemporary) > 0
+                            output = outputTemporary;
+                            
+                        end
+                        
+                    end
+                    
+                    % Create outputPAA array of struct. Each entry of the
+                    % array is a struct relative to a NodeTx-NodeRx 
+                    % combination. Each struct has the entries 
+                    % - paaTxXXpaaRxYY: channel between paaTx XX and paaRx
+                    % YY.  
+                    outputPaa{iterateTx, iterateRx}.(sprintf('paaTx%dpaaRx%d', iteratePaaTx-1, iteratePaaRx-1))= output;
+                    outputPaa{iterateRx, iterateTx}.(sprintf('paaTx%dpaaRx%d', iteratePaaRx-1, iteratePaaTx-1))= reverseOutputTxRx(output);
+                    
                 end
-                
-                if size(output) > 0
-                    output = [output; outputTemporary];
-                    
-                else
-                    output = outputTemporary;
-                    
-                end
-                
             end
-            
-            % The ouput from previous iterations is stored in files
-            % whose names are TxiRxj.txt. i,j is the link
-            % between ith node as Tx and jth as Rx.
-            writeQdFileOutput(output,...
-                paraCfgInput.useOptimizedOutputToFile,...
-                fids, iterateTx, iterateRx, qdFilesPath,...
-                paraCfgInput.qdFilesFloatPrecision);
-            writeQdFileOutput(reverseOutputTxRx(output),...
-                paraCfgInput.useOptimizedOutputToFile,...
-                fids, iterateRx, iterateTx, qdFilesPath,...
-                paraCfgInput.qdFilesFloatPrecision);
             
         end
     end
     
+    %% Generate channel for each PAA given the channel of the centroids
+    outputPaaTime(:,:,iterateTimeDivision) = generateChannelPaa(outputPaa, nodeCfgInput.paaInfo);  %#ok<AGROW>
+    
+    %% Write QD output in CSV files
+    if ~isJsonOutput || keepBothQDOutput
+        for iterateTx = 1:paraCfgInput.numberOfNodes
+            for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
+                writeQdFileOutput(outputPaaTime{iterateTx, iterateRx,iterateTimeDivision},...
+                    paraCfgInput.useOptimizedOutputToFile, fids, iterateTx, iterateRx,...
+                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
+                
+                writeQdFileOutput(outputPaaTime{iterateRx,iterateTx,iterateTimeDivision},...
+                    paraCfgInput.useOptimizedOutputToFile, fids, iterateRx,iterateTx,...
+                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
+            end
+        end
+    end
+    
+    clear outputPAA
 end
 
-closeQdFilesIds(fids, paraCfgInput.useOptimizedOutputToFile);
+%% Write output in JSON files
+% QD output
+if isJsonOutput
+    writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
+        qdFilesPath);
+end
 
+if paraCfgInput.switchSaveVisualizerFiles
+    Mpc(:,:,:,:,:,1) = [];
+    writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition, Mpc)
+end
+
+if ~isJsonOutput || keepBothQDOutput
+    closeQdFilesIds(fids, paraCfgInput.useOptimizedOutputToFile);
+end
+
+%% Write useful output information. 
+writeReportOutput = 0 ; %Set to 0 to allow succeful test.
+if writeReportOutput
+    f = fopen(strcat(outputPath, filesep,'report.dat'), 'w'); %#ok<UNRCH> 
+    fprintf(f, 'Device Rotation:\t%d\n', paraCfgInput.isDeviceRotationOn);
+    fprintf(f, 'Initial Orientation:\t%d\n', paraCfgInput.isInitialOrientationOn);
+    fprintf(f, 'PAA centered:\t%d\n', paraCfgInput.isPaaCentered);
+    fclose(f);
+end
 end

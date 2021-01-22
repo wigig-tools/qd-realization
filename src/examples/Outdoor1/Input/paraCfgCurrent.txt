@@ -2,14 +2,10 @@ ParameterName	ParameterValue
 environmentFileName	cityBlock.amf
 generalizedScenario	0
 indoorSwitch	0
-mobilitySwitch	0
-mobilityType	1
-numberOfNodes	2
 numberOfTimeDivisions	1
 referencePoint	[285.27,178.7,2]
 selectPlanesByDist	10
 switchQDGenerator	0
-switchRandomization	0
 totalNumberOfReflections	1
 totalTimeDuration	0
 switchSaveVisualizerFiles	1

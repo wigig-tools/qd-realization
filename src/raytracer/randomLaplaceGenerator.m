@@ -1,11 +1,10 @@
-function x = randomLaplaceGenerator()
+function x = randomLaplaceGenerator(sz)
 % Function which generates a random number using laplace distribution
 %
-% function: x  = randomLaplaceGenerator(m, n)
-% m - number of matrix rows
-% n - number of matrix columns
+% function: x  = randomLaplaceGenerator()
 % x - matrix with Laplacian distributed numbers with mu = 0 and sigma = 1
-
+%           x  = randomLaplaceGenerator(N)
+%           generates N realizations
 
 % -------------Software Disclaimer---------------
 %
@@ -41,15 +40,11 @@ function x = randomLaplaceGenerator()
 
 
 % generation of a numbers with Uniform distribution
-u=rand;
-
-if u<0.5
-    sign=-1;
-else
-    sign=1;
-end
-
+u = rand(sz);
+sign = zeros(sz);
+sign(u<0.5) = -1;
+sign(u>=0.5) = 1;
 % generation of a numbers with Laplace distribution
-x = sign*randomExponetialGenerator(1);
+x = sign .* randomExponetialGenerator(ones(sz));
 
 end

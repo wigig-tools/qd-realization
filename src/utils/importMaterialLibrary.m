@@ -24,10 +24,27 @@ function tab = importMaterialLibrary(path)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+[~, ~, ext] = fileparts(path);
+
+switch(ext)
+    case '.txt'
+        tab = importTxtMaterialLibrary(path);
+    case '.csv'
+        tab = importCsvMaterialLibrary(path);
+    otherwise
+        error('Exension ''%s'' not supported for material libraries', ext)
+end
+
+end
+
+%% Importing different material library extensions
+% TXT
+function tab = importTxtMaterialLibrary(path)
+
 fid = fopen(path);
 
 fgetl(fid); % ignore first line: hard code column names
-tab = table('Size', [0,25],...
+tab = table('Size', [0,19],...
     'VariableTypes', {'double','cellstr',... % PrimaryKey, Reflector
     'double','double',... % (mu/sigma)_k_Precursor
     'double','double',... % (mu/sigma)_k_Postcursor
@@ -35,23 +52,17 @@ tab = table('Size', [0,25],...
     'double','double',... % (mu/sigma)_Y_Postcursor
     'double','double',... % (mu/sigma)_lambda_Precursor
     'double','double',... % (mu/sigma)_lambda_Postcursor
-    'double','double',... % (mu/sigma)_sigmaThetaEL
-    'double','double',... % (mu/sigma)_sigmaThetaAZ
+    'double','double',... % (mu/sigma)_sigmaTheta
     'double','double',... % (mu/sigma)_RL
-    'double',...  % DielectricConstat
-    'double','double',... % (mu/sigma)_SigmaS_Precursor
-    'double','double'},...% (mu/sigma)_SigmaS_Postcursor
+    'double'},... % DielectricConstat
     'VariableNames', {'PrimaryKey', 'Reflector',...
     'mu_k_Precursor','sigma_k_Precursor',...
     'mu_k_Postcursor','sigma_k_Postcursor',...
     'mu_Y_Precursor','sigma_Y_Precursor',...
     'mu_Y_Postcursor','sigma_Y_Postcursor',...
-    'mu_SigmaS_Precursor','sigma_SigmaS_Precursor',...
-    'mu_SigmaS_Postcursor','sigma_SigmaS_Postcursor',...
     'mu_lambda_Precursor','sigma_lambda_Precursor',...
     'mu_lambda_Postcursor','sigma_lambda_Postcursor',...
-    'mu_sigmaThetaEL','sigma_sigmaThetaEL',...
-    'mu_sigmaThetaAZ','sigma_sigmaThetaAZ',...
+    'mu_sigmaTheta','sigma_sigmaTheta',...
     'mu_RL','sigma_RL',...
     'DielectricConstant'});
 
@@ -60,10 +71,22 @@ while ~feof(fid)
     line = fgetl(fid);
     line = replace(line,'""','"0"'); % convert "" to "0"
     line = replace(line,'"',''); % remove ""
-    tab(i,:) = textscan(line,'%d%q%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f','Delimiter',',');
+    tab(i,:) = textscan(line,'%d%q%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f','Delimiter',',');
     
     i = i+1;
 end
 
 fclose(fid);
+
+end
+
+% CSV
+function tab = importCsvMaterialLibrary(path)
+
+if contains(pwd, 'test')
+    path  = fullfile('..\src', path);
+end
+
+tab = readtable(path);
+
 end

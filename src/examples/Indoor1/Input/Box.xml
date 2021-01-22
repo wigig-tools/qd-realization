@@ -213,7 +213,7 @@
         </mesh>
     </object>
     <material id="2">
-        <metadata type="name">Ceiling-Box</metadata>
+        <metadata type="name">Ceiling</metadata>
         <color><r>0.1</r><g>0.1</g><b>0.1</b></color>
     </material>
     <material id="3">
@@ -221,7 +221,7 @@
         <color><r>0.1</r><g>0.1</g><b>0.1</b></color>
     </material>
     <material id="4">
-        <metadata type="name">RightWall</metadata>
+        <metadata type="name">RightWallAll</metadata>
         <color><r>0.1</r><g>0.1</g><b>0.1</b></color>
     </material>
     <material id="5">

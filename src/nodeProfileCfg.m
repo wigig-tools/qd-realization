@@ -1,6 +1,6 @@
 function [paraCfg, nodeCfg] = nodeProfileCfg(paraCfg)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%NODEPROFILECFG imports the node information such as the node and PAA
+%positions and orientation over time
 
 
 % -------------Software Disclaimer---------------
@@ -36,186 +36,172 @@ function [paraCfg, nodeCfg] = nodeProfileCfg(paraCfg)
 % States.
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation
+%              Steve Blandino <steve.blandino@nist.gov>
+
+warning('off', 'MATLAB:MKDIR:DirectoryExists');
 
 scenarioNameStr = paraCfg.inputScenarioName;
+
 % Input Parameters to be Updated
-mobilitySwitch = paraCfg.mobilitySwitch;
-mobilityType = paraCfg.mobilityType;
-numberOfNodes = paraCfg.numberOfNodes;
 numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
-switchRandomization = paraCfg.switchRandomization;
 
 % List of paths
 inputPath = fullfile(scenarioNameStr, 'Input');
-nodesPositionPath = fullfile(scenarioNameStr, 'Output/Ns3/NodesPosition');
 
-%% Code
-nodePosition = [];
-
-%% Random generation of node positions
-if switchRandomization == 1
-    xCoordinateRandomizer = rand * 8 + 1;
-    yCoordinateRandomizer = rand * 17 + 1;
-    zCoordinateRandomizer = 2.5;
-    Tx = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-    
-    xCoordinateRandomizer = rand * 8 + 1;
-    yCoordinateRandomizer = rand * 17 + 1;
-    zCoordinateRandomizer = 1.6;
-    Rx = [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
-    
-    if mobilityType ~= 1
-        mobilityType = 1;
-        warning('Changing mobilityType to %d', mobilityType)
+%% Back compatibility code. To be removed in future versions of the software
+% Try to open previous config: nodes.dat. If it exist convert it into new
+% config i.e. NodePositionX.dat
+try
+    obsoletePosition = csvread(fullfile(inputPath, 'nodes.dat'));
+    warning('Configuration obsolete. nodes.dat not used anymore: node information loaded from NodePosition.dat')
+    listing = dir(fullfile(scenarioNameStr, 'Input'));
+    for nodeId = 1: size(obsoletePosition,1)
+        if ~sum(arrayfun(@(x) strcmp(x.name,['NodePosition',num2str(nodeId-1), '.dat']), listing))
+            writematrix(obsoletePosition(nodeId,1:3), fullfile(inputPath, ['NodePosition', num2str(nodeId-1),'.dat']))
+        end
     end
+catch
 end
 
-%% Extracting data from nodes.dat and nodeVelocities.dat file.
-% nodes.dat file contains nodes locations and nodeVelocities contains their
-% velocities
-if switchRandomization == 0
-    try
-        nodeLoc = csvread(fullfile(inputPath, 'nodes.dat'));
-        nodeVelocities = csvread(fullfile(inputPath, 'nodeVelocities.dat'));
-    catch
-        switchRandomization = 1;
-        warning(['Unable to read nodes.dat or nodeVelocities.dat. ',...
-            'Changing switchRandomization to %d'], switchRandomization)
-    end
+%% Init
+listing = dir(fullfile(scenarioNameStr, 'Input'));
+paraCfg.numberOfNodes = sum(arrayfun(@(x) startsWith(x.name,'NodePosition'), listing));
+numberOfNodes = paraCfg.numberOfNodes;
+assert(numberOfNodes>=2, 'At least 2 nodes need to be defined');
+nodeRotationTime= zeros(paraCfg.numberOfTimeDivisions,3, paraCfg.numberOfNodes);
+nodeInitialPosition = zeros( paraCfg.numberOfNodes, 3);
+nodePositionTime = zeros(paraCfg.numberOfTimeDivisions,3, paraCfg.numberOfNodes);
+nodePositionTimeRaw = cell(numberOfNodes,1);
+nodeRotationTimeRaw = cell(numberOfNodes,1);
+
+%% Load NodePositionX.dat and NodeRotationX.dat
+for iterateNumberOfNodes = 1:numberOfNodes
+    nodePositionFile = sprintf('NodePosition%d.dat',iterateNumberOfNodes-1);
+    nodeRotationFile = sprintf('NodeRotation%d.dat',iterateNumberOfNodes-1);
+    isNodePosition = any(arrayfun(@(x) strcmp(x.name,nodePositionFile), listing));
+    isNodeRotation = any(arrayfun(@(x) strcmp(x.name,nodeRotationFile), listing));
     
-    if size(nodeLoc,1) ~= size(nodeVelocities,1) && mobilitySwitch == 1
-        error(['nodes.dat and nodeVelocities.dat do not have same number ',...
-            'of rows. Please check the input files in the Input folder.'])
+    if ~isNodePosition
+        error([ nodePositionFile, ' not defined.']);
     end
+    nodePositionTimeRaw{iterateNumberOfNodes} = readmatrix(fullfile(inputPath,nodePositionFile));
     
-    if ~isempty(numberOfNodes) && numberOfNodes ~= size(nodeLoc, 1)
-        warning(['"numberOfNodes" parameter does not match the number of ',...
-            'nodes given in file. The "numberOfNodes" is adjusted to ',...
-            'the number of nodes given in file (%d)'], size(nodeLoc, 1));
-    end
-    numberOfNodes = size(nodeLoc, 1);
-    
-    if mobilitySwitch == 1
-        nodeVelocitiesTemp = nodeVelocities;
-        clear nodeVelocities;
-        nodeVelocities = nodeVelocitiesTemp(1:numberOfNodes, :);
+    if ~isNodeRotation
+        nlines = size(nodePositionTimeRaw{iterateNumberOfNodes},1);
+        nodeRotationTimeRaw{iterateNumberOfNodes} = repmat([0 0  0], nlines,1);
+        writematrix(nodeRotationTimeRaw{iterateNumberOfNodes}, fullfile(inputPath,nodeRotationFile));
+        warning([nodeRotationFile, ' not defined. Rotation set to [0,0,0] for all time instances.'])
+        
     else
-        clear nodeVelocities;
-        nodeVelocities = zeros(numberOfNodes, 3);
+        nodeRotationTimeRaw{iterateNumberOfNodes} = readmatrix(fullfile(inputPath,nodeRotationFile));
+        
     end
     
-    if mobilityType == 2
-        listing = dir(fullfile(scenarioNameStr, 'Input'));
+end
+
+%%  NodePositionX.dat and NodeRotationX.dat processing
+for iterateNumberOfNodes = 1:numberOfNodes
+    % NodePosition processing
+    nodePositionTimeTmp = nodePositionTimeRaw{iterateNumberOfNodes};
+    timeSamplesFile = size(nodePositionTimeTmp,1);
+    
+    % Config file defines fewer positions in time than the numberOfTimeDivisions
+    % defined in paraCfg
+    if  timeSamplesFile< paraCfg.numberOfTimeDivisions &&  ...
+            timeSamplesFile > 1
+        nodePositionTime = nodePositionTime(1:timeSamplesFile, :,:);
+        paraCfg.numberOfTimeDivisions = timeSamplesFile;
+        numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
+        warning('Time divisition too long.')
         
-        countListing = 0;
-        for iterateSizeListing = 1:size(listing, 1)
-            ln = listing(iterateSizeListing).name;
+    end
+    numberTracePoints = min(timeSamplesFile,paraCfg.numberOfTimeDivisions);
+    nodePositionTime(1:numberTracePoints, :, iterateNumberOfNodes) = ...
+        nodePositionTimeTmp(1:numberTracePoints,:);
+    nodePositionTime(numberTracePoints+1:end, :, iterateNumberOfNodes) = ...
+        repmat(nodePositionTimeTmp, [paraCfg.numberOfTimeDivisions-numberTracePoints,1,1]);
+    nodeInitialPosition(iterateNumberOfNodes,:) = squeeze(nodePositionTime(1,:,iterateNumberOfNodes));
+    
+    % NodeRotation processing
+    nodeRotationTimeTemp = nodeRotationTimeRaw{iterateNumberOfNodes};
+    timeSamplesFile = size(nodeRotationTimeTemp,1);
+
+    % Config file defines fewer rotations in time than the numberOfTimeDivisions
+    % defined in paraCfg
+    if  timeSamplesFile< paraCfg.numberOfTimeDivisions &&  ...
+            timeSamplesFile> 1
+        nodeRotationTime = nodeRotationTime(1:size(nodeRotationTimeTemp,1), :,:);
+        paraCfg.numberOfTimeDivisions = size(nodeRotationTimeTemp,1) ;
+        numberOfTimeDivisions = paraCfg.numberOfTimeDivisions;
+        warning('Time divisition too long.')
+    end
+    numberTracePoints =  min(size(nodeRotationTimeTemp,1),paraCfg.numberOfTimeDivisions);
+    nodeRotationTime(1:numberTracePoints, :, iterateNumberOfNodes) = ...
+        nodeRotationTimeTemp(1:numberTracePoints,:);
+    nodeRotationTime(numberTracePoints+1:end, :, iterateNumberOfNodes) = ...
+        repmat(nodeRotationTimeTemp, [paraCfg.numberOfTimeDivisions-numberTracePoints,1,1]);        
+   
+end
+
+%% PAA init
+nodePaaInitialPosition = cell(numberOfNodes,1); %PAA vector position w.r.t node center
+nodePaaOrientation     = cell(numberOfNodes,1); 
+
+for iterateNumberOfNodes = 1:numberOfNodes
+    paaFile = fullfile(inputPath, sprintf('NodePaa%d.dat', iterateNumberOfNodes-1));
+    
+    % If NodePaaX.dat is defined
+    if isfile(paaFile)
+        nodePaaInfo =  readmatrix(paaFile);
+        
+        if isempty(nodePaaInfo)
+            nodePaaInitialPosition{iterateNumberOfNodes}  = nodePaaInfo;
             
-            for iterateNumberOfNodes = 1:numberOfNodes
-                if strcmp(ln, sprintf('NodePosition%d.dat', iterateNumberOfNodes))
-                    nodePositionTemp = load(fullfile(inputPath, ln));
-                    
-                    try
-                        nodePosition(:, :, iterateNumberOfNodes) = nodePositionTemp;
-                        countListing = countListing + 1;
-                    catch
-                        mobilityType = 1;
-                        warning('Node Position input incorrect. Changing mobilityType to 1');
-                    end
-                    
-                end
-            end
+        else
+            nodePaaInitialPosition{iterateNumberOfNodes}  = nodePaaInfo(:, 1:3);
+            
         end
         
-        if mobilityType == 2 && countListing < numberOfNodes
-            warning(['Node Position input incorrect. Linear mobility',...
-                'model is chosen']);
-            mobilityType = 1;
-        elseif mobilityType == 2 && countListing == numberOfNodes
-            % Cannot compute last velocity, so stop one iteration earlier
-            if numberOfTimeDivisions ~= size(nodePosition, 1) - 1
-                numberOfTimeDivisions = size(nodePosition, 1) - 1;
-                warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
-            end
+        % PAA orientation not defined
+        if size(nodePaaInfo, 2) == 3
+            nodePaaOrientation{iterateNumberOfNodes}  = zeros(size(nodePaaInfo));
+            
+            % PAA orientation
+        elseif size(nodePaaInfo, 2) == 6
+            nodePaaOrientation{iterateNumberOfNodes}  = nodePaaInfo(:,4:6);
+            
         end
         
-    end
-end
-
-if mobilitySwitch == 1
-    nodeVelocitiesTemp = nodeVelocities;
-    clear nodeVelocities;
-    nodeVelocities = nodeVelocitiesTemp(1:numberOfNodes, :);
-else
-    clear nodeVelocities;
-    nodeVelocities = zeros(numberOfNodes, 3);
-    
-    if numberOfTimeDivisions ~= 1
-        numberOfTimeDivisions = 1;
-        warning('Changing numberOfTimeDivisions to %d', numberOfTimeDivisions)
-    end
-    
-    if paraCfg.totalTimeDuration ~= 0
-        paraCfg.totalTimeDuration = 0;
-        warning('Changing totalTimeDuration to %d', paraCfg.totalTimeDuration)
-    end
-end
-
-iterateNumberOfNodes = 1;
-%% This part of code generates other parameters of
-nodeAntennaOrientation = zeros(numberOfNodes, 3, 3);
-nodePolarization = zeros(iterateNumberOfNodes, 2);
-
-while iterateNumberOfNodes <= numberOfNodes
-    nodeAntennaOrientation(iterateNumberOfNodes, :, :) = [1, 0, 0; 0, 1, 0; 0, 0, 1];
-    nodePolarization(iterateNumberOfNodes, :) = [1, 0];
-    
-    if switchRandomization == 1 && iterateNumberOfNodes > 0
-        xCoordinateRandomizer = rand * 8 + 1;
-        yCoordinateRandomizer = rand * 17 + 1;
-        zCoordinateRandomizer = 1.6;
-        nodeLoc(iterateNumberOfNodes, :) =...
-            [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
+        % If nodeXpaa.dat is not defined
+    else
+        nodePaaInitialPosition{iterateNumberOfNodes} = zeros(1,3);
+        nodePaaOrientation{iterateNumberOfNodes}  = zeros(1,3);
         
-        xCoordinateRandomizer = rand * 0.7;
-        yCoordinateRandomizer = sqrt((0.7^2) - (xCoordinateRandomizer^2));
-        zCoordinateRandomizer = 0;
-        nodeVelocities(iterateNumberOfNodes, :) =...
-            [xCoordinateRandomizer, yCoordinateRandomizer, zCoordinateRandomizer];
     end
     
-    iterateNumberOfNodes = iterateNumberOfNodes + 1;
 end
 
-if switchRandomization ~=0
-    switchRandomization = 0;
-    warning('Changing switchRandomization to %d', switchRandomization)
-end
+%% Process PAA position
+paaInfo  = clusterPaa(nodePositionTime, nodePaaInitialPosition, nodePaaOrientation);
 
+%% Output
 % Check Temp Output Folder
-rmdirStatus = rmdir(fullfile(scenarioNameStr, 'Output'), 's');
+rmdirStatus = rmdir(fullfile(scenarioNameStr, 'Output'), 's'); %#ok<NASGU>
 
 mkdir(fullfile(scenarioNameStr, 'Output'));
 mkdir(fullfile(scenarioNameStr, 'Output/Ns3'));
 mkdir(fullfile(scenarioNameStr, 'Output/Visualizer'));
 
-if ~isfolder(nodesPositionPath)
-    mkdir(nodesPositionPath)
-end
-
-csvwrite(fullfile(nodesPositionPath, 'NodesPosition.csv'), nodeLoc);
-
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 
-paraCfg.mobilityType = mobilityType;
 paraCfg.numberOfNodes = numberOfNodes;
 paraCfg.numberOfTimeDivisions = numberOfTimeDivisions;
-paraCfg.switchRandomization = switchRandomization;
-
-nodeCfg.nodeLoc = nodeLoc;
-nodeCfg.nodeAntennaOrientation = nodeAntennaOrientation;
-nodeCfg.nodePolarization = nodePolarization;
-nodeCfg.nodePosition = nodePosition;
-nodeCfg.nodeVelocities = nodeVelocities;
-
+nodeCfg.nodeLoc = nodeInitialPosition;
+nodeCfg.nodeAntennaOrientation = nodePaaOrientation;
+nodeCfg.nodePosition = reshape(nodePositionTime, [], 3, numberOfNodes);
+nodeCfg.nodeRotation = nodeRotationTime;
+nodeCfg.paaInfo = paaInfo;
+paraCfg.isInitialOrientationOn = any(cellfun(@(x) any(reshape(x, [],1)), nodePaaOrientation));
+paraCfg.isDeviceRotationOn = any(nodeRotationTime(:));
+paraCfg.isPaaCentered = ~any(cellfun(@(x) any(x(:)), nodePaaInitialPosition));
 end

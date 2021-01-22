@@ -35,8 +35,8 @@
 clear
 close all
 clc
-
-addpath('raytracer', 'utils')
+t0 = tic; % parallel processing-safe
+addpath('raytracer', 'utils', 'utils/quaternions')
 
 %% Initialization
 rootFolderPath = pwd;
@@ -52,6 +52,7 @@ end
 %% Input
 % Leave empty for default 'ScenarioTest'
 scenarioNameStr = '';
+
 if ~isempty(scenarioNameStr)
     fprintf('Use customized scenario: %s.\n',scenarioNameStr);
 else
@@ -85,3 +86,4 @@ outputPath = Raytracer(paraCfg, nodeCfg);
 
 fprintf('Save output data to:\n%s\n',outputPath);
 fprintf('--------- Simulation Complete ----------\n');
+toc(t0);

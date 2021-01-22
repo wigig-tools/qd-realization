@@ -1,5 +1,5 @@
 function x = randomExponetialGenerator(lambda)
 
-x = -(1/lambda).*log(1-(rand));
+x = -log(1-(rand(size(lambda)))) ./ lambda ;
 
 end
