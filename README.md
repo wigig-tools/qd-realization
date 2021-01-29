@@ -1,5 +1,5 @@
 # Q-D realization software
-> A MATLAB open-source ray-tracer specialized for mmWave RF applications.
+> A MATLAB open-source channel model specialized for mmWave RF applications.
 
 [![Contributors](https://img.shields.io/github/contributors/wigig-tools/qd-realization)](https://github.com/wigig-tools/qd-realization/graphs/contributors)
 
@@ -21,7 +21,7 @@ The software does not require any installation procedure: simply download or clo
 ### Requirements
 The codebase is written in MATLAB. It is currently being tested on MATLAB R2019b, but it should be backward-compatible down to MATLAB R2016b.
 
-Only basic toolboxes should be needed to run the code. If this is not the case, please let the authors know.
+No toolboxes are needed to run the code.
 
 ## How to Run
 * Open the `main.m` script and edit the variable `scenarioNameStr` with your scenario folder relative path if desired (please note that scenarios creation/configuration/interpretation is described in the documentation).
@@ -34,7 +34,7 @@ More details about the software can be found in the documentation ([docs/Documen
 ## Features
 1. Open-source
 1. Ray-tracing based on the method of images
-1. Specifically tailored for mmWave propagation, thus only considering specular reflection and ignoring diffraction
+1. Specifically tailored for mmWave propagation, considering specular reflection and ignoring diffraction
 1. Quasi-Deterministic ray diffusion model based on real-world measurements is included
 1. Material libraries for ray diffusion are also included
 1. Trace-based mobility is supported
