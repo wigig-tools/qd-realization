@@ -24,17 +24,9 @@ The codebase is written in MATLAB. It is currently being tested on MATLAB R2019b
 Only basic toolboxes should be needed to run the code. If this is not the case, please let the authors know.
 
 ## How to Run
-* `cd` to the `src` folder
-* Create a folder with the desired name for your scenario, e.g., `ScenarioTest`
-  * Creating a scenario in a subfolder is also allowed
-* Inside you scenario folder, create the `Input` folder
-  * Note: case sensitive
-  * Here all the input/configuration files should be placed. More information about the files needed and their format can be found in the documentation
-* Populate the `Input` folder
-  * If you are a new user, you could copy/paste the input folder of one of the `examples/` scenarios. Please do not overwrite these scenarios as they are used for testing
-* Open the `main.m` script and edit the variable `scenarioNameStr` with your scenario folder relative path, e.g., `scenarioNameStr = 'ScenarioTest';`
+* Open the `main.m` script and edit the variable `scenarioNameStr` with your scenario folder relative path if desired (please note that scenarios creation/configuration/interpretation is described in the documentation).
+* The software is configured to run the `examples/BoxLectureRoom` scenario by default.
 * Run the `main.m` script
-* Results can be found in the `Output` folder of the target scenario
 
 ### Documentation
 More details about the software can be found in the documentation ([docs/Documentation.pdf](docs/Documentation.pdf)).
@@ -59,9 +51,9 @@ For more information check out the [CONTRIBUTING](CONTRIBUTING) file.
 | :---: | :---: |
 | [![NIST picture](https://github.com/usnistgov.png?size=100)](https://github.com/usnistgov) | [![SIGNET picture](https://github.com/signetlabdei.png?size=100)](https://github.com/signetlabdei) |
 
-The Q-D Realization software has been developed at NIST by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi) and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
+The Q-D Realization software has been developed at NIST by [Anuraag Bodi](https://www.nist.gov/people/anuraag-bodi), Steve Blandino, and Neeraj Varshney and maintained by [Tanguy Ropitault](https://www.nist.gov/people/tanguy-ropitault).
 
-The current version of the code has been developed in collaboration with University of Padova, Department of Information Engineering, [SIGNET group](http://signet.dei.unipd.it/), under Prof. [Michele Zorzi](http://www.dei.unipd.it/~zorzi/)'s supervision.
+The current version of the code has been developed in collaboration with University of Padova, Department of Information Engineering, [SIGNET group](http://signet.dei.unipd.it/), by Mattia Lecci and Paolo Testolina under Prof. [Michele Zorzi](http://www.dei.unipd.it/~zorzi/)'s supervision.
 
 You can find the detailed list of contributors [here](https://github.com/wigig-tools/qd-realization/graphs/contributors).
 
