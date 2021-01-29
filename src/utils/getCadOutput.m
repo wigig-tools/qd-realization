@@ -54,7 +54,8 @@ if exist(cacheFilePath, 'file')
         return
         
     else
-        warning('Cache file exists but might be outdated. Ignoring it.')
+        warning(['Cache file exists but might be outdated. ',...
+            'Ignoring it and generating new one.']);
         
     end
     
@@ -76,7 +77,6 @@ switch(extension(2:end))
     case 'obj'
         [CADop, switchMaterial] = importObjFile(environmentFilePath,...
             MaterialLibrary, referencePoint, selectPlanesByDist);
-        
     otherwise
         error('Cannot handle ''%s'' extension properly', extension)
         

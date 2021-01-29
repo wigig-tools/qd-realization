@@ -3,62 +3,59 @@ function [isLOS, output, varargout] = LOSOutputGenerator(CADoutput, Rx, Tx,...
     PolarizationTx, frequency, varargin)
 % This part of code compute LOS between two nodes
 %
-%Inputs:
-%CADoutput - CAD output
-%Tx and Rx locations if using two nodes
-%velocityTx, velocityRx are velocities of tx and rx respectively
-%output - multipath parameters
-%isPolarization - a boolean to describe whether polarization is
-%selected
-%isXPol - a boolean to describe whether cross polarization is selected
-%or not. 1 means there is cross polarization and 0 means there is no cross
-%polarization
-%PolarizationTx - gives polarization information of Tx location
-%f1 - figure that displays multipath
-%f2 - figure that displays channel model
-%output - multipath parameters
+% Inputs:
+% CADoutput - CAD output
+% Tx and Rx locations if using two nodes
+% output - multipath parameters
+% velocityTx, velocityRx are velocities of tx and rx respectively
+% isPolarization - a boolean to describe whether polarization is
+%   selected
+% isXPol - a boolean to describe whether cross polarization is selected
+%   or not. 1 means there is cross polarization and 0 means there is no 
+%   cross polarization
+% PolarizationTx - gives polarization information of Tx location
 % frequency: the carrier frequency at which the system operates
 %
 %Outputs:
-%f1 - figure that displays multipath
-%f2 - figure that displays channel model
-%switchLOS - a boolean which gives information whether LOS exist or not.
-%1 stands for existant while 0 is for non existant case
-%output - multipath parameters
+% isLOS - a boolean which gives information whether LOS exist or not.
+%   1 stands for existant while 0 is for non existant case
+% output - multipath parameters
 
-% -------------Software Disclaimer---------------
+%--------------------------Software Disclaimer-----------------------------
 %
-% NIST-developed software is provided by NIST as a public service. You may use, copy
-% and distribute copies of the software in any medium, provided that you keep intact this
-% entire notice. You may improve, modify and create derivative works of the software or
-% any portion of the software, and you may copy and distribute such modifications or
-% works. Modified works should carry a notice stating that you changed the software
-% and should note the date and nature of any such change. Please explicitly
-% acknowledge the National Institute of Standards and Technology as the source of the
-% software.
-%
+% NIST-developed software is provided by NIST as a public service. You may 
+% use, copy and distribute copies of the software in any medium, provided 
+% that you keep intact this entire notice. You may improve, modify and  
+% create derivative works of the software or any portion of the software, 
+% and you  may copy and distribute such modifications or works. Modified 
+% works should carry a notice stating that you changed the software and  
+% should note the date and nature of any such change. Please explicitly  
+% acknowledge the National Institute of Standards and Technology as the 
+% source of the software.
+% 
 % NIST-developed software is expressly provided "AS IS." NIST MAKES NO
-% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY
-% OPERATION OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-% WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
-% NON-INFRINGEMENT AND DATA ACCURACY. NIST NEITHER REPRESENTS
-% NOR WARRANTS THAT THE OPERATION OF THE SOFTWARE WILL BE
-% UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS WILL BE
-% CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS
-% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF,
-% INCLUDING BUT NOT LIMITED TO THE CORRECTNESS, ACCURACY,
-% RELIABILITY, OR USEFULNESS OF THE SOFTWARE.
+% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION  
+% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF 
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND 
+% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF 
+% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS 
+% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS  
+% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT 
+% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF 
+% THE SOFTWARE.
 %
 % You are solely responsible for determining the appropriateness of using
-% and distributing the software and you assume all risks associated with its use, including
-% but not limited to the risks and costs of program errors, compliance with applicable
-% laws, damage to or loss of data, programs or equipment, and the unavailability or
-% interruption of operation. This software is not intended to be used in any situation
-% where a failure could cause risk of injury or damage to property. The software
-% developed by NIST employees is not subject to copyright protection within the United
-% States.
+% and distributing the software and you assume all risks associated with  
+% its use, including but not limited to the risks and costs of program 
+% errors, compliance with applicable laws, damage to or loss of data, 
+% programs or equipment, and the unavailability or interruption of 
+% operation. This software is not intended to be used in any situation  
+% where a failure could cause risk of injury or damage to property. The 
+% software developed by NIST employees is not subject to copyright 
+% protection within the United States.
 %
-% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions instead of custom ones
+% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Used MATLAB functions 
+%   instead of custom ones
 % 2020 NIST/CTL (steve.blandino@nist.gov) 
 
 
@@ -83,7 +80,8 @@ doa = coordinateRotation(doaNoRot, [0 0 0], qRx.angle,'frame');
 velocityTxAlongDirectionOfDeparture=dot(velocityTx,-1.*dod);
 velocityRxAlongDirectionOfDeparture=dot(velocityRx,-1.*dod);
 c=getLightSpeed;
-dopplerFactor=(velocityRxAlongDirectionOfDeparture-velocityTxAlongDirectionOfDeparture)/c;
+dopplerFactor=(velocityRxAlongDirectionOfDeparture...
+    -velocityTxAlongDirectionOfDeparture)/c;
 % To verify whether DoA vector exists
 isLOS = verifyPath(Tx, Rx, doaNoRot, [0,0,0],...
     [0,0,0], CADoutput, 2, false);

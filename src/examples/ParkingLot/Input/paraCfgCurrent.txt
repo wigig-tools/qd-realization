@@ -1,0 +1,15 @@
+ParameterName	ParameterValue
+environmentFileName	ParkingLot.xml
+indoorSwitch	0
+numberOfTimeDivisions	61
+referencePoint	[0,0,0]
+selectPlanesByDist	inf
+switchDiffuseComponent	1
+switchQDModel	nistMeasurements
+totalNumberOfReflections	1
+totalTimeDuration	800
+switchSaveVisualizerFiles	1
+carrierFrequency	28e9
+qdFilesFloatPrecision	6
+outputFormat	json
+materialLibraryPath	material_libraries/materialLibraryParkingLot.csv

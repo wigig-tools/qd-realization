@@ -30,8 +30,8 @@ nOut = size(delay, 1);
 
 % Compute missing outputs
 reflOrder = (dRayIndex+(1:nOut)./10^ceil(log10(nOut))).';
-dod = angleToVector(aodAz, aodEl,delay);
-doa = angleToVector(aoaAz, aoaEl,delay);
+dod = angle2vector(aodAz, aodEl,delay);
+doa = angle2vector(aoaAz, aoaEl,delay);
 
 txPolarization = nan(nOut, 4);
 xPolPathGain = nan(nOut, 1);

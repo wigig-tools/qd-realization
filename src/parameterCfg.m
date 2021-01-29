@@ -1,41 +1,41 @@
 function para = parameterCfg(scenarioNameStr)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
 
-
-% -------------Software Disclaimer---------------
+%--------------------------Software Disclaimer-----------------------------
 %
-% NIST-developed software is provided by NIST as a public service. You may use, copy
-% and distribute copies of the software in any medium, provided that you keep intact this
-% entire notice. You may improve, modify and create derivative works of the software or
-% any portion of the software, and you may copy and distribute such modifications or
-% works. Modified works should carry a notice stating that you changed the software
-% and should note the date and nature of any such change. Please explicitly
-% acknowledge the National Institute of Standards and Technology as the source of the
-% software.
-%
+% NIST-developed software is provided by NIST as a public service. You may 
+% use, copy and distribute copies of the software in any medium, provided 
+% that you keep intact this entire notice. You may improve, modify and  
+% create derivative works of the software or any portion of the software, 
+% and you  may copy and distribute such modifications or works. Modified 
+% works should carry a notice stating that you changed the software and  
+% should note the date and nature of any such change. Please explicitly  
+% acknowledge the National Institute of Standards and Technology as the 
+% source of the software.
+% 
 % NIST-developed software is expressly provided "AS IS." NIST MAKES NO
-% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY
-% OPERATION OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-% WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
-% NON-INFRINGEMENT AND DATA ACCURACY. NIST NEITHER REPRESENTS
-% NOR WARRANTS THAT THE OPERATION OF THE SOFTWARE WILL BE
-% UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS WILL BE
-% CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS
-% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF,
-% INCLUDING BUT NOT LIMITED TO THE CORRECTNESS, ACCURACY,
-% RELIABILITY, OR USEFULNESS OF THE SOFTWARE.
+% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION  
+% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF 
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND 
+% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF 
+% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS 
+% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS  
+% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT 
+% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF 
+% THE SOFTWARE.
 %
 % You are solely responsible for determining the appropriateness of using
-% and distributing the software and you assume all risks associated with its use, including
-% but not limited to the risks and costs of program errors, compliance with applicable
-% laws, damage to or loss of data, programs or equipment, and the unavailability or
-% interruption of operation. This software is not intended to be used in any situation
-% where a failure could cause risk of injury or damage to property. The software
-% developed by NIST employees is not subject to copyright protection within the United
-% States.
+% and distributing the software and you assume all risks associated with  
+% its use, including but not limited to the risks and costs of program 
+% errors, compliance with applicable laws, damage to or loss of data, 
+% programs or equipment, and the unavailability or interruption of 
+% operation. This software is not intended to be used in any situation  
+% where a failure could cause risk of injury or damage to property. The 
+% software developed by NIST employees is not subject to copyright 
+% protection within the United States.
 %
-% Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation
+% Modified by: 
+% Mattia Lecci <leccimat@dei.unipd.it>, Updated implementation
+% Neeraj Varshney <neeraj.varshney@nist.gov., Updated implementation
 
 
 % Load Parameters
@@ -44,10 +44,6 @@ paraList = readtable(cfgPath,'Delimiter','\t', 'Format','auto' );
 
 paraCell = (table2cell(paraList))';
 para = cell2struct(paraCell(2,:), paraCell(1,:), 2);
-
-% Generalized Scenario
-% = 1 (Default)
-para = fieldToNum(para, 'generalizedScenario', [0,1], 1);
 
 % Switch Indoor
 % = 1;
@@ -69,20 +65,42 @@ para = fieldToNum(para, 'numberOfTimeDivisions', [], 10);
 if isfield(para,'referencePoint')
     para.referencePoint = str2num(para.referencePoint); %#ok<ST2NM>
 else
-    para.referencePoint = [3,3,2];
+    para.referencePoint = [0,0,0];
 end
 
-% This is selection of planes/nodes by distance. r = 0 means that there is
+% This is selection of planes/nodes by distance. r = inf means that there is
 % no limitation (Default).
-para = fieldToNum(para, 'selectPlanesByDist', [], 0);
+para = fieldToNum(para, 'selectPlanesByDist', [], inf);
 
 % Switch to turn ON or OFF the Qausi dterministic module
 % 1 = ON, 0 = OFF (Default)
-para = fieldToNum(para, 'switchQDGenerator', [0,1], 0);
+para = fieldToNum(para, 'switchDiffuseComponent', [0,1], 0);
+
+% Switch to consider only diffuse components up to 
+% diffusePathGainThreshold (in dB) below the deterministic ray. This switch 
+% is only used for NIST measurement based scenarios. Default value is set 
+% as -inf which means software does not discard any diffuse components
+para = fieldToNum(para, 'diffusePathGainThreshold', [], -inf);
+
+% Quasi-deterministic model
+% nistMeasurements : model based on NIST measurements (Default), 
+% tgayMeasurements : model based on TGay channel document measurements. 
+if ~isfield(para, 'switchQDModel')
+    warning(['Q-D model is not defined in paraCfgCurrent.txt. ',...
+        'Thus, considering nistMeasurements (default) switchQDModel.']);
+    para.switchQDModel = 'nistMeasurements';
+end
+
 
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
 para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
+if strcmp(para.switchQDModel,'tgayMeasurements') ...
+        && para.totalNumberOfReflections>2
+    warning(['totalNumberOfReflections for switchQDModel = tgayMeasurements ',...
+        'can not be considered higher than 2. Thus, setting Default value (2).']);
+    para.totalNumberOfReflections = 2;
+end
 
 % t is the time period in seconds. The time period for which the simulation
 % has to run when mobility is ON
@@ -108,11 +126,27 @@ para = fieldToNum(para, 'useOptimizedOutputToFile', [], 1);
 
 % Path to material library
 if ~isfield(para, 'materialLibraryPath')
-    warning('Environment file path not defined. Using default material library.')
+    warning('Material library path not defined. Using Empty material library.');
     para.materialLibraryPath = 'material_libraries/materialLibraryEmpty.csv';
     cache = fullfile(scenarioNameStr, 'Input/cachedCadOutput.mat');
     if isfile(cache)
         delete(cache)
+    end
+else
+    currentPath =pwd;
+    materialLibraryAbsPath = fullfile(fileparts(currentPath),...
+        'src',para.materialLibraryPath); % For test suite
+    if ~isfile(materialLibraryAbsPath)...
+            || ~isMaterialLibraryFileFormat(para.switchQDModel,...
+            materialLibraryAbsPath,para.materialLibraryPath)
+        warning(['Using Empty material library. Check following issues: ',...
+            '1. Material file not exist. ',...
+            '2. Material file format not correct.']);
+        para.materialLibraryPath = 'material_libraries/materialLibraryEmpty.csv';
+        cache = fullfile(scenarioNameStr, 'Input/cachedCadOutput.mat');
+        if isfile(cache)
+            delete(cache)
+        end
     end
 end
 
@@ -160,33 +194,20 @@ assert(any(para.(field) == validValues),...
 end
 
 
-function defaultMobilitySwitch = getDefaultMobilitySwitch(scenarioNameStr)
-if isNodePositionPresent(scenarioNameStr)
-    defaultMobilitySwitch = 1;
+function isMaterialLibraryFileFormat = isMaterialLibraryFileFormat(switchQDModel,...
+                                        materialLibraryAbsPath,materialLibraryPath)
+if isfile(materialLibraryAbsPath)
+    materialLibrary = importMaterialLibrary(materialLibraryPath);
+    if strcmp(switchQDModel,'tgayMeasurements') && ...
+            size(materialLibrary,2) == 3
+        isMaterialLibraryFileFormat = true;
+    elseif strcmp(switchQDModel,'nistMeasurements') && ...
+            size(materialLibrary,2) == 26
+        isMaterialLibraryFileFormat = true;
+    else
+        isMaterialLibraryFileFormat = false;
+    end
 else
-    defaultMobilitySwitch = 0;
+    isMaterialLibraryFileFormat = false;
 end
-
-end
-
-
-function defaultMobilityType = getDefaultMobilityType(scenarioNameStr, mobilitySwitch)
-if ~mobilitySwitch
-    defaultMobilityType = 1;
-    return
-end
-
-% Mobility switch activated
-if isNodePositionPresent(scenarioNameStr)
-    defaultMobilityType = 1;
-else
-    defaultMobilityType = 0;
-end
-
-end
-
-function b = isNodePositionPresent(path)
-files = dir(fullfile(path, 'Input'));
-
-b = any(startsWith({files.name},'NodePosition'));
 end

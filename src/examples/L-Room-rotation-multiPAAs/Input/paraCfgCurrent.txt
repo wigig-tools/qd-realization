@@ -1,0 +1,14 @@
+ParameterName	ParameterValue
+environmentFileName	L-Room.xml
+indoorSwitch	1
+numberOfTimeDivisions	200
+referencePoint	[0,0,0]
+selectPlanesByDist	inf
+switchDiffuseComponent	0
+totalNumberOfReflections	2
+totalTimeDuration	200
+switchSaveVisualizerFiles	1
+carrierFrequency	60e9
+qdFilesFloatPrecision	6
+useOptimizedOutputToFile	1
+outputFormat	json
