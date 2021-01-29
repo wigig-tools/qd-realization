@@ -2,16 +2,21 @@ function tests = exampleOutputsTest
 %EXAMPLEOUTPUTTEST Tests to check whether new fixes, improvements, or
 % changes affect the output of the ray-tracer. The example scenarios are
 % taken as baselines, specifically:
+% - LectureRoom
+% - BoxLectureRoom
+% - DenserScenario
+% - SpatialSharing
+% - L-Room
 % - L-Room-rotation
 % - L-Room-rotation-multiPAA 
 % - DataCenter
-% - DenserScenario
-% - Indoor1
-% - Indoor2
-% - L-Room
-% - Outdoor1
-% - SpatialSharing
+% - ParkingLot
+% - Simplified ParkingLot
+% - LivingRoom
 % - StreetCanyon
+% - HotelLobby
+% - OpenAreaHotspot
+% - CityBlock
 % The Output/ folders contain the results of the respective scenario run
 % using rng('default'). For the current MATLAB version, the documentation
 % states that: "This way, the same random numbers are produced as if you
@@ -54,7 +59,7 @@ srcFolder = '../src';
 addpath(srcFolder,...
     fullfile(srcFolder, 'raytracer'),...
     fullfile(srcFolder,'utils'),...
-    fullfile(srcFolder,'quaternions'))
+    fullfile(srcFolder,'utils/quaternions'))
 
 testCase.TestData.examplesFolderPath = fullfile(srcFolder,'examples');
 end
@@ -90,21 +95,16 @@ end
 
 
 %% Tests
-function lRoomRotationTest(testCase)
-exampleName = 'L-Room-rotation';
+% LectureRoom
+function lectureRoomTest(testCase)
+exampleName = 'LectureRoom';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
 
-function lRoomRotMimoTest(testCase)
-exampleName = 'L-Room-rotation-multiPAA';
-runRaytracer(testCase, exampleName);
-checkOutput(testCase, exampleName);
-end
-
-% DataCenter
-function dataCenterTest(testCase)
-exampleName = 'DataCenter';
+% boxLectureRoom
+function boxLectureRoomTest(testCase)
+exampleName = 'BoxLectureRoom';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
@@ -116,22 +116,12 @@ runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
 
-
-% Indoor1
-function indoor1Test(testCase)
-exampleName = 'Indoor1';
+% SpatialSharing
+function spatialSharingTest(testCase)
+exampleName = 'SpatialSharing';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
-
-
-% Indoor2
-function indoor2Test(testCase)
-exampleName = 'Indoor2';
-runRaytracer(testCase, exampleName);
-checkOutput(testCase, exampleName);
-end
-
 
 % L-Room
 function lRoomTest(testCase)
@@ -140,18 +130,44 @@ runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
 
-
-% Outdoor1
-function outdoor1Test(testCase)
-exampleName = 'Outdoor1';
+% L-Room-rotation
+function lRoomRotationTest(testCase)
+exampleName = 'L-Room-rotation';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
 
+% L-Room-rotation-multiPAAs
+function lRoomRotMimoTest(testCase)
+exampleName = 'L-Room-rotation-multiPAAs';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
 
-% SpatialSharing
-function spatialSharingTest(testCase)
-exampleName = 'SpatialSharing';
+% DataCenter
+function dataCenterTest(testCase)
+exampleName = 'DataCenter';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% ParkingLot
+function parkingLotTest(testCase)
+exampleName = 'ParkingLot';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% simplifiedParkingLot
+function simplifiedParkingLotTest(testCase)
+exampleName = 'SimplifiedParkingLot';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% LivingRoom
+function livingRoomTest(testCase)
+exampleName = 'LivingRoom';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
@@ -159,6 +175,27 @@ end
 % StreetCanyon
 function streetCanyonTest(testCase)
 exampleName = 'StreetCanyon';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% HotelLobby
+function hotelLobbyTest(testCase)
+exampleName = 'HotelLobby';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% OpenAreaHotspot
+function openAreaHotspotTest(testCase)
+exampleName = 'OpenAreaHotspot';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% CityBlock
+function cityBlockTest(testCase)
+exampleName = 'CityBlock';
 runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end

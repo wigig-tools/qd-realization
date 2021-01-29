@@ -5,37 +5,38 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
 % nodeCfgInput - Node configuration 
 
 
-%% -------------Software Disclaimer---------------
+%--------------------------Software Disclaimer-----------------------------
 %
-% NIST-developed software is provided by NIST as a public service. You may use, copy
-% and distribute copies of the software in any medium, provided that you keep intact this
-% entire notice. You may improve, modify and create derivative works of the software or
-% any portion of the software, and you may copy and distribute such modifications or
-% works. Modified works should carry a notice stating that you changed the software
-% and should note the date and nature of any such change. Please explicitly
-% acknowledge the National Institute of Standards and Technology as the source of the
-% software.
-%
+% NIST-developed software is provided by NIST as a public service. You may 
+% use, copy and distribute copies of the software in any medium, provided 
+% that you keep intact this entire notice. You may improve, modify and  
+% create derivative works of the software or any portion of the software, 
+% and you  may copy and distribute such modifications or works. Modified 
+% works should carry a notice stating that you changed the software and  
+% should note the date and nature of any such change. Please explicitly  
+% acknowledge the National Institute of Standards and Technology as the 
+% source of the software.
+% 
 % NIST-developed software is expressly provided "AS IS." NIST MAKES NO
-% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY
-% OPERATION OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-% WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
-% NON-INFRINGEMENT AND DATA ACCURACY. NIST NEITHER REPRESENTS
-% NOR WARRANTS THAT THE OPERATION OF THE SOFTWARE WILL BE
-% UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS WILL BE
-% CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS
-% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF,
-% INCLUDING BUT NOT LIMITED TO THE CORRECTNESS, ACCURACY,
-% RELIABILITY, OR USEFULNESS OF THE SOFTWARE.
+% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION  
+% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF 
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND 
+% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF 
+% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS 
+% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS  
+% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT 
+% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF 
+% THE SOFTWARE.
 %
 % You are solely responsible for determining the appropriateness of using
-% anddistributing the software and you assume all risks associated with its use, including
-% but not limited to the risks and costs of program errors, compliance with applicable
-% laws, damage to or loss of data, programs or equipment, and the unavailability or
-% interruption of operation. This software is not intended to be used in any situation
-% where a failure could cause risk of injury or damage to property. The software
-% developed by NIST employees is not subject to copyright protection within the United
-% States.
+% and distributing the software and you assume all risks associated with  
+% its use, including but not limited to the risks and costs of program 
+% errors, compliance with applicable laws, damage to or loss of data, 
+% programs or equipment, and the unavailability or interruption of 
+% operation. This software is not intended to be used in any situation  
+% where a failure could cause risk of injury or damage to property. The 
+% software developed by NIST employees is not subject to copyright 
+% protection within the United States.
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Refactored code
 %              Steve Blandino <steve.blandino@nist.gov>
@@ -54,13 +55,6 @@ isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
 displayProgress = 1;
 ts = paraCfgInput.totalTimeDuration/paraCfgInput.numberOfTimeDivisions;
 outputPaa = cell(paraCfgInput.numberOfNodes,paraCfgInput.numberOfNodes);
-
-% Input checking
-if paraCfgInput.switchQDGenerator == 1 &&...
-        paraCfgInput.carrierFrequency ~= 60e9
-    warning(['Please, note that diffuse scattering model is only ',...
-        'valid for fc=60 GHz'])
-end
 
 % List of paths
 inputPath = fullfile(paraCfgInput.inputScenarioName, 'Input');
@@ -175,7 +169,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                             ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
                             numberOfReflections, numberOfReflections,...
                             0, 1, 1, 1, Rx, Tx, [], [],...
-                            switchMaterial, [], 1, paraCfgInput.generalizedScenario);
+                            switchMaterial, [], 1);
                         
                         numberOfPlanes = numberOfPlanes - 1;
                         
@@ -185,16 +179,20 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                             CADop, numberOfPlanes, ...
                             MaterialLibrary, arrayOfMaterials, ...
                             switchMaterial, vtx, vrx, ...
-                            paraCfgInput.switchQDGenerator,...
+                            paraCfgInput.switchDiffuseComponent,...
+                            paraCfgInput.switchQDModel,...
+                            paraCfgInput.inputScenarioName(10:end),...
                             paraCfgInput.carrierFrequency,...
-                            'qTx', QTx, 'qRx', QRx, 'reflectionLoss', paraCfgInput.reflectionLoss);
+                            paraCfgInput.diffusePathGainThreshold,...
+                            'qTx', QTx, 'qRx', QRx, ...
+                            'reflectionLoss', paraCfgInput.reflectionLoss);
                         
                         nMpc = size(multipathTemporary,1);
                         %Store MPC
                         if paraCfgInput.switchSaveVisualizerFiles &&...
                                 nMpc > 0                            
-                            multipath1 = multipathTemporary(:,...
-                                2:end); %Discard reflection order column
+                                multipath1 = multipathTemporary(:,...
+                                    2:end); %Discard reflection order column
                                 Mpc{iterateTx,iteratePaaTx,...
                                     iterateRx,iteratePaaRx, ...
                                     iterateOrderOfReflection+1, iterateTimeDivision+1} =multipath1;                            

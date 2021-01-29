@@ -1,0 +1,7 @@
+Reflector,n_Precursor,n_Postcursor,s_K_Precursor,sigma_K_Precursor,s_K_Postcursor,sigma_K_Postcursor,s_gamma_Precursor,sigma_gamma_Precursor,s_gamma_Postcursor,sigma_gamma_Postcursor,s_sigmaS_Precursor,sigma_sigmaS_Precursor,s_sigmaS_Postcursor,sigma_sigmaS_Postcursor,s_lambda_Precursor,sigma_lambda_Precursor,s_lambda_Postcursor,sigma_lambda_Postcursor,s_sigmaAlphaAz,sigma_sigmaAlphaAz,s_sigmaAlphaEl,sigma_sigmaAlphaEl,s_RL,sigma_RL,mu_RL
+Ceiling,3,16,0,0,6.12,8.05,0,0,0.65,0.34,0,0,0.05,0.39,0,0,0.63,0.59,1.94,1.46,2.73,2.43,9.95,1.24,10
+Racktop,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.26,2.55,7.77
+Curtain,3,16,0,0,0.53,6.43,0,0,0.69,0.39,0.23,0.01,0.86,0.4,0,0,0.47,0.7,2.54,0.57,4.21,1.05,0.06,1.31,1.64
+WallandColumn,3,16,8.32,5.62,6.91,3.64,0.12,1.23,0.07,2.44,0.01,0.4,0.01,0.47,0.11,2.96,0.03,0.91,0.28,3.14,2.74,0.84,0.46,6,7.53
+Rackside,3,16,6.91,2.62,0.2,4,0.21,2.84,0.4,8.24,0.23,0.25,0.02,0.54,0.05,1.15,0.01,0.3,3,0.92,4.38,1.03,15.43,3.43,15.82
+Floor,3,16,0,0,6.12,8.05,0,0,0.65,0.34,0,0,0.05,0.39,0,0,0.63,0.59,1.94,1.46,2.73,2.43,9.95,1.24,10

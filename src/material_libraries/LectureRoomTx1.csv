@@ -1,5 +1,0 @@
-Reflector,s_K_Precursor,sigma_K_Precursor,s_K_Postcursor,sigma_K_Postcursor,s_gamma_Precursor,sigma_gamma_Precursor,s_gamma_Postcursor,sigma_gamma_Postcursor,s_sigmaS_Precursor,sigma_sigmaS_Precursor,s_sigmaS_Postcursor,sigma_sigmaS_Postcursor,s_lambda_Precursor,sigma_lambda_Precursor,s_lambda_Postcursor,sigma_lambda_Postcursor,s_sigmaAlphaAz,sigma_sigmaAlphaAz,s_sigmaAlphaEl,sigma_sigmaAlphaEl,s_RL,sigma_RL,mu_RL
-RightWallAll,0,0,0.2641,3.1699,0,0,0.0412,0.8648,0,0,0.6367,0.3209,0,0,0.9879,0.4235,3.2889,1.3202,3.2812,1.8865,10.1562,3.5164,10.80
-TopWall,0.5913,4.5206,0.33,3.7213,0.0094,0.2285,0.0792,1.1572,0.2430,0.2730,0.201,0.1901,0.619,1.1299,0.8655,0.3762,2.117,2.1206,2.741,1.7964,6.7238,5.9352,9.27
-Tables,0,0,3.7738,1.8748,0,0,0.53,0.4837,0,0,0.3309,0.4614,0,0,0.8099,0.076,1.6594,3.1974,4.0345,2.6859,5.2106,3.4013,6.58
-Ceiling,3.6167,7.2715,7.1103,2.2712,0.9595,0.9010,0.0717,1.2794,0.2122,0.0935,0.7679,0.2484,0.8119,0.2421,0.7785,0.1426,1.9829,0.9094,2.6960,1.1135,6.5833,2.1943,6.9

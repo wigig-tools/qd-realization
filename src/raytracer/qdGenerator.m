@@ -1,8 +1,32 @@
 function [output,  outputPre, outputPost] =...
-    qdGenerator(dRayOutput, arrayOfMaterials, materialLibrary)
-%QDGENERATOR Generate diffused components starting from deterministic rays
-%following NIST's Quasi-Deterministic model.
-
+    qdGenerator(dRayOutput, arrayOfMaterials, materialLibrary,...
+    qdModelSwitch, scenarioName, diffusePathGainThreshold)
+% QDGENERATOR generates diffused or intra-cluster components starting 
+% from deterministic rays following 
+%   - NIST's Quasi-deterministic (QD) model if qdModelSwitch is set as 
+%     nistMeasurements 
+%   - Quasi-deterministic model given in 802.11ay channel document if 
+%     qdModelSwitch is set as tgayMeasurements
+% 
+% Inputs:
+% dRayOutput - deterministic ray parameter obtained using ray tracing
+% arrayOfMaterials - array of materials corresponding to each of the planes
+%   where a ray is reflected. The dats is the row number of material from 
+%   MaterialLibrary. 
+% materialLibrary - For tgayMeasurements, materialLibrary contains each of 
+%   the reflectors along with their material and relative permittivity value
+%   For nistMeasurements, materialLibrary contains each of the reflectors
+%   and their QD parameters
+% qdModelSwitch - defines QD model
+% scenarioName - defines scenario name
+% diffusePathGainThreshold - defines threshold to filter out diffuse 
+% components.  
+%
+% Outputs:
+% output - contains ray parameters for deterministic and pre/post cursor
+%   diffuse components
+% outputPre - contains ray parameters for pre cursor diffuse components
+% outputPost - contains ray parameters for post cursor diffuse components
 
 % Copyright (c) 2020, University of Padova, Department of Information
 % Engineering, SIGNET lab.
@@ -19,6 +43,42 @@ function [output,  outputPre, outputPost] =...
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+%--------------------------Software Disclaimer-----------------------------
+%
+% NIST-developed software is provided by NIST as a public service. You may 
+% use, copy and distribute copies of the software in any medium, provided 
+% that you keep intact this entire notice. You may improve, modify and  
+% create derivative works of the software or any portion of the software, 
+% and you  may copy and distribute such modifications or works. Modified 
+% works should carry a notice stating that you changed the software and  
+% should note the date and nature of any such change. Please explicitly  
+% acknowledge the National Institute of Standards and Technology as the 
+% source of the software.
+% 
+% NIST-developed software is expressly provided "AS IS." NIST MAKES NO
+% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION  
+% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF 
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND 
+% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF 
+% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS 
+% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS  
+% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT 
+% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF 
+% THE SOFTWARE.
+%
+% You are solely responsible for determining the appropriateness of using
+% and distributing the software and you assume all risks associated with  
+% its use, including but not limited to the risks and costs of program 
+% errors, compliance with applicable laws, damage to or loss of data, 
+% programs or equipment, and the unavailability or interruption of 
+% operation. This software is not intended to be used in any situation  
+% where a failure could cause risk of injury or damage to property. The 
+% software developed by NIST employees is not subject to copyright 
+% protection within the United States.
+
+% Modified by: Neeraj Varshney <neeraj.varshney@nist.gov>, to generate
+% diffuse components based on 802.11ay channel document
+
 if dRayOutput(1) == 0
     % no diffused components for LoS ray
     cursorOutput = dRayOutput;
@@ -30,36 +90,28 @@ end
 
 % Add randomness to deterministic reflection loss
 cursorOutput = dRayOutput;
-% cursorOutput(9) = getRandomPg0(dRayOutput, arrayOfMaterials, materialLibrary);
 
 % Pre/post cursors output
-outputPre = getQdOutput(cursorOutput, arrayOfMaterials, materialLibrary, 'pre');
-outputPost = getQdOutput(cursorOutput, arrayOfMaterials, materialLibrary, 'post');
+switch qdModelSwitch
+    case 'nistMeasurements'
+        outputPre = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+            materialLibrary, diffusePathGainThreshold, 'pre');
+        outputPost = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+            materialLibrary, diffusePathGainThreshold, 'post');
+    case 'tgayMeasurements'
+        outputPre = getTgayQdOutput(cursorOutput, scenarioName, 'pre');
+        outputPost = getTgayQdOutput(cursorOutput, scenarioName, 'post');
+    otherwise
+        error('switchQDModel can be either nistMeasurements or tgayMeasurements.');
+end
 
 output = [outputPre; cursorOutput; outputPost];
 
 end
 
-
 %% Utils
-function pg = getRandomPg0(dRayOutput, arrayOfMaterials, materialLibrary)
-% Baseline: deterministic path gain
-pg = dRayOutput(9);
-for i = 1:length(arrayOfMaterials)
-    matIdx = arrayOfMaterials(i);
-    
-    s_material = materialLibrary.s_RL(matIdx);
-    sigma_material = materialLibrary.sigma_RL(matIdx);
-    rl = rndRician(s_material, sigma_material, 1, 1);
-    
-    muRl = materialLibrary.mu_RL(matIdx);
-    pg = pg - (rl - muRl);
-end
-
-end
-
-
-function output = getQdOutput(dRayOutput, arrayOfMaterials, materialLibrary, prePostParam)
+function output = getNistQdOutput(dRayOutput, arrayOfMaterials, ...
+    materialLibrary, diffusePathGainThreshold, prePostParam)
 params = getParams(arrayOfMaterials, materialLibrary, prePostParam);
 
 % delays
@@ -90,8 +142,9 @@ sigma_s = rndRician(params.s_sigmaS, params.sigma_sigmaS, 1, 1); % [std.err in e
 s = sigma_s * randn(params.nRays, 1);
 pg = pg0db - Kdb + 10*log10(exp(1)) * (-abs(taus - tau0)/gamma + s);
 
-% Remove MPCs with more power than main cursor
-removeMpcMask = pg >= pg0db;
+% Remove MPCs with more power than main cursor and  consider only MPCs up 
+% to diffusePathGainThreshold dB below the main cursor
+removeMpcMask = pg >= pg0db | pg <= pg0db + diffusePathGainThreshold;
 taus(removeMpcMask) = [];
 pg(removeMpcMask) = [];
 mpcRemoved = sum(removeMpcMask);
@@ -111,10 +164,9 @@ aoaElevationSpread = rndRician(params.s_sigmaAlphaEl, params.sigma_sigmaAlphaEl,
 phase = rand(params.nRays, 1) * 2*pi;
 dopplerShift = zeros(params.nRays, 1);
 output = fillOutputQd(taus, pg, aodAz, aodEl, aoaAz, aoaEl, phase, dopplerShift, dRayOutput(1));
-output(end+1:end+mpcRemoved, :) = nan(mpcRemoved, size(output,2));
+output(end+1:end+mpcRemoved, :) = nan(mpcRemoved,size(dRayOutput,2));
 
 end
-
 
 function params = getParams(arrayOfMaterials, materialLibrary, prePostParam)
 
@@ -131,7 +183,7 @@ switch(prePostParam)
         params.s_lambda = materialLibrary.s_lambda_Precursor(materialIdx);
         params.sigma_lambda = materialLibrary.sigma_lambda_Precursor(materialIdx);
         params.delayMultiplier = -1;
-        params.nRays = 3;
+        params.nRays = materialLibrary.n_Precursor(materialIdx);
         
     case 'post'
         params.s_K = materialLibrary.s_K_Postcursor(materialIdx);
@@ -143,7 +195,7 @@ switch(prePostParam)
         params.s_lambda = materialLibrary.s_lambda_Postcursor(materialIdx);
         params.sigma_lambda = materialLibrary.sigma_lambda_Postcursor(materialIdx);
         params.delayMultiplier = 1;
-        params.nRays = 16;
+        params.nRays = materialLibrary.n_Postcursor(materialIdx);;
         
     otherwise
         error('prePostParam=''%s''. Should be ''pre'' or ''post''', prePostParam)
@@ -181,4 +233,81 @@ az(over180ElMask) = az(over180ElMask) + 180;
 % Wrap azimuth to [0,360)
 az = mod(az, 360);
 
+end
+
+
+function output = getTgayQdOutput(dRayOutput, scenarioName, prePostParam)
+intraClusterParams = getIntraClusterParams(scenarioName, prePostParam);
+aodAzCursor = dRayOutput(10);
+aodElCursor = dRayOutput(11);
+aoaAzCursor = dRayOutput(12);
+aoaElCursor = dRayOutput(13);  
+
+if intraClusterParams.n ~= 0
+    output = zeros(intraClusterParams.n,21);
+    taus = nan(intraClusterParams.n+1, 1);
+    taus(1) = dRayOutput(8); 
+    % generate path gain, delay, doa/dod, AOA/AOD (AZ & EL) and phase offset 
+    for i = 1:intraClusterParams.n
+        output(i, 1) = (dRayOutput(1)+(i)./10^ceil(log10(intraClusterParams.n)));
+        
+        diff = randomExponetialGenerator(intraClusterParams.lambda);
+		taus(i+1) = taus(i)+intraClusterParams.delayMultiplier*diff;
+        output(i,8) = taus(i+1);
+        
+        output(i, 9) =  pow2db((db2pow(dRayOutput(9)...
+            -intraClusterParams.Kfactor)).*...
+            exp(-intraClusterParams.delayMultiplier...
+            *((taus(i+1)-taus(1))/intraClusterParams.gamma)));
+        
+        angleSpread = intraClusterParams.sigma*randn(1,4);            
+        output(i, 10:11) = wrapAngles(aodAzCursor + angleSpread(1),...
+            aodElCursor + angleSpread(2)); % aod az/el
+         
+        output(i, 12:13) = wrapAngles(aoaAzCursor + angleSpread(3), ...
+            aoaElCursor + angleSpread(4)); % aoa az/el
+        
+        output(i,18) = rand*2*pi;   % phase shift          
+        
+        output(i,20) = 0;           % doppler frequency
+        
+        output(i, 2:4) = angle2vector(output(i, 10),...
+            output(i, 11),output(i,8)); % dod
+        
+        output(i, 5:7) = angle2vector(output(i, 12),...
+            output(i, 13),output(i,8)); % doa
+   end
+else
+    output = [];
+end    
+end
+
+function intraClusterParams = getIntraClusterParams(scenarioName, prePostParam)
+icParams = importIntraClusterParameters('material_libraries/intraClusterTgayParameters.txt');
+indexScenario = [];
+for iRow = 1:length(icParams.Scenario)
+        if strcmp(icParams.Scenario{iRow},scenarioName)
+            indexScenario = iRow;
+        end
+end
+if isempty(indexScenario)
+    error('Intra-cluster parameters are not available for this scenatrio.');
+end    
+switch(prePostParam)
+    case 'pre'
+        intraClusterParams.n = icParams.nPre(indexScenario);
+        intraClusterParams.Kfactor = icParams.KfactorPre(indexScenario);
+        intraClusterParams.gamma = icParams.gammaPre(indexScenario);
+        intraClusterParams.lambda = icParams.lambdaPre(indexScenario);
+        intraClusterParams.delayMultiplier = -1;
+    case 'post'
+        intraClusterParams.n = icParams.nPost(indexScenario);
+        intraClusterParams.Kfactor = icParams.KfactorPost(indexScenario);
+        intraClusterParams.gamma = icParams.gammaPost(indexScenario);
+        intraClusterParams.lambda = icParams.lambdaPost(indexScenario);
+        intraClusterParams.delayMultiplier = 1;
+    otherwise
+        error('prePostParam=''%s''. Should be ''pre'' or ''post''', prePostParam)
+end
+intraClusterParams.sigma = icParams.sigma(indexScenario);
 end
