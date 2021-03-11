@@ -27,14 +27,14 @@ function raysAppPlotQdStruct(app, qd, direction)
 % spherical to cartesian coords
 switch(direction)
     case 'aod'
-        el = qd.aodEl;
-        az = qd.aodAz;
+        el = qd.AODEL;
+        az = qd.AODAZ;
         ax = app.AodAxes;
         delete(app.aodPlotHandle)
         
     case 'aoa'
-        el = qd.aoaEl;
-        az = qd.aoaAz;
+        el = qd.AOAEL;
+        az = qd.AOAAZ;
         ax = app.AoaAxes;
         delete(app.aoaPlotHandle)
         
@@ -48,12 +48,12 @@ y = r .* sind(el) .* sind(az);
 z = r .* cosd(el);
 
 % Prepare power-related information
-normPathGain = (qd.pathGain - app.powerLim(1)) / (app.powerLim(2) - app.powerLim(1));
+normPathGain = (qd.Gain - app.powerLim(1)) / (app.powerLim(2) - app.powerLim(1));
 normPathGain = min(normPathGain, 1);
 normPathGain = max(normPathGain, 0);
 
 s = normPathGain*20 + 1;
-c = qd.pathGain;
+c = qd.Gain;
 
 %% Plot
 % Rays

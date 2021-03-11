@@ -21,7 +21,7 @@ function raysAppPlotRoom(app)
 delete(app.roomPlotHandle)
 
 % Prepare data
-path = sprintf('%s/RoomCoordinates/RoomCoordinates.csv', app.visualizerPath);
+path = sprintf('%s/RoomCoordinates.csv', app.visualizerPath);
 
 roomCoords = readRoomCoordinates(path);
 [Tri,X,Y,Z] = roomCoords2triangles(roomCoords); % triangle vertices
@@ -31,7 +31,7 @@ roomCoords = readRoomCoordinates(path);
 fig = figure('Visible','off');
 trisurf(Tri,X,Y,Z,...
     'FaceColor',[0.9,0.9,0.9],...
-    'FaceAlpha',0.5,...
+    'FaceAlpha',0.1,...
     'EdgeColor','k')
 app.roomPlotHandle = copyobj(get(gca,'Children'),app.UIAxes);
 close(fig)
@@ -39,9 +39,9 @@ close(fig)
 % activate 3D rotations
 view(app.UIAxes, [45,45])
 
-app.UIAxes.XLabel.String = 'x';
-app.UIAxes.YLabel.String = 'y';
-app.UIAxes.ZLabel.String = 'z';
+app.UIAxes.XLabel.String = 'x [m]';
+app.UIAxes.YLabel.String = 'y [m]';
+app.UIAxes.ZLabel.String = 'z [m]';
 
 axis(app.UIAxes, 'equal')
 

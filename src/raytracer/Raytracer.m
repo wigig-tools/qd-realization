@@ -246,7 +246,7 @@ end
 
 %% Write output in JSON files
 % QD output
-if isJsonOutput
+if isJsonOutput  || keepBothQDOutput
     writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
         qdFilesPath);
 end
