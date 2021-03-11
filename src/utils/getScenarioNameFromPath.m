@@ -37,11 +37,7 @@ if ~exist(fullfile(path, 'Input'), 'dir')
     return
 end
 
-if ~exist(fullfile(path, 'Output/Ns3/NodesPosition'), 'dir')
-    warning('Invalid scenario path: ''Output/Ns3/NodesPosition/'' folder does not exist')
-    scenarioName = '';
-    return
-end
+
 if ~exist(fullfile(path, 'Output/Ns3/QdFiles'), 'dir')
     warning('Invalid scenario path: ''Output/Ns3/QdFiles/'' folder does not exist')
     scenarioName = '';
@@ -49,20 +45,25 @@ if ~exist(fullfile(path, 'Output/Ns3/QdFiles'), 'dir')
 end
 
 if needVisualizerPath
-    if ~exist(fullfile(path, 'Output/Visualizer/MpcCoordinates'), 'dir')
-        warning('Invalid scenario path: ''Output/Visualizer/MpcCoordinates/'' folder does not exist')
+    if ~exist(fullfile(path, 'Output/Visualizer/Mpc.json'), 'file')
+        warning('Invalid scenario: ''Output/Visualizer/Mpc.json'' file does not exist')
         scenarioName = '';
         return
     end
-    if ~exist(fullfile(path, 'Output/Visualizer/NodePositions'), 'dir')
-        warning('Invalid scenario path: ''Output/Visualizer/NodePositions/'' folder does not exist')
+    if ~exist(fullfile(path, 'Output/Visualizer/NodePositions.json'), 'file')
+        warning('Invalid scenario: ''Output/Visualizer/NodePositions.json'' file does not exist')
         scenarioName = '';
         return
     end
-    if ~exist(fullfile(path, 'Output/Visualizer/RoomCoordinates'), 'dir')
-        warning('Invalid scenario path: ''Output/Visualizer/RoomCoordinates/'' folder does not exist')
+    if ~exist(fullfile(path, 'Output/Visualizer/RoomCoordinates.csv'), 'file')
+        warning('Invalid scenario: ''Output/Visualizer/RoomCoordinates.csv'' file does not exist')
         scenarioName = '';
         return
+    end
+    if ~exist(fullfile(path, 'Output/Visualizer/PAAPosition.json'), 'file')
+        warning('Invalid scenario: ''Output/Visualizer/PAAPosition.json'' file does not exist')
+        scenarioName = '';
+    return
     end
 end
 
