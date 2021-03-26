@@ -1,4 +1,3 @@
-
 % -------------------------Software Disclaimer-----------------------------
 %
 % NIST-developed software is provided by NIST as a public service. You may 
@@ -38,7 +37,7 @@
 clear
 close all
 clc
-t0 = tic; % parallel processing-safe
+t0 = tic;
 addpath('raytracer', 'utils', 'utils/quaternions')
 
 %% Initialization
