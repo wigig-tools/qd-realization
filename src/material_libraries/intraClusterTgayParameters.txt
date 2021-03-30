@@ -1,0 +1,7 @@
+Scenario,nPre,KfactorPre,gammaPre,lambdaPre,nPost,KfactorPost,gammaPost,lambdaPost,sigma
+OpenAreaHotspot,0,0,0,0,4,4,4.5e-9,3.1e8,5
+StreetCanyon,0,0,0,0,4,4,4.5e-9,3.1e8,5
+HotelLobby,0,0,0,0,6,10,4.5e-9,3.1e8,5
+LivingRoom,6,11.5,1.25e-9,2.9e8,8,10.9,8.7e-9,1e9,10
+ConferenceRoom,6,10,3.7e-9,3.7e8,8,14.2,4.5e-9,3.1e8,5
+EnterpriseCubicle,6,5,3.7e-9,3.7e8,8,10,4.5e-9,3.1e8,5
