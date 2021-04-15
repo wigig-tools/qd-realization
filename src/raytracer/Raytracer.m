@@ -1,4 +1,4 @@
-function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
+function outputPath = Raytracer(paraCfgInput, nodeCfgInput, varargin)
 %%RAYTRACER generates the QD channel model.
 % Inputs:
 % paraCfgInput - Simulation configuration
@@ -42,6 +42,16 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput)
 %              Steve Blandino <steve.blandino@nist.gov>
 
 %% Input Parameters Management and preallocation
+p = inputParser;
+addOptional(p,'target',[]);
+parse(p, varargin{:});
+trgCfgInput = p.Results.target;
+if isempty(trgCfgInput)
+    trgtNum = 0;
+else
+    trgtNum = size(trgCfgInput.trgtPosition,3);
+end
+
 nodePosition = nodeCfgInput.nodePosition;
 nPAA_centroids = cellfun(@(x) x.nPAA_centroids, nodeCfgInput.paaInfo );
 Mpc = cell(paraCfgInput.numberOfNodes,...
@@ -50,6 +60,11 @@ Mpc = cell(paraCfgInput.numberOfNodes,...
     max(nPAA_centroids),...
     paraCfgInput.totalNumberOfReflections+1,...
     paraCfgInput.numberOfTimeDivisions+1 );
+MpcTarget = cell(paraCfgInput.numberOfNodes,...
+    max(nPAA_centroids),...
+    trgtNum,...
+    paraCfgInput.numberOfTimeDivisions);
+
 keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both'); 
 isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
 displayProgress = 1;
@@ -88,7 +103,7 @@ MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
     inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
     paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
-
+staticCad = CADop;
 if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
@@ -102,6 +117,12 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
         disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
     end
              
+%     [cadTs, switchMaterial] = getCadOutput(sprintf('environmentalDynamics%d.xml', iterateTimeDivision-1),...
+%     inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
+%     paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
+%     CADop = [staticCad;cadTs];
+
+
     %% Point rotation
     % PAAs not centered [0,0,0] have a
     % different position in the global frame if the node rotates. Compute
@@ -184,7 +205,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                             paraCfgInput.inputScenarioName(10:end),...
                             paraCfgInput.carrierFrequency,...
                             paraCfgInput.diffusePathGainThreshold,...
-                            'qTx', QTx, 'qRx', QRx, ...
+                            'rotTx', QTx.angle, 'rotRx', QRx.angle, ...
                             'reflectionLoss', paraCfgInput.reflectionLoss);
                         
                         nMpc = size(multipathTemporary,1);
@@ -226,6 +247,111 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
     %% Generate channel for each PAA given the channel of the centroids
     outputPaaTime(:,:,iterateTimeDivision) = generateChannelPaa(outputPaa, nodeCfgInput.paaInfo);  %#ok<AGROW>
     
+    %% Target Ray tracing 
+    cf = paraCfgInput.carrierFrequency;
+    saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
+    reflectionOrder = paraCfgInput.totalNumberOfReflections;
+    isDiffuse = paraCfgInput.switchDiffuseComponent;
+    isQD = paraCfgInput.switchQDModel;
+    scenarioName = paraCfgInput.inputScenarioName(10:end);
+    diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
+    reflectionLoss = paraCfgInput.reflectionLoss;
+    if trgtNum
+        for nodeId = 1:paraCfgInput.numberOfNodes
+            for paaId = 1:nPAA_centroids(nodeId)
+                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,paaId,:)).';
+                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(iterateTimeDivision-1,1),paaId,:)).';
+                mpcParFor = cell(1,trgtNum);
+                trgtPosition = trgCfgInput.trgtPosition(iterateTimeDivision,:, :);
+                previousTargetPosition = trgCfgInput.trgtPosition(max(1,iterateTimeDivision-1),:, :);
+                rotAngle = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
+                parfor trgtId = 1:trgtNum
+                    % Update centroids position
+                    target = trgtPosition(:, :, trgtId);
+                    vNode = (nodePaa-previousNodePaaPosition)./ts;
+                    vTarget = (target-previousTargetPosition(:,:,trgtId))./ts;
+                    
+                    % LOS Path generation
+                    [isLos, output] = getLos(CADop, target, nodePaa,...
+                        [], vNode, vTarget, cf, 'rotTx',rotAngle);
+                    
+                    % Store MPC
+                    if saveVisualOut && isLos
+                        mpcLos = [nodePaa, target];
+                        mpcLosParFor{trgtId} = mpcLos;
+                        MpcTarget{nodeId,paaId,...
+                                    trgtId, iterateTimeDivision}{1} = mpcLos;
+                    else
+                        MpcTarget{nodeId,paaId,...
+                                    trgtId, iterateTimeDivision}{1} = [];
+                    end
+                    
+                    for iterateOrderOfReflection = 1:reflectionOrder
+                        numberOfReflections = iterateOrderOfReflection;
+                        
+                        [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
+                            ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
+                            numberOfReflections, numberOfReflections,...
+                            0, 1, 1, 1, target, nodePaa, [], [],...
+                            switchMaterial, [], 1);
+                        
+                        numberOfPlanes = numberOfPlanes - 1;
+                        
+                        [outputTemporary, multipathTemporary] = ...
+                            multipath(...
+                            ArrayOfPlanes, ArrayOfPoints, target, nodePaa, ...
+                            CADop, numberOfPlanes, ...
+                            MaterialLibrary, arrayOfMaterials, ...
+                            switchMaterial, vNode, vTarget, ...
+                            isDiffuse, isQD, scenarioName, cf,...
+                            diffusePathGainThreshold,...
+                            'rotTx', rotAngle, ...
+                            'reflectionLoss', reflectionLoss);
+                        
+                        nMpc = size(multipathTemporary,1);
+                        %Store MPC
+                        if saveVisualOut && nMpc > 0
+                            multipath1 = multipathTemporary(:,...
+                                2:end); %Discard reflection order column
+                            mpcParFor{trgtId}{iterateOrderOfReflection} =multipath1;
+                            MpcTarget{nodeId,paaId,...
+                                    trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = multipath1;
+                        else
+                            MpcTarget{nodeId,paaId,...
+                                    trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = [];
+                        end
+                        
+                        %Store QD output
+                        if size(output) > 0
+                            output = [output;outputTemporary]; %#ok<AGROW>
+                            
+                        elseif size(outputTemporary) > 0
+                            output = outputTemporary;
+                            
+                        end
+                        
+                    end
+                    
+                    outputPaaTarget{nodeId, trgtId}.(sprintf('paaTx%dtarget', paaId-1))= output;
+%                     outputPaaTarget{trgtId, iterateTx}.(sprintf('paaTx%dpaaRx%d', iteratePaaRx-1, iteratePaaTx-1))= reverseOutputTxRx(output);
+                    
+                     
+                end
+                
+%                 MpcTarget{nodeId,paaId,...
+%                                     :,...
+%                                     1, iterateTimeDivision} = mpcLosParFor
+            end
+        end
+    end
+    MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
+    max(nPAA_centroids),...
+    trgtNum,reflectionOrder+1, ...
+    paraCfgInput.numberOfTimeDivisions);
+for  i =1: reflectionOrder+1
+    [MpcTargetMat{:,:,:,i,:}] = deal(MpcTarget{i});
+end
+    
     %% Write QD output in CSV files
     if ~isJsonOutput || keepBothQDOutput
         for iterateTx = 1:paraCfgInput.numberOfNodes
@@ -243,6 +369,8 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
     
     clear outputPAA
 end
+
+writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition,trgCfgInput,MpcTarget)
 
 %% Write output in JSON files
 % QD output

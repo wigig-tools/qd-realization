@@ -86,12 +86,14 @@ function [qdRay, multipath] =...
 %% Varargin processing 
 p = inputParser;
 addParameter(p,'indStoc',1)
-addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
-addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
+% addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
+% addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
 addParameter(p,'reflectionLoss',10);
+addParameter(p,'rotTx',[0 0 0])
+addParameter(p,'rotRx',[0 0 0])
 parse(p, varargin{:});
-qTx = p.Results.qTx;
-qRx = p.Results.qRx;
+rotTx = p.Results.rotTx;
+rotRx = p.Results.rotRx;
 rl  = p.Results.reflectionLoss;
 
 %% Init
@@ -133,8 +135,8 @@ if numberOfRowsArraysOfPlanes>0
             multipath,indexMultipath,velocityTx,velocityRx);
         
         % Apply node rotation
-        dod = coordinateRotation(dod,[0 0 0], qTx.angle, 'frame');
-        doa = coordinateRotation(doa,[0 0 0], qRx.angle, 'frame');
+        dod = coordinateRotation(dod,[0 0 0], rotTx, 'frame');
+        doa = coordinateRotation(doa,[0 0 0], rotRx, 'frame');
         
         % Compute reflection loss
         if isMpc == 1

@@ -1,10 +1,10 @@
 ParameterName	ParameterValue
 environmentFileName	LivingRoom.xml
 indoorSwitch	1
-numberOfTimeDivisions	1
+numberOfTimeDivisions	2048
 referencePoint	[0,0,0]
 selectPlanesByDist	inf
-switchDiffuseComponent	1
+switchDiffuseComponent	0
 switchQDModel	tgayMeasurements
 totalNumberOfReflections	1
 totalTimeDuration	1
