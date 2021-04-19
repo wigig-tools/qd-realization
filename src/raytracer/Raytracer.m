@@ -2,40 +2,40 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput, varargin)
 %%RAYTRACER generates the QD channel model.
 % Inputs:
 % paraCfgInput - Simulation configuration
-% nodeCfgInput - Node configuration 
+% nodeCfgInput - Node configuration
 
 
 %--------------------------Software Disclaimer-----------------------------
 %
-% NIST-developed software is provided by NIST as a public service. You may 
-% use, copy and distribute copies of the software in any medium, provided 
-% that you keep intact this entire notice. You may improve, modify and  
-% create derivative works of the software or any portion of the software, 
-% and you  may copy and distribute such modifications or works. Modified 
-% works should carry a notice stating that you changed the software and  
-% should note the date and nature of any such change. Please explicitly  
-% acknowledge the National Institute of Standards and Technology as the 
+% NIST-developed software is provided by NIST as a public service. You may
+% use, copy and distribute copies of the software in any medium, provided
+% that you keep intact this entire notice. You may improve, modify and
+% create derivative works of the software or any portion of the software,
+% and you  may copy and distribute such modifications or works. Modified
+% works should carry a notice stating that you changed the software and
+% should note the date and nature of any such change. Please explicitly
+% acknowledge the National Institute of Standards and Technology as the
 % source of the software.
-% 
+%
 % NIST-developed software is expressly provided "AS IS." NIST MAKES NO
-% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION  
-% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF 
-% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND 
-% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF 
-% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS 
-% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS  
-% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT 
-% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF 
+% WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION
+% OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT AND
+% DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF
+% THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS
+% WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS
+% REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT
+% NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF
 % THE SOFTWARE.
 %
 % You are solely responsible for determining the appropriateness of using
-% and distributing the software and you assume all risks associated with  
-% its use, including but not limited to the risks and costs of program 
-% errors, compliance with applicable laws, damage to or loss of data, 
-% programs or equipment, and the unavailability or interruption of 
-% operation. This software is not intended to be used in any situation  
-% where a failure could cause risk of injury or damage to property. The 
-% software developed by NIST employees is not subject to copyright 
+% and distributing the software and you assume all risks associated with
+% its use, including but not limited to the risks and costs of program
+% errors, compliance with applicable laws, damage to or loss of data,
+% programs or equipment, and the unavailability or interruption of
+% operation. This software is not intended to be used in any situation
+% where a failure could cause risk of injury or damage to property. The
+% software developed by NIST employees is not subject to copyright
 % protection within the United States.
 %
 % Modified by: Mattia Lecci <leccimat@dei.unipd.it>, Refactored code
@@ -65,7 +65,7 @@ MpcTarget = cell(paraCfgInput.numberOfNodes,...
     trgtNum,...
     paraCfgInput.numberOfTimeDivisions);
 
-keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both'); 
+keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both');
 isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
 displayProgress = 1;
 ts = paraCfgInput.totalTimeDuration/paraCfgInput.numberOfTimeDivisions;
@@ -103,7 +103,7 @@ MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
     inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
     paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
-staticCad = CADop;
+% staticCad = CADop;
 if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
@@ -111,18 +111,18 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
         RoomCoordinates);
 end
 
-%% Loop over time instances
-for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
-    if mod(iterateTimeDivision,100)==0 && displayProgress 
-        disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
+%% Node to node ray tracing
+if paraCfgInput.nodeMobility
+    T = paraCfgInput.numberOfTimeDivisions;
+else
+    T = 1;
+end
+
+for iterateTimeDivision = 1:T
+    if mod(iterateTimeDivision,100)==0 && displayProgress
+        disp([fprintf('%2.2f', iterateTimeDivision/T*100),'%'])
     end
-             
-%     [cadTs, switchMaterial] = getCadOutput(sprintf('environmentalDynamics%d.xml', iterateTimeDivision-1),...
-%     inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
-%     paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
-%     CADop = [staticCad;cadTs];
-
-
+    
     %% Point rotation
     % PAAs not centered [0,0,0] have a
     % different position in the global frame if the node rotates. Compute
@@ -130,17 +130,17 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
     % successive transformations (initial PAA orientation + rotation of the
     % node over time)
     for nodeId = 1:paraCfgInput.numberOfNodes
-            centerRotation = nodePosition(iterateTimeDivision,:, nodeId);
-            nodeRotationEucAngles = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
-            paaInitialPosition = reshape(squeeze(...
-                nodeCfgInput.paaInfo{nodeId}.centroidTimePosition(iterateTimeDivision,:,:)), [], 3);
-            [paaRotatedPosition, nodeEquivalentRotationAngle] = coordinateRotation(paaInitialPosition, ...
-                centerRotation,...
-                nodeRotationEucAngles ...
-                );
-            nodeCfgInput.nodeEquivalentRotationAngle(iterateTimeDivision,:, nodeId) = nodeEquivalentRotationAngle;
-            nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,:,:) =paaRotatedPosition;
-    end   
+        centerRotation = nodePosition(iterateTimeDivision,:, nodeId);
+        nodeRotationEucAngles = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
+        paaInitialPosition = reshape(squeeze(...
+            nodeCfgInput.paaInfo{nodeId}.centroidTimePosition(iterateTimeDivision,:,:)), [], 3);
+        [paaRotatedPosition, nodeEquivalentRotationAngle] = coordinateRotation(paaInitialPosition, ...
+            centerRotation,...
+            nodeRotationEucAngles ...
+            );
+        nodeCfgInput.nodeEquivalentRotationAngle(iterateTimeDivision,:, nodeId) = nodeEquivalentRotationAngle;
+        nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,:,:) =paaRotatedPosition;
+    end
     
     %% Iterates through all the PAA centroids
     for iterateTx = 1:paraCfgInput.numberOfNodes
@@ -151,7 +151,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                 
                 for iteratePaaRx = 1:nPAA_centroids(iterateRx)
                     output = [];
-                        
+                    
                     % Update centroids position
                     Tx = squeeze(nodeCfgInput.paaInfo{iterateTx}.centroid_position_rot(iterateTimeDivision,iteratePaaTx,:)).';
                     Rx = squeeze(nodeCfgInput.paaInfo{iterateRx}.centroid_position_rot(iterateTimeDivision,iteratePaaRx,:)).';
@@ -170,7 +170,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                     
                     vtx = (Tx-previousTxPosition)./ts;
                     vrx = (Rx-previousRxPosition)./ts;
-  
+                    
                     % LOS Path generation
                     [isLos, output] = LOSOutputGenerator(CADop, Rx, Tx,...
                         output, vtx, vrx, switchPolarization, switchCp,...
@@ -211,15 +211,15 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                         nMpc = size(multipathTemporary,1);
                         %Store MPC
                         if paraCfgInput.switchSaveVisualizerFiles &&...
-                                nMpc > 0                            
-                                multipath1 = multipathTemporary(:,...
-                                    2:end); %Discard reflection order column
-                                Mpc{iterateTx,iteratePaaTx,...
-                                    iterateRx,iteratePaaRx, ...
-                                    iterateOrderOfReflection+1, iterateTimeDivision+1} =multipath1;                            
+                                nMpc > 0
+                            multipath1 = multipathTemporary(:,...
+                                2:end); %Discard reflection order column
+                            Mpc{iterateTx,iteratePaaTx,...
+                                iterateRx,iteratePaaRx, ...
+                                iterateOrderOfReflection+1, iterateTimeDivision+1} =multipath1;
                         end
                         
-                        %Store QD output                        
+                        %Store QD output
                         if size(output) > 0
                             output = [output;outputTemporary]; %#ok<AGROW>
                             
@@ -231,10 +231,10 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                     end
                     
                     % Create outputPAA array of struct. Each entry of the
-                    % array is a struct relative to a NodeTx-NodeRx 
-                    % combination. Each struct has the entries 
+                    % array is a struct relative to a NodeTx-NodeRx
+                    % combination. Each struct has the entries
                     % - paaTxXXpaaRxYY: channel between paaTx XX and paaRx
-                    % YY.  
+                    % YY.
                     outputPaa{iterateTx, iterateRx}.(sprintf('paaTx%dpaaRx%d', iteratePaaTx-1, iteratePaaRx-1))= output;
                     outputPaa{iterateRx, iterateTx}.(sprintf('paaTx%dpaaRx%d', iteratePaaRx-1, iteratePaaTx-1))= reverseOutputTxRx(output);
                     
@@ -242,25 +242,52 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
             end
             
         end
+        
+        
     end
     
     %% Generate channel for each PAA given the channel of the centroids
     outputPaaTime(:,:,iterateTimeDivision) = generateChannelPaa(outputPaa, nodeCfgInput.paaInfo);  %#ok<AGROW>
     
-    %% Target Ray tracing 
-    cf = paraCfgInput.carrierFrequency;
-    saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
-    reflectionOrder = paraCfgInput.totalNumberOfReflections;
-    isDiffuse = paraCfgInput.switchDiffuseComponent;
-    isQD = paraCfgInput.switchQDModel;
-    scenarioName = paraCfgInput.inputScenarioName(10:end);
-    diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
-    reflectionLoss = paraCfgInput.reflectionLoss;
+    %% Write QD output in CSV files
+    if ~isJsonOutput || keepBothQDOutput
+        for iterateTx = 1:paraCfgInput.numberOfNodes
+            for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
+                writeQdFileOutput(outputPaaTime{iterateTx, iterateRx,iterateTimeDivision},...
+                    paraCfgInput.useOptimizedOutputToFile, fids, iterateTx, iterateRx,...
+                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
+                
+                writeQdFileOutput(outputPaaTime{iterateRx,iterateTx,iterateTimeDivision},...
+                    paraCfgInput.useOptimizedOutputToFile, fids, iterateRx,iterateTx,...
+                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
+            end
+        end
+    end
+    
+    clear outputPAA
+end
+
+if paraCfgInput.nodeMobility
+else
+    outputPaaTime(:,:,2:paraCfgInput.numberOfTimeDivisions) = repmat(outputPaaTime(:,:,1), [1 1 paraCfgInput.numberOfTimeDivisions-1]);
+    Mpc(:,:,:,:,:,3:end) = repmat(Mpc(:,:,:,:,:,2), [1 1 1 1 1 paraCfgInput.numberOfTimeDivisions-1]);
+end
+
+%% Node to target ray tracing
+cf = paraCfgInput.carrierFrequency;
+saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
+reflectionOrder = paraCfgInput.totalNumberOfReflections;
+isDiffuse = paraCfgInput.switchDiffuseComponent;
+isQD = paraCfgInput.switchQDModel;
+scenarioName = paraCfgInput.inputScenarioName(10:end);
+diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
+reflectionLoss = paraCfgInput.reflectionLoss;
+for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
     if trgtNum
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
-                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,paaId,:)).';
-                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(iterateTimeDivision-1,1),paaId,:)).';
+                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(T,iterateTimeDivision),paaId,:)).';
+                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(min(T,iterateTimeDivision)-1,1),paaId,:)).';
                 mpcParFor = cell(1,trgtNum);
                 trgtPosition = trgCfgInput.trgtPosition(iterateTimeDivision,:, :);
                 previousTargetPosition = trgCfgInput.trgtPosition(max(1,iterateTimeDivision-1),:, :);
@@ -280,10 +307,10 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                         mpcLos = [nodePaa, target];
                         mpcLosParFor{trgtId} = mpcLos;
                         MpcTarget{nodeId,paaId,...
-                                    trgtId, iterateTimeDivision}{1} = mpcLos;
+                            trgtId, iterateTimeDivision}{1} = mpcLos;
                     else
                         MpcTarget{nodeId,paaId,...
-                                    trgtId, iterateTimeDivision}{1} = [];
+                            trgtId, iterateTimeDivision}{1} = [];
                     end
                     
                     for iterateOrderOfReflection = 1:reflectionOrder
@@ -315,10 +342,10 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                                 2:end); %Discard reflection order column
                             mpcParFor{trgtId}{iterateOrderOfReflection} =multipath1;
                             MpcTarget{nodeId,paaId,...
-                                    trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = multipath1;
+                                trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = multipath1;
                         else
                             MpcTarget{nodeId,paaId,...
-                                    trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = [];
+                                trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = [];
                         end
                         
                         %Store QD output
@@ -332,66 +359,50 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                         
                     end
                     
-                    outputPaaTarget{nodeId, trgtId}.(sprintf('paaTx%dtarget', paaId-1))= output;
-%                     outputPaaTarget{trgtId, iterateTx}.(sprintf('paaTx%dpaaRx%d', iteratePaaRx-1, iteratePaaTx-1))= reverseOutputTxRx(output);
+                    outputPaaTarget{nodeId, trgtId}.(sprintf('paaTx%dTarget%d', paaId-1, trgtId-1))= output;
+                    outputPaaTargetReverse{trgtId, nodeId}.(sprintf('paaTarget%dpaaRx%d', trgtId-1, paaId-1))= reverseOutputTxRx(output);                   
                     
-                     
                 end
-                
-%                 MpcTarget{nodeId,paaId,...
-%                                     :,...
-%                                     1, iterateTimeDivision} = mpcLosParFor
             end
         end
     end
-    MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
-    max(nPAA_centroids),...
-    trgtNum,reflectionOrder+1, ...
-    paraCfgInput.numberOfTimeDivisions);
-for  i =1: reflectionOrder+1
-    [MpcTargetMat{:,:,:,i,:}] = deal(MpcTarget{i});
-end
-    
-    %% Write QD output in CSV files
-    if ~isJsonOutput || keepBothQDOutput
-        for iterateTx = 1:paraCfgInput.numberOfNodes
-            for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
-                writeQdFileOutput(outputPaaTime{iterateTx, iterateRx,iterateTimeDivision},...
-                    paraCfgInput.useOptimizedOutputToFile, fids, iterateTx, iterateRx,...
-                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
-                
-                writeQdFileOutput(outputPaaTime{iterateRx,iterateTx,iterateTimeDivision},...
-                    paraCfgInput.useOptimizedOutputToFile, fids, iterateRx,iterateTx,...
-                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
-            end
-        end
-    end
-    
-    clear outputPAA
-end
+    trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo);
 
-writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition,trgCfgInput,MpcTarget)
+    MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
+        max(nPAA_centroids),...
+        trgtNum,reflectionOrder+1, ...
+        paraCfgInput.numberOfTimeDivisions);
+    for  i =1: reflectionOrder+1
+        [MpcTargetMat{:,:,:,i,:}] = deal(MpcTarget{i});
+    end
+end
 
 %% Write output in JSON files
 % QD output
 if isJsonOutput  || keepBothQDOutput
     writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
         qdFilesPath);
+    if trgtNum
+        writeQdJsonTargetOutput(trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
+    end
 end
 
 if paraCfgInput.switchSaveVisualizerFiles
     Mpc(:,:,:,:,:,1) = [];
     writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition, Mpc)
+    if trgtNum
+        writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition,trgCfgInput,MpcTarget)
+    end
 end
 
 if ~isJsonOutput || keepBothQDOutput
     closeQdFilesIds(fids, paraCfgInput.useOptimizedOutputToFile);
 end
 
-%% Write useful output information. 
+%% Write useful output information.
 writeReportOutput = 0 ; %Set to 0 to allow succeful test.
 if writeReportOutput
-    f = fopen(strcat(outputPath, filesep,'report.dat'), 'w'); %#ok<UNRCH> 
+    f = fopen(strcat(outputPath, filesep,'report.dat'), 'w'); %#ok<UNRCH>
     fprintf(f, 'Device Rotation:\t%d\n', paraCfgInput.isDeviceRotationOn);
     fprintf(f, 'Initial Orientation:\t%d\n', paraCfgInput.isInitialOrientationOn);
     fprintf(f, 'PAA centered:\t%d\n', paraCfgInput.isPaaCentered);
