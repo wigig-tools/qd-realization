@@ -68,7 +68,7 @@ rotRx = p.Results.rotRx;
 dodNoRot = Rx - Tx;
 dod = coordinateRotation(dodNoRot, [0 0 0], rotTx, 'frame');
 % delay is the total length of multipath
-delay=norm(dod);
+distance=norm(dod);
 % Direction of arrival (DoA) is negative of DoD
 doaNoRot = Tx - Rx;
 doa = coordinateRotation(doaNoRot, [0 0 0], rotRx,'frame');
@@ -92,9 +92,9 @@ if isLOS==1 % if DoA exists
     % doa - direction of arrival
     output1(5:7) = doa;
     % Time delay
-    output1(1,8)=delay/c;
+    output1(1,8)=distance/c;
     % Path gain
-    output1(1,9) = 20*log10(lambda/(4*pi*delay));
+    output1(1,9) = 20*log10(lambda/(4*pi*distance));
     % Aod azimuth
     output1(10) = mod(atan2d(dod(2),dod(1)), 360);
     % Aod elevation
@@ -111,7 +111,7 @@ if isLOS==1 % if DoA exists
 %             output1(16:17) = PolarizationTx(2,:);
 %         end
 %     end
-    output1(18) = 0;
+    output1(18) = mod(distance/lambda*2*pi,2*pi);
     % Doppler Factor
     output1(20) = dopplerFactor*frequency;
     output1(21) = 0;

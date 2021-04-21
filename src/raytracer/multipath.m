@@ -194,7 +194,7 @@ if numberOfRowsArraysOfPlanes>0
             dRay(12) = mod(atan2d(doa(2),doa(1)), 360);
             % Aoa elevation
             dRay(13) = acosd(doa(3) / norm(doa));
-            dRay(18) = orderOfReflection*pi;
+            dRay(18) = orderOfReflection*pi+mod(distance/wavelength*2*pi,2*pi);
             dRay(20) = dopplerFactor * frequency;
             dRay(21) = 0;
             outputQd(indexOutput).dRay = dRay;
