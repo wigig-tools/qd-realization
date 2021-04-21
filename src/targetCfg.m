@@ -80,10 +80,10 @@ for trgtId = 1:numberOfTargets
         trgtJointsMat{trgtId} = reshape(trgtJoint{trgtId}, ...
             trgtTimeSamples, 3, numJoints); % Time x 3 x numJoints
     else
-        numJoints = 1;
-        trgtJoint{trgtId} = repmat([0 0 0], trgtTimeSamples,numJoints);
-        writematrix(trgtJoint{trgtId}, fullfile(inputPath,...
-            trgtJointsFile));
+        numJoints = 0;
+%         trgtJoint{trgtId} = repmat([0 0 0], trgtTimeSamples,numJoints);
+%         writematrix(trgtJoint{trgtId}, fullfile(inputPath,...
+%             trgtJointsFile));
         warning([trgtJointsFile, ' not defined.'])
     end
     
