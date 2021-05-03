@@ -95,6 +95,8 @@ end
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
 para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
+para = fieldToNum(para, 'totalNumberOfReflectionsSens', [], 0);
+
 if strcmp(para.switchQDModel,'tgayMeasurements') ...
         && para.totalNumberOfReflections>2
     warning(['totalNumberOfReflections for switchQDModel = tgayMeasurements ',...
