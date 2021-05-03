@@ -58,12 +58,12 @@ for txTr = 1:nMpcTxTrg
         ddirTxRx(rowOut,2:4) = dod;
         ddirTxRx(rowOut,5:7) = doa;
         ddirTxRx(rowOut,8) = mpcTxTrg(8)+mpcTrgRx(8);
-        ddirTxRx(rowOut,9) = mpcTxTrg(9)+mpcTrgRx(9);
+        ddirTxRx(rowOut,9) = mpcTxTrg(9)+mpcTrgRx(9)+10*log10(4*pi/(0.005^2))-8; 
         ddirTxRx(rowOut,10) = aodAz;
         ddirTxRx(rowOut,11) = aodEl;
         ddirTxRx(rowOut,12) = aoaAz;
         ddirTxRx(rowOut,13) = aoaEl;
-        ddirTxRx(rowOut,18) = mpcTxTrg(18)+mpcTrgRx(18);
+        ddirTxRx(rowOut,18) = mpcTxTrg(18)+mpcTrgRx(18); % phase
         ddirTxRx(rowOut,20) = mpcTxTrg(19)+mpcTrgRx(19);
         ddirTxRx(rowOut,21) = 0;
         
