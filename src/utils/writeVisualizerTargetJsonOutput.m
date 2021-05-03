@@ -57,7 +57,7 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
                 for iterateJoint = 1:trgCfgInput.trgtJoints(iterateTarget)
                     
                     
-                    for reflOrd = 1:paraCfgInput.totalNumberOfReflections+1
+                    for reflOrd = 1:paraCfgInput.totalNumberOfReflectionsSens+1
                         jsonStruct = struct('node', iterateTx-1, 'nodePaa', nodeTxCluster(txPaaCluster)-1,...
                             'target', iterateTarget-1, 'joint', iterateJoint-1, ...
                             'Rorder', reflOrd-1);
