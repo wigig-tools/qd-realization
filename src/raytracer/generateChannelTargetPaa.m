@@ -61,13 +61,13 @@ paa_comb_struct = {};
 for nt = nodesVector % Loop on tx nodes
     for nr = nodesVector(nodesVector~=nt)% Loop on rx nodes
         chMIMOtx_rx = []; % Channel between one tx and one rx
-        chMimoCluster = [];
+%         chMimoCluster = [];
         paaComb = [];
         i = 0;
         for c_t = 1:infoPAA{nt}.nPAA_centroids % Loop on transmitter centroid
             for c_r = 1:infoPAA{nr}.nPAA_centroids % Loop on receiver centroid
                 
-                chMimoCentroid = []; % Channel between tx and rx centroid
+%                 chMimoCentroid = []; % Channel between tx and rx centroid
                 for trgId = 1:numTarget
                     chSisoTxTrg = chIn{nt,trgId}.(sprintf('paaTx%dTarget%d', c_t-1, trgId-1));
                     chSisoTrgRx = chInRev{trgId,nr}.(sprintf('paaTarget%dpaaRx%d', trgId-1, c_r-1 ));
@@ -92,18 +92,21 @@ for nt = nodesVector % Loop on tx nodes
                         chMimoCluster{trgId} = ...
                             ddir2MIMOtarget(chSisoTxTrg, chSisoTrgRx, infoPAA, ptr);
                     end
-%                     chMimoCentroid = cat(3, chMimoCentroid, chMimoCluster);
-% 
-%                     i = i+1;
-%                     chMIMOtx_rx{i} =chMimoCentroid; %cat(3, ch_t_r, ch_t);
+                   
                 end
+                i = i+1;
+                chMimoCentroid{i} = reshape([chMimoCluster{:}], 21,[]).';
+
+% 
+%                     chMIMOtx_rx{i} =chMimoCentroid; %cat(3, ch_t_r, ch_t);
             end
+
         end
         if isempty(chMimoCluster)
             chMimoCluster = [];
         else
-            M = max(cellfun(@(x) size(x,1), chMimoCluster));
-            chNanPad= cellfun(@(x) appendNan(x,M,nvar),chMimoCluster,'UniformOutput',false);
+            M = max(cellfun(@(x) size(x,1), chMimoCentroid));
+            chNanPad= cellfun(@(x) appendNan(x,M,nvar),chMimoCentroid,'UniformOutput',false);
             chMIMOtx_rx = cat(3,chNanPad{:});
         end
 %         if ~isempty(paaComb)
