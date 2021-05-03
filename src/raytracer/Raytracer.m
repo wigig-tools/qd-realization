@@ -276,13 +276,16 @@ end
 %% Node to target ray tracing
 cf = paraCfgInput.carrierFrequency;
 saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
-reflectionOrder = paraCfgInput.totalNumberOfReflections;
+reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
 isDiffuse = paraCfgInput.switchDiffuseComponent;
 isQD = paraCfgInput.switchQDModel;
 scenarioName = paraCfgInput.inputScenarioName(10:end);
 diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
 reflectionLoss = paraCfgInput.reflectionLoss;
 for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
+%     if mod(iterateTimeDivision,100)==0 && displayProgress
+        disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
+%     end
     if trgtNum
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
