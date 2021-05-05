@@ -58,9 +58,9 @@ dz = centrShift(:,3);
 lambda = getLightSpeed/fc;
 k = 2*pi/lambda; 
 
-kx =  k*(sin(theta).*cos(phi))*dx.';
-ky =  k*sin(theta).*sin(phi)*dy.';
-kz =  k*cos(theta)*dz.';
+kx =  k*(sind(theta).*cosd(phi))*dx.';
+ky =  k*sind(theta).*sind(phi)*dy.';
+kz =  k*cosd(theta)*dz.';
 
 R = exp(1i*(kz + ky + kx)); %6.87A Balanis 4ed
 end
