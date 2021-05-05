@@ -185,7 +185,8 @@ for iterateNumberOfNodes = 1:numberOfNodes
 end
 
 %% Process PAA position
-paaInfo  = clusterPaa(nodePositionTime, nodePaaInitialPosition, nodePaaOrientation);
+paaInfo  = clusterPaa(nodePositionTime, nodePaaInitialPosition, nodePaaOrientation, ...
+'fc',paraCfg.carrierFrequency);
 
 %% Output
 % Check Temp Output Folder
