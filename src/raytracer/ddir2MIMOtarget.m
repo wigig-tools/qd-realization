@@ -1,4 +1,4 @@
-function ddirTxRx = ddir2MIMOtarget(ddirInTxTrg, ddirInTrgRx, info, ptr)
+function [ch, varargout] = ddir2MIMOtarget(ddirInTxTrg, ddirInTrgRx, info, ptr,trgtFriisFactor)
 %%DDIR2MIMOTARGET Converts the double direction impulse response in the MIMO
 % channel matrix assigning phase rotations according with PAA centroids
 % positions and angles of departure/arrival
@@ -35,40 +35,65 @@ function ddirTxRx = ddir2MIMOtarget(ddirInTxTrg, ddirInTrgRx, info, ptr)
 %
 % 2019-2020 NIST/CTL (steve.blandino@nist.gov)
 
-%% Overwrite angles
+[~,b] = unique(info{ptr.nt}.centroids);
+b = sort(b);
+idx = find(info{ptr.nt}.centroids == info{ptr.nt}.centroids(b(ptr.paatx)));
+t= idx(ptr.iid_tx); %Pointer to centroid in cell array in info{ptr.nt}
+
+[~,b] = unique(info{ptr.nr}.centroids);
+b = sort(b);
+idx = find(info{ptr.nr}.centroids == info{ptr.nr}.centroids(b(ptr.paarx)));
+r= idx(ptr.iid_rx); %Pointer to centroid in cell array in info{ptr.nr}
+
 
 nMpcTxTrg = size(ddirInTxTrg,1);
 nMpcTrgRx = size(ddirInTrgRx,1);
 orientation.tx = info{ptr.nt}.orientation{ptr.paatx};
 orientation.rx = info{ptr.nr}.orientation{ptr.paarx};
 ddirTxRx = zeros(nMpcTxTrg*nMpcTrgRx,21);
+ch = zeros([size(ddirTxRx),info{ptr.nt}.nPaa*info{ptr.nr}.nPaa]);
+paaTx = info{ptr.nt}.nodePAAInfo{ptr.paatx}.rotated_channel(ptr.iid_tx);
+paaRx = info{ptr.nr}.nodePAAInfo{ptr.paarx}.rotated_channel(ptr.iid_rx);
 
-for txTr = 1:nMpcTxTrg
-    for trRx =  1:nMpcTrgRx
+for pT = 1: paaTx
+    for pR = 1: paaRx
         
-        mpcTxTrg = ddirInTxTrg(txTr,:);
-        mpcTrgRx = ddirInTrgRx(trRx,:);
+        for txTr = 1:nMpcTxTrg
+            for trRx =  1:nMpcTrgRx
+                
+                mpcTxTrg = ddirInTxTrg(txTr,:);
+                mpcTrgRx = ddirInTrgRx(trRx,:);
+                
+                dod = coordinateRotation(mpcTxTrg(:,2:4), [0, 0, 0], orientation.tx, 'frame'); %ddirInTxTrg %ddir(:, 2:4)
+                doa = coordinateRotation(mpcTrgRx(:,5:7), [0, 0, 0], orientation.rx, 'frame'); %ddirInTrgRx % ddir(:, 5:7)
+                [aodAz, aodEl] = vector2angle(dod);
+                [aoaAz, aoaEl] = vector2angle(doa);
+                rowOut =  (txTr-1)*nMpcTrgRx+ trRx;
+                ddirTxRx(rowOut,1) = rowOut;
+                ddirTxRx(rowOut,2:4) = dod;
+                ddirTxRx(rowOut,5:7) = doa;
+                ddirTxRx(rowOut,8) = mpcTxTrg(8)+mpcTrgRx(8);
+                ddirTxRx(rowOut,9) = mpcTxTrg(9)+mpcTrgRx(9)+trgtFriisFactor;
+                ddirTxRx(rowOut,10) = aodAz;
+                ddirTxRx(rowOut,11) = aodEl;
+                ddirTxRx(rowOut,12) = aoaAz;
+                ddirTxRx(rowOut,13) = aoaEl;
+                phaseAod = phaseRotation(aodEl,aodAz, info{ptr.nt}.centroidsShift{t}(pT,:));
+                phaseAoa = phaseRotation(aoaEl,aoaAz, info{ptr.nr}.centroidsShift{r}(pR,:));
+                ddirTxRx(rowOut,18) = wrapTo2Pi(mpcTxTrg(18)+mpcTrgRx(18)+angle(phaseAod)+angle(phaseAoa)); % phase
+                ddirTxRx(rowOut,20) = mpcTxTrg(19)+mpcTrgRx(19);
+                ddirTxRx(rowOut,21) = 0;
+                
+            end
+        end
         
-        dod = coordinateRotation(mpcTxTrg(:,2:4), [0, 0, 0], orientation.tx, 'frame'); %ddirInTxTrg %ddir(:, 2:4)
-        doa = coordinateRotation(mpcTrgRx(:,5:7), [0, 0, 0], orientation.rx, 'frame'); %ddirInTrgRx % ddir(:, 5:7)
-        [aodAz, aodEl] = vector2angle(dod);
-        [aoaAz, aoaEl] = vector2angle(doa);
-        rowOut =  (txTr-1)*nMpcTrgRx+ trRx;
-        ddirTxRx(rowOut,1) = rowOut;
-        ddirTxRx(rowOut,2:4) = dod;
-        ddirTxRx(rowOut,5:7) = doa;
-        ddirTxRx(rowOut,8) = mpcTxTrg(8)+mpcTrgRx(8);
-        ddirTxRx(rowOut,9) = mpcTxTrg(9)+mpcTrgRx(9)+10*log10(4*pi/(0.005^2))-8; 
-        ddirTxRx(rowOut,10) = aodAz;
-        ddirTxRx(rowOut,11) = aodEl;
-        ddirTxRx(rowOut,12) = aoaAz;
-        ddirTxRx(rowOut,13) = aoaEl;
-        ddirTxRx(rowOut,18) = mpcTxTrg(18)+mpcTrgRx(18); % phase
-        ddirTxRx(rowOut,20) = mpcTxTrg(19)+mpcTrgRx(19);
-        ddirTxRx(rowOut,21) = 0;
-        
+        ch(:,:, paaRx*(pT-1)+ pR) = ddirTxRx;
     end
+    
 end
 
+
+[A,B] = meshgrid(info{ptr.nt}.paaInCluster{t}, info{ptr.nr}.paaInCluster{r});
+varargout{1} = [A(:), B(:)];
 
 end

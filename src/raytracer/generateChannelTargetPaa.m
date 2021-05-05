@@ -1,4 +1,4 @@
-function chOut = generateChannelTargetPaa(chIn,chInRev, infoPAA)
+function chOut = generateChannelTargetPaa(chIn,chInRev, infoPAA, trgtFriisFactor)
 %GENERATECHANNEL_PAA returns the QD channel for each PAA_TX - PAA_RX
 %combination.
 %
@@ -68,10 +68,6 @@ for nt = nodesVector % Loop on tx nodes
             for c_r = 1:infoPAA{nr}.nPAA_centroids % Loop on receiver centroid
                 
 %                 chMimoCentroid = []; % Channel between tx and rx centroid
-                for trgId = 1:numTarget
-                    chSisoTxTrg = chIn{nt,trgId}.(sprintf('paaTx%dTarget%d', c_t-1, trgId-1));
-                    chSisoTrgRx = chInRev{trgId,nr}.(sprintf('paaTarget%dpaaRx%d', trgId-1, c_r-1 ));
-                    
                     % Pointer struct. Indeces  to retreive PAA
                     % information in infoPAA
                     ptr.nt = nt;    %TX NODE ID
@@ -80,6 +76,12 @@ for nt = nodesVector % Loop on tx nodes
                     ptr.paarx = c_r; %RX PAA centroid pointer
                     ptr.iid_tx = 1; %TX PAA rotated channel pointer
                     ptr.iid_rx = 1; %RX PAA rotated channel pointer
+                    [A,B] = meshgrid(infoPAA{ptr.nt}.paaInCluster{1}, infoPAA{ptr.nr}.paaInCluster{1});
+                    paaComb = [A(:), B(:)];
+                    chMimoCluster = {};
+                parfor trgId = 1:numTarget
+                    chSisoTxTrg = chIn{nt,trgId}.(sprintf('paaTx%dTarget%d', c_t-1, trgId-1));
+                    chSisoTrgRx = chInRev{trgId,nr}.(sprintf('paaTarget%dpaaRx%d', trgId-1, c_r-1 ));                   
                     
                     % Get channel between tx and rx cluster (a
                     % centroid can be the center of different clusters.
@@ -89,16 +91,15 @@ for nt = nodesVector % Loop on tx nodes
                     if isempty(chSisoTxTrg) || isempty(chSisoTrgRx)
                         chMimoCluster{trgId} = [];
                     else
-                        chMimoCluster{trgId} = ...
-                            ddir2MIMOtarget(chSisoTxTrg, chSisoTrgRx, infoPAA, ptr);
+                        [chMimoCluster{trgId}] = ...
+                            ddir2MIMOtarget(chSisoTxTrg, chSisoTrgRx, infoPAA, ptr,trgtFriisFactor);
                     end
                    
                 end
                 i = i+1;
-                chMimoCentroid{i} = reshape([chMimoCluster{:}], 21,[]).';
-
-% 
-%                     chMIMOtx_rx{i} =chMimoCentroid; %cat(3, ch_t_r, ch_t);
+                tmp = cellfun(@(x) permute(x, [2 1 3]), chMimoCluster, 'UniformOutput', false);
+                chMimoCluster = permute([tmp{:}], [2 1 3]);
+                chMimoCentroid{i} = chMimoCluster;
             end
 
         end
@@ -109,12 +110,12 @@ for nt = nodesVector % Loop on tx nodes
             chNanPad= cellfun(@(x) appendNan(x,M,nvar),chMimoCentroid,'UniformOutput',false);
             chMIMOtx_rx = cat(3,chNanPad{:});
         end
-%         if ~isempty(paaComb)
-%             [~, index_sorted] = sortrows(paaComb,1);
-%             chOut{nt, nr} = chMIMOtx_rx(:,:, index_sorted);
-%         else
+        if ~isempty(paaComb)
+            [~, index_sorted] = sortrows(paaComb,1);
+            chOut{nt, nr} = chMIMOtx_rx(:,:, index_sorted);
+        else
             chOut{nt, nr} = chMIMOtx_rx;
-%         end
+        end
         
     end
 end
