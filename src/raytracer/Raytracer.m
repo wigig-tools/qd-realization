@@ -274,6 +274,7 @@ else
 end
 
 %% Node to target ray tracing
+ if trgtNum
 cf = paraCfgInput.carrierFrequency;
 saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
 reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
@@ -286,7 +287,7 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
 %     if mod(iterateTimeDivision,100)==0 && displayProgress
         disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
 %     end
-    if trgtNum
+   
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
                 nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(T,iterateTimeDivision),paaId,:)).';
@@ -368,9 +369,9 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                 end
             end
         end
-    end
-    trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo);
-
+    
+    trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo, trgCfgInput.trgtFrisCorrection);
+end
     MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
         max(nPAA_centroids),...
         trgtNum,reflectionOrder+1, ...
