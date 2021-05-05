@@ -81,9 +81,6 @@ for trgtId = 1:numberOfTargets
             trgtTimeSamples, 3, numJoints); % Time x 3 x numJoints
     else
         numJoints = 0;
-%         trgtJoint{trgtId} = repmat([0 0 0], trgtTimeSamples,numJoints);
-%         writematrix(trgtJoint{trgtId}, fullfile(inputPath,...
-%             trgtJointsFile));
         warning([trgtJointsFile, ' not defined.'])
     end
     
@@ -99,14 +96,20 @@ for trgtId = 1:numberOfTargets
     trgtJointsMat{trgtId} );
 end
 
-trgtJointsMat = cat(3, trgtJointsMat{:});
-trgtPositionTime = trgtJointsMat(:, 1:3,:);
-trgtRotationTime = cat(3, trgtBase{:});
-trgtRotationTime(:,1:3,:) =[];
-
-%% Output
-paraCfg.numberOfTargets = numberOfTargets;
-trgCfg.trgtJoints = trgtJoints;
-trgCfg.trgtPosition = trgtPositionTime;
-trgCfg.trgtRotation = trgtRotationTime;
+if numberOfTargets
+    trgtJointsMat = cat(3, trgtJointsMat{:});
+    trgtPositionTime = trgtJointsMat(:, 1:3,:);
+    trgtRotationTime = cat(3, trgtBase{:});
+    trgtRotationTime(:,1:3,:) =[];
+    
+    %% Output
+    paraCfg.numberOfTargets = numberOfTargets;
+    trgCfg.trgtJoints = trgtJoints;
+    trgCfg.trgtPosition = trgtPositionTime;
+    trgCfg.trgtRotation = trgtRotationTime;
+    trgCfg.trgtRcs = 8;
+    trgCfg.trgtFrisCorrection = 10*log10(4*pi/((getLightSpeed/paraCfg.carrierFrequency)^2))-trgCfg.trgtRcs;
+else
+    trgCfg = [];
+end
 end
