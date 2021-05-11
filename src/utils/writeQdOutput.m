@@ -1,4 +1,4 @@
-function writeQdJsonTargetOutput(outputComm,outputSens, paaNodes, qdFilesPath)
+function writeQdOutput(outputComm,outputSens, paaNodes, qdFilesPath)
 %WRITEQDJSONFILEOUTPUT Writes information to QdFile
 %
 % INPUTS:

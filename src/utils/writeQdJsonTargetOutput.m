@@ -54,7 +54,6 @@ for tx = nodeList
             for txPaa = 1:paaNodes(tx)
                 for rxPaa = 1:paaNodes(rx)
                     mimoCh = squeeze(output(tx,rx,:));
-%                     mimoCh = cellfun(@(x) getMat2D(x), mimoCh , 'UniformOutput', false);
 %                     mimoCh = reshape(mimoCh,[size(mimoCh,1)*size(mimoCh,2) size(mimoCh,3)]);
                     mimoCh = cellfun(@(x) appendNan(x,Noutput,paaNodes(tx)*paaNodes(rx)), mimoCh, 'UniformOutput', false);
                     sisoCh =cell2mat(cellfun(@(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa), mimoCh,'UniformOutput', false));
