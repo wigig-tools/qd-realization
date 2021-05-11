@@ -59,8 +59,8 @@ function reflectionLossdB = getTgayReflectionLoss(MaterialLibrary,...
 reflectionCoefficient = getReflectance(MaterialLibrary,arrayOfMaterials,multipath);
 % Calculate reflection loss. It is the sum (in dB) of the mean
 % of the Vertical and Horizontal reflectances for each reflection.
-reflectionLoss = prod(mean(reflectionCoefficient));
-reflectionLossdB = -20*log10(abs(reflectionLoss)); 
+reflectionLoss = prod(sqrt(mean(abs(reflectionCoefficient).^2))); 
+reflectionLossdB = -20*log10(reflectionLoss); 
 end
 
 function reflectionCoefficient = getReflectance(MaterialLibrary,...
@@ -103,7 +103,7 @@ for reflectionOrderIndex = 1:orderReflection
     B_h =  relativePermittivity - sind(aor)^2;                
     B_v = (relativePermittivity - sind(aor)^2)/relativePermittivity^2; 
     reflectionCoefficient(:, reflectionOrderIndex) = [ ...
-        (cosd(aor) - sqrt(B_v))/(cosd(aor) + sqrt(B_v)); ... % Vertical
+        (-cosd(aor) + sqrt(B_v))/(cosd(aor) + sqrt(B_v)); ... % Vertical 
         (cosd(aor) - sqrt(B_h))/(cosd(aor) + sqrt(B_h))];    % Horizontal
 end     
 end
