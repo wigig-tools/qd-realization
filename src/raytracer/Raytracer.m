@@ -274,20 +274,20 @@ else
 end
 
 %% Node to target ray tracing
- if trgtNum
-cf = paraCfgInput.carrierFrequency;
-saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
-reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
-isDiffuse = paraCfgInput.switchDiffuseComponent;
-isQD = paraCfgInput.switchQDModel;
-scenarioName = paraCfgInput.inputScenarioName(10:end);
-diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
-reflectionLoss = paraCfgInput.reflectionLoss;
-for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
-%     if mod(iterateTimeDivision,100)==0 && displayProgress
+if trgtNum
+    cf = paraCfgInput.carrierFrequency;
+    saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
+    reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
+    isDiffuse = paraCfgInput.switchDiffuseComponent;
+    isQD = paraCfgInput.switchQDModel;
+    scenarioName = paraCfgInput.inputScenarioName(10:end);
+    diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
+    reflectionLoss = paraCfgInput.reflectionLoss;
+    for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
+        %     if mod(iterateTimeDivision,100)==0 && displayProgress
         disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
-%     end
-   
+        %     end
+        
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
                 nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(T,iterateTimeDivision),paaId,:)).';
@@ -364,14 +364,14 @@ for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
                     end
                     
                     outputPaaTarget{nodeId, trgtId}.(sprintf('paaTx%dTarget%d', paaId-1, trgtId-1))= output;
-                    outputPaaTargetReverse{trgtId, nodeId}.(sprintf('paaTarget%dpaaRx%d', trgtId-1, paaId-1))= reverseOutputTxRx(output);                   
+                    outputPaaTargetReverse{trgtId, nodeId}.(sprintf('paaTarget%dpaaRx%d', trgtId-1, paaId-1))= reverseOutputTxRx(output);
                     
                 end
             end
         end
-    
-    trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo, trgCfgInput.trgtFrisCorrection);
-end
+        
+        trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo, trgCfgInput.trgtFrisCorrection);
+    end
     MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
         max(nPAA_centroids),...
         trgtNum,reflectionOrder+1, ...
@@ -384,10 +384,11 @@ end
 %% Write output in JSON files
 % QD output
 if isJsonOutput  || keepBothQDOutput
-    writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
-        qdFilesPath);
     if trgtNum
-        writeQdJsonTargetOutput(trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
+        writeQdOutput(outputPaaTime, trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
+    else
+        writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
+            qdFilesPath);
     end
 end
 
