@@ -17,6 +17,8 @@ function tests = exampleOutputsTest
 % - HotelLobby
 % - OpenAreaHotspot
 % - CityBlock
+% - ConferenceRoom
+% - EnterpriseCubicle
 % The Output/ folders contain the results of the respective scenario run
 % using rng('default'). For the current MATLAB version, the documentation
 % states that: "This way, the same random numbers are produced as if you
@@ -200,6 +202,19 @@ runRaytracer(testCase, exampleName);
 checkOutput(testCase, exampleName);
 end
 
+% ConferenceRoom
+function conferenceRoomTest(testCase)
+exampleName = 'ConferenceRoom';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
+
+% EnterpriseCubicle
+function enterpriseCubicleTest(testCase)
+exampleName = 'EnterpriseCubicle';
+runRaytracer(testCase, exampleName);
+checkOutput(testCase, exampleName);
+end
 
 %% Utils
 function runRaytracer(testCase, exampleName)
