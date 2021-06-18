@@ -1,5 +1,5 @@
 function [output,  outputPre, outputPost] =...
-    qdGenerator(dRayOutput, arrayOfMaterials, materialLibrary,...
+    qdGenerator(delayLos, dRayOutput, arrayOfMaterials, materialLibrary,...
     qdModelSwitch, scenarioName, diffusePathGainThreshold)
 % QDGENERATOR generates diffused or intra-cluster components starting 
 % from deterministic rays following 
@@ -94,13 +94,13 @@ cursorOutput = dRayOutput;
 % Pre/post cursors output
 switch qdModelSwitch
     case 'nistMeasurements'
-        outputPre = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+        outputPre = getNistQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
             materialLibrary, diffusePathGainThreshold, 'pre');
-        outputPost = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+        outputPost = getNistQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
             materialLibrary, diffusePathGainThreshold, 'post');
     case 'tgayMeasurements'
-        outputPre = getTgayQdOutput(cursorOutput, scenarioName, 'pre');
-        outputPost = getTgayQdOutput(cursorOutput, scenarioName, 'post');
+        outputPre = getTgayQdOutput(delayLos, cursorOutput, scenarioName, 'pre');
+        outputPost = getTgayQdOutput(delayLos, cursorOutput, scenarioName, 'post');
     otherwise
         error('switchQDModel can be either nistMeasurements or tgayMeasurements.');
 end
@@ -110,7 +110,7 @@ output = [outputPre; cursorOutput; outputPost];
 end
 
 %% Utils
-function output = getNistQdOutput(dRayOutput, arrayOfMaterials, ...
+function output = getNistQdOutput(delayLos, dRayOutput, arrayOfMaterials, ...
     materialLibrary, diffusePathGainThreshold, prePostParam)
 params = getParams(arrayOfMaterials, materialLibrary, prePostParam);
 
@@ -132,7 +132,6 @@ end
 
 interArrivalTime = rndExp(lambda, params.nRays, 1); % [s]
 taus = tau0 + params.delayMultiplier*cumsum(interArrivalTime); % [s]
-% TODO: remove rays arriving before LoS
 
 % path gains
 Kdb = rndRician(params.s_K, params.sigma_K, 1, 1); % [dB]
@@ -143,8 +142,9 @@ s = sigma_s * randn(params.nRays, 1);
 pg = pg0db - Kdb + 10*log10(exp(1)) * (-abs(taus - tau0)/gamma + s);
 
 % Remove MPCs with more power than main cursor and  consider only MPCs up 
-% to diffusePathGainThreshold dB below the main cursor
-removeMpcMask = pg >= pg0db | pg <= pg0db + diffusePathGainThreshold;
+% to diffusePathGainThreshold dB below the main cursor. Further, remove 
+% MPCs that are arriving before LOS 
+removeMpcMask = pg >= pg0db | pg <= pg0db + diffusePathGainThreshold | taus < delayLos;
 taus(removeMpcMask) = [];
 pg(removeMpcMask) = [];
 mpcRemoved = sum(removeMpcMask);
@@ -236,7 +236,7 @@ az = mod(az, 360);
 end
 
 
-function output = getTgayQdOutput(dRayOutput, scenarioName, prePostParam)
+function output = getTgayQdOutput(delayLos, dRayOutput, scenarioName, prePostParam)
 intraClusterParams = getIntraClusterParams(scenarioName, prePostParam);
 aodAzCursor = dRayOutput(10);
 aodElCursor = dRayOutput(11);
@@ -252,7 +252,12 @@ if intraClusterParams.n ~= 0
         output(i, 1) = (dRayOutput(1)+(i)./10^ceil(log10(intraClusterParams.n)));
         
         diff = randomExponetialGenerator(intraClusterParams.lambda);
-		taus(i+1) = taus(i)+intraClusterParams.delayMultiplier*diff;
+        taus(i+1) = taus(i) + intraClusterParams.delayMultiplier*diff;
+        % regenerate MPC when arrives before LOS
+        while taus(i+1) < delayLos
+            diff = randomExponetialGenerator(intraClusterParams.lambda);
+            taus(i+1) = taus(i) + intraClusterParams.delayMultiplier*diff;
+        end
         output(i,8) = taus(i+1);
         
         output(i, 9) =  pow2dB((dB2pow(dRayOutput(9)...
