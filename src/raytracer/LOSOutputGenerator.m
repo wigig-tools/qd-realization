@@ -1,4 +1,4 @@
-function [isLOS, output, varargout] = LOSOutputGenerator(CADoutput, Rx, Tx,...
+function [isLOS, delayLOS, output, varargout] = LOSOutputGenerator(CADoutput, Rx, Tx,...
     output, velocityTx, velocityRx, isPolarization, isXPol,...
     PolarizationTx, frequency, varargin)
 % This part of code compute LOS between two nodes
@@ -71,15 +71,17 @@ qRx = p.Results.qRx;
 % of Tx and Rx
 dodNoRot = Rx - Tx;
 dod = coordinateRotation(dodNoRot, [0 0 0], qTx.angle, 'frame');
-% delay is the total length of multipath
-delay=norm(dod);
+% distance is the total length of multipath
+distance=norm(dod);
+% delayLOS is the delay of LOS path
+c=getLightSpeed;
+delayLOS = distance/c;
 % Direction of arrival (DoA) is negative of DoD
 doaNoRot = Tx - Rx;
 doa = coordinateRotation(doaNoRot, [0 0 0], qRx.angle,'frame');
 % Calculating Doppler factor for LOS
 velocityTxAlongDirectionOfDeparture=dot(velocityTx,-1.*dod);
 velocityRxAlongDirectionOfDeparture=dot(velocityRx,-1.*dod);
-c=getLightSpeed;
 dopplerFactor=(velocityRxAlongDirectionOfDeparture...
     -velocityTxAlongDirectionOfDeparture)/c;
 % To verify whether DoA vector exists
@@ -96,9 +98,9 @@ if isLOS==1 % if DoA exists
     % doa - direction of arrival
     output1(5:7) = doa;
     % Time delay
-    output1(1,8)=delay/c;
+    output1(1,8) = delayLOS;
     % Path gain
-    output1(1,9) = 20*log10(lambda/(4*pi*delay));
+    output1(1,9) = 20*log10(lambda/(4*pi*distance));
     % Aod azimuth
     output1(10) = mod(atan2d(dod(2),dod(1)), 360);
     % Aod elevation
@@ -121,7 +123,7 @@ if isLOS==1 % if DoA exists
     output1(21) = 0;
     % Cross polarization path gain
     if isXPol==1
-        output1(19) = 20*log10(lambda/(4*pi*delay));
+        output1(19) = 20*log10(lambda/(4*pi*distance));
     else
         output1(19) = 0;
     end
