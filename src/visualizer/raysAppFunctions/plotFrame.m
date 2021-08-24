@@ -114,9 +114,20 @@ numPaasRx = app.numPaas(rx);
 timestampInfo = app.timestepInfo(t);
 for ipaatx = 1:numPaasTx
     for ipaarx = 1:numPaasRx
-        if ~isempty(timestampInfo.paaInfo(ipaatx,ipaarx).qdInfo)
-            qd = timestampInfo.paaInfo(ipaatx,ipaarx).qdInfo(tx,rx);
-            raysAppPlotQdStruct(app, qd, direction)
+        if isfield(timestampInfo.paaInfo(ipaatx,ipaarx),'qdInfo')
+            if  ~isempty(timestampInfo.paaInfo(ipaatx,ipaarx).qdInfo)
+                qd = timestampInfo.paaInfo(ipaatx,ipaarx).qdInfo(tx,rx);
+                raysAppPlotQdStruct(app, qd, direction)
+            else
+                switch(direction)
+                    case 'aoa'
+                        delete(app.aoaPlotHandle)
+                    case 'aod'
+                        delete(app.aodPlotHandle)
+                    otherwise
+                        error('direction should be either ''aoa'' or ''aod''')
+                end
+            end
         else
             switch(direction)
                 case 'aoa'

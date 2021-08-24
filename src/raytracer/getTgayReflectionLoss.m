@@ -1,5 +1,5 @@
 function reflectionLossdB = getTgayReflectionLoss(MaterialLibrary,...
-                arrayOfMaterials, multipath)
+                arrayOfMaterials, multipath, defaultReflectionLoss)
 % GETTGAYREFLECTIONLOSS returns the ray reflection loss in dB 
 % based on TGay measurements [1]
 % [1] A. Maltsev, A. Pudeyev, A. Lomayev, and I. Bolotin, "Channel models 
@@ -22,7 +22,10 @@ function reflectionLossdB = getTgayReflectionLoss(MaterialLibrary,...
 % multipath - consists of specular multipath parameters. This vector is
 %   used to calculate angle(s) of incident and also to get information about
 %   the order of reflection
-%
+% defaultReflectionLoss - defaultReflectionLoss is used when material is 
+% missing in material library or there is a mismatch between the material 
+% present in the CAD file and material library.
+% 
 % Output: 
 % reflectionLossdB - ray reflection loss in dB
 
@@ -58,7 +61,8 @@ function reflectionLossdB = getTgayReflectionLoss(MaterialLibrary,...
 % 2020-2021 NIST/CTL (neeraj.varshney@nist.gov)
 
 % Get reflectances for Vertical and Horizontal polarization
-reflectionCoefficient = getReflectance(MaterialLibrary,arrayOfMaterials,multipath);
+reflectionCoefficient = getReflectance(MaterialLibrary,arrayOfMaterials,...
+    multipath, defaultReflectionLoss);
 % Calculate reflection loss. It is the sum (in dB) of the mean
 % of the Vertical and Horizontal reflectances for each reflection.
 reflectionLoss = prod(sqrt(mean(abs(reflectionCoefficient).^2))); 
@@ -66,7 +70,8 @@ reflectionLossdB = -20*log10(reflectionLoss);
 end
 
 function reflectionCoefficient = getReflectance(MaterialLibrary,...
-                                                arrayOfMaterials,multipath)
+                                     arrayOfMaterials,multipath,...
+                                     defaultReflectionLoss)
 % REFLECTIONCOEFFICIENT function returns reflectances for Vertical and 
 % Horizontal polarization for each reflection using the incident angle and  
 % relative permittivity of the material in the Fresnel equation.
@@ -80,7 +85,10 @@ function reflectionCoefficient = getReflectance(MaterialLibrary,...
 % multipath - consists of specular multipath parameters. This vector is
 %   used to calculate angle(s) of incident and also to get information about
 %   the order of reflection
-% 
+% defaultReflectionLoss -  defaultReflectionLoss is used when material is 
+% missing in material library or there is a mismatch between the material 
+% present in the CAD file and material library.
+%
 % Output:
 % reflectionCoefficient - reflectances for Vertical and Horizontal 
 % polarization for each of the reflections
@@ -98,15 +106,20 @@ for reflectionOrderIndex = 1:orderReflection
         'reflection. Thus, order of reflection cannot be considered ',... 
         'higher than second order reflection.'));
     end
-    % Use Fresnel equation to derive power reflectivity                
-    relativePermittivity = MaterialLibrary.RelativePermittivity...
-                            (reflectionMaterialIndex); 
-    aor = incidentAngle(reflectionOrderIndex);
-    B_h =  relativePermittivity - sind(aor)^2;                
-    B_v = (relativePermittivity - sind(aor)^2)/relativePermittivity^2; 
-    reflectionCoefficient(:, reflectionOrderIndex) = [ ...
-        (-cosd(aor) + sqrt(B_v))/(cosd(aor) + sqrt(B_v)); ... % Vertical 
-        (cosd(aor) - sqrt(B_h))/(cosd(aor) + sqrt(B_h))];    % Horizontal
+    % Use Fresnel equation to derive power reflectivity
+    if isnan(reflectionMaterialIndex)
+        reflectionCoefficient(:, reflectionOrderIndex) = ...
+            [10^(-defaultReflectionLoss/20);10^(-defaultReflectionLoss/20)];
+    else
+        relativePermittivity = MaterialLibrary.RelativePermittivity...
+                                (reflectionMaterialIndex); 
+        aor = incidentAngle(reflectionOrderIndex);
+        B_h =  relativePermittivity - sind(aor)^2;                
+        B_v = (relativePermittivity - sind(aor)^2)/relativePermittivity^2; 
+        reflectionCoefficient(:, reflectionOrderIndex) = [ ...
+            (-cosd(aor) + sqrt(B_v))/(cosd(aor) + sqrt(B_v)); ... % Vertical 
+            (cosd(aor) - sqrt(B_h))/(cosd(aor) + sqrt(B_h))];    % Horizontal
+    end
 end     
 end
 
