@@ -46,7 +46,8 @@ for i = 1:nFaces
     % face material
     materialIdx = find(strcmp(materialLibrary.Reflector, face.materialName));
     if isempty(materialIdx)
-        error('Material ''%s'' not found in materialLibrary', face.materialName)
+        warning('Reflector ''%s'' or corresponding material not found in material library file. Disabling diffuse components for this material', face.materialName)
+        materialIdx = NaN;
     end
     
     cadData(i, :) = [p1, p2, p3, vn, d, materialIdx];
