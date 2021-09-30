@@ -87,6 +87,7 @@ end
 
 
 function setupTimestepInfo(app)
+
 app.timestepInfo = struct();
 
 extractQdFilesInfo(app);
@@ -118,71 +119,53 @@ end
 
 
 function extractQdFilesInfo(app)
+
 qdFiles = dir(sprintf('%s/QdFiles',app.ns3Path));
-qdFileName = qdFiles(3).name;
-[~,~,extension]=fileparts(qdFileName);
-switch extension
-    case '.json'
-        qdOutput = readQdJsonFile(sprintf('%s/QdFiles/qdOutput.json',...
-            app.ns3Path));
-        for i = 1:size(qdOutput,2)
-            for timestep = 1:size(qdOutput(1).Delay,1)
-                out = struct('TX', cell(1,1), ...
-                    'RX', cell(1,1), ...
-                    'PAA_TX', cell(1,1), ...
-                    'PAA_RX', cell(1,1), ...
-                    'Delay', cell(1,1), ...
-                    'Gain', cell(1,1), ...
-                    'Phase', cell(1,1), ...
-                    'AODEL', cell(1,1), ...
-                    'AODAZ', cell(1,1), ...
-                    'AOAEL', cell(1,1), ...
-                    'AOAAZ', cell(1,1) ...
-                    );
-                out.TX = qdOutput(i).TX + 1;
-                out.RX = qdOutput(i).RX + 1;
-                out.PAA_TX = qdOutput(i).PAA_TX + 1;
-                out.PAA_RX = qdOutput(i).PAA_RX + 1;
-                if size(qdOutput(1).Delay,1)> 1
-                    out.Delay =  cell2mat(qdOutput(i).Delay(timestep, :));
-                    out.Gain =   cell2mat(qdOutput(i).Gain(timestep, :));
-                    out.Phase =  cell2mat(qdOutput(i).Phase(timestep, :));
-                    out.AODEL =  cell2mat(qdOutput(i).AODEL(timestep, :));
-                    out.AODAZ =  cell2mat(qdOutput(i).AODAZ(timestep, :));
-                    out.AOAEL =  cell2mat(qdOutput(i).AOAEL(timestep, :));
-                    out.AOAAZ =  cell2mat(qdOutput(i).AOAAZ(timestep, :));
-                else
-                    out.Delay =  (qdOutput(i).Delay(timestep, :));
-                    out.Gain =   (qdOutput(i).Gain(timestep, :));
-                    out.Phase =  (qdOutput(i).Phase(timestep, :));
-                    out.AODEL =  (qdOutput(i).AODEL(timestep, :));
-                    out.AODAZ =  (qdOutput(i).AODAZ(timestep, :));
-                    out.AOAEL =  (qdOutput(i).AOAEL(timestep, :));
-                    out.AOAAZ =  (qdOutput(i).AOAAZ(timestep, :));
-                end
-                
-                app.timestepInfo(timestep).paaInfo(out.PAA_TX,out.PAA_RX)...
-                    .qdInfo(out.TX,out.RX) = out;
+if isfile(fullfile(qdFiles(1).folder, 'qdOutput.json'))    
+    qdOutput = readQdJsonFile(sprintf('%s/QdFiles/qdOutput.json',...
+        app.ns3Path));
+    for i = 1:size(qdOutput,2)
+        for timestep = 1:size(qdOutput(1).Delay,1)
+            out = struct('TX', cell(1,1), ...
+                'RX', cell(1,1), ...
+                'PAA_TX', cell(1,1), ...
+                'PAA_RX', cell(1,1), ...
+                'Delay', cell(1,1), ...
+                'Gain', cell(1,1), ...
+                'Phase', cell(1,1), ...
+                'AODEL', cell(1,1), ...
+                'AODAZ', cell(1,1), ...
+                'AOAEL', cell(1,1), ...
+                'AOAAZ', cell(1,1) ...
+                );
+            out.TX = qdOutput(i).TX + 1;
+            out.RX = qdOutput(i).RX + 1;
+            out.PAA_TX = qdOutput(i).PAA_TX + 1;
+            out.PAA_RX = qdOutput(i).PAA_RX + 1;
+            if size(qdOutput(1).Delay,1)> 1
+                out.Delay =  cell2mat(qdOutput(i).Delay(timestep, :));
+                out.Gain =   cell2mat(qdOutput(i).Gain(timestep, :));
+                out.Phase =  cell2mat(qdOutput(i).Phase(timestep, :));
+                out.AODEL =  cell2mat(qdOutput(i).AODEL(timestep, :));
+                out.AODAZ =  cell2mat(qdOutput(i).AODAZ(timestep, :));
+                out.AOAEL =  cell2mat(qdOutput(i).AOAEL(timestep, :));
+                out.AOAAZ =  cell2mat(qdOutput(i).AOAAZ(timestep, :));
+            else
+                out.Delay =  (qdOutput(i).Delay(timestep, :));
+                out.Gain =   (qdOutput(i).Gain(timestep, :));
+                out.Phase =  (qdOutput(i).Phase(timestep, :));
+                out.AODEL =  (qdOutput(i).AODEL(timestep, :));
+                out.AODAZ =  (qdOutput(i).AODAZ(timestep, :));
+                out.AOAEL =  (qdOutput(i).AOAEL(timestep, :));
+                out.AOAAZ =  (qdOutput(i).AOAAZ(timestep, :));
             end
+            
+            app.timestepInfo(timestep).paaInfo(out.PAA_TX,out.PAA_RX)...
+                .qdInfo(out.TX,out.RX) = out;
         end
-    case '.txt'
-        for i = 1:length(qdFiles)
-            token = regexp(qdFiles(i).name,'Tx(\d+)Rx(\d+).txt','tokens');
-            if isempty(token)
-                continue
-            end
-            
-            % else
-            tx = str2double(token{1}{1}) + 1;
-            rx = str2double(token{1}{2}) + 1;
-            
-            qd = readQdFile(sprintf('%s/%s',...
-                qdFiles(i).folder,qdFiles(i).name));
-            
-            for t = 1:length(qd)
-                app.timestepInfo(t).qdInfo(tx,rx) = qd(t);
-            end
-        end
+    end
+else
+    warning('QD components cannot be displayed for txt format. Set outputFormat = json (or both) in paraCfgCurrent.txt')
 end
 
 end

@@ -1,5 +1,5 @@
 function [output,  outputPre, outputPost] =...
-    qdGenerator(dRayOutput, arrayOfMaterials, materialLibrary,...
+    qdGenerator(delayLos, dRayOutput, arrayOfMaterials, materialLibrary,...
     qdModelSwitch, scenarioName, diffusePathGainThreshold)
 % QDGENERATOR generates diffused or intra-cluster components starting 
 % from deterministic rays following 
@@ -94,13 +94,15 @@ cursorOutput = dRayOutput;
 % Pre/post cursors output
 switch qdModelSwitch
     case 'nistMeasurements'
-        outputPre = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+        outputPre = getNistQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
             materialLibrary, diffusePathGainThreshold, 'pre');
-        outputPost = getNistQdOutput(cursorOutput, arrayOfMaterials,...
+        outputPost = getNistQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
             materialLibrary, diffusePathGainThreshold, 'post');
     case 'tgayMeasurements'
-        outputPre = getTgayQdOutput(cursorOutput, scenarioName, 'pre');
-        outputPost = getTgayQdOutput(cursorOutput, scenarioName, 'post');
+        outputPre = getTgayQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
+            scenarioName, 'pre');
+        outputPost = getTgayQdOutput(delayLos, cursorOutput, arrayOfMaterials,...
+            scenarioName, 'post');
     otherwise
         error('switchQDModel can be either nistMeasurements or tgayMeasurements.');
 end
@@ -110,61 +112,65 @@ output = [outputPre; cursorOutput; outputPost];
 end
 
 %% Utils
-function output = getNistQdOutput(dRayOutput, arrayOfMaterials, ...
+function output = getNistQdOutput(delayLos, dRayOutput, arrayOfMaterials, ...
     materialLibrary, diffusePathGainThreshold, prePostParam)
-params = getParams(arrayOfMaterials, materialLibrary, prePostParam);
+    if isnan(arrayOfMaterials(end)) 
+        output = [];
+        return;
+    end
 
-% delays
-tau0 = dRayOutput(8); % main cursor's delay [s]
-pg0db = dRayOutput(9); % main cursor's path gain [dB]
-aodAzCursor = dRayOutput(10); % main cursor's AoD azimuth [deg]
-aodElCursor = dRayOutput(11); % main cursor's AoD elevation [deg]
-aoaAzCursor = dRayOutput(12); % main cursor's AoA azimuth [deg]
-aoaElCursor = dRayOutput(13); % main cursor's AoA elevation [deg]
+    params = getParams(arrayOfMaterials, materialLibrary, prePostParam);
+    % delays
+    tau0 = dRayOutput(8); % main cursor's delay [s]
+    pg0db = dRayOutput(9); % main cursor's path gain [dB]
+    aodAzCursor = dRayOutput(10); % main cursor's AoD azimuth [deg]
+    aodElCursor = dRayOutput(11); % main cursor's AoD elevation [deg]
+    aoaAzCursor = dRayOutput(12); % main cursor's AoA azimuth [deg]
+    aoaElCursor = dRayOutput(13); % main cursor's AoA elevation [deg]
 
-lambda = rndRician(params.s_lambda, params.sigma_lambda, 1, 1) * 1e9; % [1/s]
+    lambda = rndRician(params.s_lambda, params.sigma_lambda, 1, 1) * 1e9; % [1/s]
 
-if isnan(lambda) || lambda == 0
-    % No pre/post cursors
-    output = [];
-    return;
-end
+    if isnan(lambda) || lambda == 0
+        % No pre/post cursors
+        output = [];
+        return;
+    end
 
-interArrivalTime = rndExp(lambda, params.nRays, 1); % [s]
-taus = tau0 + params.delayMultiplier*cumsum(interArrivalTime); % [s]
-% TODO: remove rays arriving before LoS
+    interArrivalTime = rndExp(lambda, params.nRays, 1); % [s]
+    taus = tau0 + params.delayMultiplier*cumsum(interArrivalTime); % [s]
 
-% path gains
-Kdb = rndRician(params.s_K, params.sigma_K, 1, 1); % [dB]
-gamma = rndRician(params.s_gamma, params.sigma_gamma, 1, 1) * 1e-9; % [s]
-sigma_s = rndRician(params.s_sigmaS, params.sigma_sigmaS, 1, 1); % [std.err in exp]
+    % path gains
+    Kdb = rndRician(params.s_K, params.sigma_K, 1, 1); % [dB]
+    gamma = rndRician(params.s_gamma, params.sigma_gamma, 1, 1) * 1e-9; % [s]
+    sigma_s = rndRician(params.s_sigmaS, params.sigma_sigmaS, 1, 1); % [std.err in exp]
 
-s = sigma_s * randn(params.nRays, 1);
-pg = pg0db - Kdb + 10*log10(exp(1)) * (-abs(taus - tau0)/gamma + s);
+    s = sigma_s * randn(params.nRays, 1);
+    pg = pg0db - Kdb + 10*log10(exp(1)) * (-abs(taus - tau0)/gamma + s);
 
-% Remove MPCs with more power than main cursor and  consider only MPCs up 
-% to diffusePathGainThreshold dB below the main cursor
-removeMpcMask = pg >= pg0db | pg <= pg0db + diffusePathGainThreshold;
-taus(removeMpcMask) = [];
-pg(removeMpcMask) = [];
-mpcRemoved = sum(removeMpcMask);
-params.nRays = length(taus);
+    % Remove MPCs with more power than main cursor and  consider only MPCs up 
+    % to diffusePathGainThreshold dB below the main cursor. Further, remove 
+    % MPCs that are arriving before LOS 
+    removeMpcMask = pg >= pg0db | pg <= pg0db + diffusePathGainThreshold | taus < delayLos;
+    taus(removeMpcMask) = [];
+    pg(removeMpcMask) = [];
+    mpcRemoved = sum(removeMpcMask);
+    params.nRays = length(taus);
 
-% angle spread
-aodAzimuthSpread = rndRician(params.s_sigmaAlphaAz, params.sigma_sigmaAlphaAz, 1, 1);
-aodElevationSpread = rndRician(params.s_sigmaAlphaEl, params.sigma_sigmaAlphaEl, 1, 1);
-aoaAzimuthSpread = rndRician(params.s_sigmaAlphaAz, params.sigma_sigmaAlphaAz, 1, 1);
-aoaElevationSpread = rndRician(params.s_sigmaAlphaEl, params.sigma_sigmaAlphaEl, 1, 1);
-[aodAz, aodEl] = getDiffusedAngles(aodAzCursor, aodElCursor,...
-    aodAzimuthSpread, aodElevationSpread, params.nRays);
-[aoaAz, aoaEl] = getDiffusedAngles(aoaAzCursor, aoaElCursor,...
-    aoaAzimuthSpread, aoaElevationSpread, params.nRays);
+    % angle spread
+    aodAzimuthSpread = rndRician(params.s_sigmaAlphaAz, params.sigma_sigmaAlphaAz, 1, 1);
+    aodElevationSpread = rndRician(params.s_sigmaAlphaEl, params.sigma_sigmaAlphaEl, 1, 1);
+    aoaAzimuthSpread = rndRician(params.s_sigmaAlphaAz, params.sigma_sigmaAlphaAz, 1, 1);
+    aoaElevationSpread = rndRician(params.s_sigmaAlphaEl, params.sigma_sigmaAlphaEl, 1, 1);
+    [aodAz, aodEl] = getDiffusedAngles(aodAzCursor, aodElCursor,...
+        aodAzimuthSpread, aodElevationSpread, params.nRays);
+    [aoaAz, aoaEl] = getDiffusedAngles(aoaAzCursor, aoaElCursor,...
+        aoaAzimuthSpread, aoaElevationSpread, params.nRays);
 
-% Combine results into output matrix
-phase = rand(params.nRays, 1) * 2*pi;
-dopplerShift = zeros(params.nRays, 1);
-output = fillOutputQd(taus, pg, aodAz, aodEl, aoaAz, aoaEl, phase, dopplerShift, dRayOutput(1));
-output(end+1:end+mpcRemoved, :) = nan(mpcRemoved,size(dRayOutput,2));
+    % Combine results into output matrix
+    phase = rand(params.nRays, 1) * 2*pi;
+    dopplerShift = zeros(params.nRays, 1);
+    output = fillOutputQd(taus, pg, aodAz, aodEl, aoaAz, aoaEl, phase, dopplerShift, dRayOutput(1));
+    output(end+1:end+mpcRemoved, :) = nan(mpcRemoved,size(dRayOutput,2));
 
 end
 
@@ -195,7 +201,7 @@ switch(prePostParam)
         params.s_lambda = materialLibrary.s_lambda_Postcursor(materialIdx);
         params.sigma_lambda = materialLibrary.sigma_lambda_Postcursor(materialIdx);
         params.delayMultiplier = 1;
-        params.nRays = materialLibrary.n_Postcursor(materialIdx);;
+        params.nRays = materialLibrary.n_Postcursor(materialIdx);
         
     otherwise
         error('prePostParam=''%s''. Should be ''pre'' or ''post''', prePostParam)
@@ -236,50 +242,60 @@ az = mod(az, 360);
 end
 
 
-function output = getTgayQdOutput(dRayOutput, scenarioName, prePostParam)
-intraClusterParams = getIntraClusterParams(scenarioName, prePostParam);
-aodAzCursor = dRayOutput(10);
-aodElCursor = dRayOutput(11);
-aoaAzCursor = dRayOutput(12);
-aoaElCursor = dRayOutput(13);  
-
-if intraClusterParams.n ~= 0
-    output = zeros(intraClusterParams.n,21);
-    taus = nan(intraClusterParams.n+1, 1);
-    taus(1) = dRayOutput(8); 
-    % generate path gain, delay, doa/dod, AOA/AOD (AZ & EL) and phase offset 
-    for i = 1:intraClusterParams.n
-        output(i, 1) = (dRayOutput(1)+(i)./10^ceil(log10(intraClusterParams.n)));
-        
-        diff = randomExponetialGenerator(intraClusterParams.lambda);
-		taus(i+1) = taus(i)+intraClusterParams.delayMultiplier*diff;
-        output(i,8) = taus(i+1);
-        
-        output(i, 9) =  pow2dB((dB2pow(dRayOutput(9)...
-            -intraClusterParams.Kfactor)).*...
-            exp(-intraClusterParams.delayMultiplier...
-            *((taus(i+1)-taus(1))/intraClusterParams.gamma)));
-        
-        angleSpread = intraClusterParams.sigma*randn(1,4);            
-        output(i, 10:11) = wrapAngles(aodAzCursor + angleSpread(1),...
-            aodElCursor + angleSpread(2)); % aod az/el
-         
-        output(i, 12:13) = wrapAngles(aoaAzCursor + angleSpread(3), ...
-            aoaElCursor + angleSpread(4)); % aoa az/el
-        
-        output(i,18) = rand*2*pi;   % phase shift          
-        
-        output(i,20) = 0;           % doppler frequency
-        
-        output(i, 2:4) = angle2vector(output(i, 10),...
-            output(i, 11),output(i,8)); % dod
-        
-        output(i, 5:7) = angle2vector(output(i, 12),...
-            output(i, 13),output(i,8)); % doa
-   end
-else
+function output = getTgayQdOutput(delayLos, dRayOutput, arrayOfMaterials,...
+    scenarioName, prePostParam)
+if isnan(arrayOfMaterials(end)) 
     output = [];
-end    
+else
+    intraClusterParams = getIntraClusterParams(scenarioName, prePostParam);
+    aodAzCursor = dRayOutput(10);
+    aodElCursor = dRayOutput(11);
+    aoaAzCursor = dRayOutput(12);
+    aoaElCursor = dRayOutput(13);  
+
+    if intraClusterParams.n ~= 0
+        output = zeros(intraClusterParams.n,21);
+        taus = nan(intraClusterParams.n+1, 1);
+        taus(1) = dRayOutput(8); 
+        % generate path gain, delay, doa/dod, AOA/AOD (AZ & EL) and phase offset 
+        for i = 1:intraClusterParams.n
+            output(i, 1) = (dRayOutput(1)+(i)./10^ceil(log10(intraClusterParams.n)));
+
+            diff = randomExponetialGenerator(intraClusterParams.lambda);
+            taus(i+1) = taus(i) + intraClusterParams.delayMultiplier*diff;
+            % regenerate MPC when arrives before LOS
+            while taus(i+1) < delayLos
+                diff = randomExponetialGenerator(intraClusterParams.lambda);
+                taus(i+1) = taus(i) + intraClusterParams.delayMultiplier*diff;
+            end
+            output(i,8) = taus(i+1);
+
+            output(i, 9) =  pow2dB((dB2pow(dRayOutput(9)...
+                -intraClusterParams.Kfactor)).*...
+                exp(-intraClusterParams.delayMultiplier...
+                *((taus(i+1)-taus(1))/intraClusterParams.gamma)));
+
+            angleSpread = intraClusterParams.sigma*randn(1,4);            
+            output(i, 10:11) = wrapAngles(aodAzCursor + angleSpread(1),...
+                aodElCursor + angleSpread(2)); % aod az/el
+
+            output(i, 12:13) = wrapAngles(aoaAzCursor + angleSpread(3), ...
+                aoaElCursor + angleSpread(4)); % aoa az/el
+
+            output(i,18) = rand*2*pi;   % phase shift          
+
+            output(i,20) = 0;           % doppler frequency
+
+            output(i, 2:4) = angle2vector(output(i, 10),...
+                output(i, 11),output(i,8)); % dod
+
+            output(i, 5:7) = angle2vector(output(i, 12),...
+                output(i, 13),output(i,8)); % doa
+       end
+    else
+        output = [];
+    end 
+end
 end
 
 function intraClusterParams = getIntraClusterParams(scenarioName, prePostParam)

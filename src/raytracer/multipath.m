@@ -1,9 +1,9 @@
 function [qdRay, multipath] =...
-    multipath(ArrayOfPlanes, ArrayOfPoints, Rx, Tx, CADOutput,...
+    multipath(delayLos, ArrayOfPlanes, ArrayOfPoints, Rx, Tx, CADOutput,...
     numberOfRowsArraysOfPlanes, MaterialLibrary, arrayOfMaterials,...
     switchMaterial, velocityTx, velocityRx, ...
     diffuseGeneratorSwitch, qdModelSwitch, scenarioName, frequency, ...
-    diffusePathGainThreshold, varargin)
+    diffusePathGainThreshold, defaultReflectionLoss, varargin)
 % INPUTS -
 % ArrayOfPlanes - Similar to Array of points. Each triangle occupies 4
 %   columns (plane equation). The first column has the order of reflection
@@ -33,6 +33,9 @@ function [qdRay, multipath] =...
 % frequency - the carrier frequency at which the system operates
 % diffusePathGainThreshold - This value is used to filter out diffuse
 % components for qdModelSwitch = nistMeasurements 
+% defaultReflectionLoss - defaultReflectionLoss is used when material is 
+% missing in material library or there is a mismatch between the material 
+% present in the CAD file and material library.
 %
 % OUTPUTS -
 % qdRay - consists of specular and diffuse multipath parameters
@@ -88,13 +91,11 @@ p = inputParser;
 addParameter(p,'indStoc',1)
 % addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
 % addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
-addParameter(p,'reflectionLoss',10);
 addParameter(p,'rotTx',[0 0 0])
 addParameter(p,'rotRx',[0 0 0])
 parse(p, varargin{:});
 rotTx = p.Results.rotTx;
 rotRx = p.Results.rotRx;
-rl  = p.Results.reflectionLoss;
 
 %% Init
 indexMultipath = 1;
@@ -145,16 +146,16 @@ if numberOfRowsArraysOfPlanes>0
                     case 'nistMeasurements'
                             reflectionLoss = getNistReflectionLoss(MaterialLibrary,...
                             arrayOfMaterials(iterateNumberOfRowsArraysOfPlanes,:),...
-                            'randOn', diffuseGeneratorSwitch); 
+                            defaultReflectionLoss, 'randOn', diffuseGeneratorSwitch); 
                     case 'tgayMeasurements'
                             reflectionLoss = getTgayReflectionLoss(MaterialLibrary,...  
                             arrayOfMaterials(iterateNumberOfRowsArraysOfPlanes,:),...
-                            multipath(indexMultipath,:));                  
+                            multipath(indexMultipath,:), defaultReflectionLoss);                  
                 end
              else
                 % Assumption: r1 loss at each reflection if
                 % material is not present in the material library
-                reflectionLoss = rl*orderOfReflection;
+                reflectionLoss = defaultReflectionLoss*orderOfReflection;
             end
         end
                     
@@ -201,7 +202,7 @@ if numberOfRowsArraysOfPlanes>0
             
             if  switchMaterial == 1 && diffuseGeneratorSwitch == 1
                 [~, rPreCursor, rPostCursor] =...
-                    qdGenerator(outputQd(indexOutput).dRay,...
+                    qdGenerator(delayLos, outputQd(indexOutput).dRay,...
                     arrayOfMaterials(iterateNumberOfRowsArraysOfPlanes,:),...
                     MaterialLibrary,qdModelSwitch, scenarioName,...
                     diffusePathGainThreshold);                         

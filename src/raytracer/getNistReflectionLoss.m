@@ -1,8 +1,13 @@
-function reflectionLoss = getNistReflectionLoss(materialLibrary, arrayOfMaterials, varargin)
+function reflectionLoss = getNistReflectionLoss(materialLibrary, ...
+    arrayOfMaterials, defaultReflectionLoss, varargin)
 % GETNISTREFLECTIONLOSS returns the ray reflection loss based on NIST 
 % measurements
 % 
-% reflectionLoss = GETNISTREFLECTIONLOSS(materialLibrary, arrayOfMaterials)
+% reflectionLoss = GETNISTREFLECTIONLOSS(materialLibrary, arrayOfMaterials, 
+% defaultReflectionLoss)
+% Note that defaultReflectionLoss is used when material is missing in material
+% library or there is a mismatch between the material present in the CAD
+% file and material library.
 %
 % reflectionLoss = GETNISTREFLECTIONLOSS(___, 'randOn', value) can be used to
 % specify if the reflection loss returned is deterministic (value = 0) and
@@ -40,6 +45,8 @@ function reflectionLoss = getNistReflectionLoss(materialLibrary, arrayOfMaterial
 % protection within the United States.
 %
 % 2019-2020 NIST/CTL (steve.blandino@nist.gov)
+% Modified by: Neeraj Varshney <neeraj.varshney@nist.gov>, for default
+% reflection loss
 
 %% Varargin processing
 p = inputParser;
@@ -53,15 +60,19 @@ reflectionLoss = 0;
 %% Loop over reflection order
 for i = 1:length(arrayOfMaterials)
     matIdx = arrayOfMaterials(i);
-    if randOn ==0
-        muRl = materialLibrary.mu_RL(matIdx);
-        reflectionLoss = reflectionLoss + muRl;
-
+    if isnan(matIdx)
+        reflectionLoss = reflectionLoss + defaultReflectionLoss;
     else
-        s_material = materialLibrary.s_RL(matIdx);
-        sigma_material = materialLibrary.sigma_RL(matIdx);
-        rl = rndRician(s_material, sigma_material, 1, 1);
-        reflectionLoss = reflectionLoss + rl ;
+        if randOn ==0
+            muRl = materialLibrary.mu_RL(matIdx);
+            reflectionLoss = reflectionLoss + muRl;
+
+        else
+            s_material = materialLibrary.s_RL(matIdx);
+            sigma_material = materialLibrary.sigma_RL(matIdx);
+            rl = rndRician(s_material, sigma_material, 1, 1);
+            reflectionLoss = reflectionLoss + rl ;
+        end
     end
 end
 end
