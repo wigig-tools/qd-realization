@@ -1,0 +1,17 @@
+ParameterName	ParameterValue
+environmentFileName	LivingRoom.xml
+indoorSwitch	1
+numberOfTimeDivisions	2680
+referencePoint	[0,0,0]
+selectPlanesByDist	inf
+switchDiffuseComponent	0
+switchQDModel	tgayMeasurements
+totalNumberOfReflections	1
+totalNumberOfReflectionsSens	0
+totalTimeDuration	1.34
+switchSaveVisualizerFiles	1
+carrierFrequency	60e9
+qdFilesFloatPrecision	6
+useOptimizedOutputToFile	1
+outputFormat	json
+materialLibraryPath	material_libraries/materialLibraryLivingRoom.csv
