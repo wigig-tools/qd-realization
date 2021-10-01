@@ -38,7 +38,7 @@ function writeSensOutput(outputComm,outputSens, paaNodes, qdFilesPath)
 %
 % 2019-2020 NIST/CTL (steve.blandino@nist.gov)
 
-filepath = fullfile(qdFilesPath, 'qdTargetOutput.json');
+filepath = fullfile(qdFilesPath, 'qdOutput.json');
 fid = fopen(filepath, 'w');
 NODES = size(outputSens,1);
 ITER  = size(outputSens,3);
