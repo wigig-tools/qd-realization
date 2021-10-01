@@ -104,17 +104,16 @@ if strcmp(para.switchQDModel,'tgayMeasurements') ...
     para.totalNumberOfReflections = 2;
 end
 
-% t is the time period in seconds. The time period for which the simulation
-% has to run when mobility is ON
+% totalTimeDuration is the simulation time in seconds.
 % = 1 (Default)
 para = fieldToNum(para, 'totalTimeDuration', [], 1);
 
-% Switch to enable or disable csv outputs in Output/Visualizer folder
+% Switch to enable or disable csv outputs in Output folder
 % = 0 (Default)
 para = fieldToNum(para, 'switchSaveVisualizerFiles', [0,1], 0);
 
 % Carrier frequency [Hz]
-% Default: 60 GHz
+% Default: 60e9
 para = fieldToNum(para, 'carrierFrequency', [], 60e9);
 
 % Precision of QdFiles output, used as %.(precision)g

@@ -1,9 +1,8 @@
 function  trgCfg  = targetCfg(paraCfg)
 %TARGETCFG import target configuration.
 %   T = TARGETCFG(P) imports the target configuration parameter struct
-%   T given the system configuration struct P
+%   T given the parameter configuration struct P
 %
-
 
 %--------------------------Software Disclaimer-----------------------------
 %
@@ -107,7 +106,7 @@ if numberOfTargets
     trgCfg.trgtJoints = trgtJoints;
     trgCfg.trgtPosition = trgtPositionTime;
     trgCfg.trgtRotation = trgtRotationTime;
-    trgCfg.trgtRcs = 8;
+    trgCfg.trgtRcs = 8; % Hard coded temporarly. Waiting for measurements
     trgCfg.trgtFrisCorrection = 10*log10(4*pi/((getLightSpeed/paraCfg.carrierFrequency)^2))-trgCfg.trgtRcs;
 else
     trgCfg = [];

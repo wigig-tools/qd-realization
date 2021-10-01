@@ -1,8 +1,12 @@
 function outputPath = Raytracer(paraCfgInput, nodeCfgInput, varargin)
-%%RAYTRACER generates the QD channel model.
-% Inputs:
-% paraCfgInput - Simulation configuration
-% nodeCfgInput - Node configuration
+%%RAYTRACER generates a realization of the QD channel model.
+%
+% RAYTRACER(paraCfgInput,nodeCfgInput) generates a realization of the Q-D
+% model between nodes in a static environment. paraCfgInput is the
+% simulation struct. nodeCfgInput is the node struct.
+%
+% RAYTRACER(-, 'target', T) generates a realization of the Q-D model in
+% presence of moving targets. T is the target struct.
 
 
 %--------------------------Software Disclaimer-----------------------------
@@ -96,6 +100,7 @@ end
 switchPolarization = 0;
 switchCp = 0;
 polarizationTx = [1, 0];
+[~, scenarioName] = fileparts(paraCfgInput.inputScenarioName);
 
 MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 
@@ -111,7 +116,7 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
         RoomCoordinates);
 end
 
-%% Node to node ray tracing
+%% Node-node ray tracing
 if paraCfgInput.nodeMobility
     T = paraCfgInput.numberOfTimeDivisions;
 else
@@ -174,7 +179,7 @@ for iterateTimeDivision = 1:T
                     % LOS Path generation
                     [isLos, delayLos, output] = LOSOutputGenerator(CADop, Rx, Tx,...
                         output, vtx, vrx, switchPolarization, switchCp,...
-                        polarizationTx, paraCfgInput.carrierFrequency, 'qTx', QTx, 'qRx', QRx);
+                        polarizationTx, paraCfgInput.carrierFrequency, 'rotTx', QTx.angle, 'rotRx', QRx.angle);
                     
                     % Store MPC
                     if paraCfgInput.switchSaveVisualizerFiles && isLos
@@ -202,7 +207,7 @@ for iterateTimeDivision = 1:T
                             switchMaterial, vtx, vrx, ...
                             paraCfgInput.switchDiffuseComponent,...
                             paraCfgInput.switchQDModel,...
-                            paraCfgInput.inputScenarioName(10:end),...
+                            scenarioName,...
                             paraCfgInput.carrierFrequency,...
                             paraCfgInput.diffusePathGainThreshold,...
 							paraCfgInput.reflectionLoss, ...
@@ -273,20 +278,19 @@ else
     Mpc(:,:,:,:,:,3:end) = repmat(Mpc(:,:,:,:,:,2), [1 1 1 1 1 paraCfgInput.numberOfTimeDivisions-1]);
 end
 
-%% Node to target ray tracing
+%% Node-target ray tracing
 if trgtNum
     cf = paraCfgInput.carrierFrequency;
     saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
     reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
     isDiffuse = paraCfgInput.switchDiffuseComponent;
     isQD = paraCfgInput.switchQDModel;
-    scenarioName = paraCfgInput.inputScenarioName(10:end);
     diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
     reflectionLoss = paraCfgInput.reflectionLoss;
     for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
-        %     if mod(iterateTimeDivision,100)==0 && displayProgress
-        disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
-        %     end
+        if mod(iterateTimeDivision,100)==0 && displayProgress
+            disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
+        end
         
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
@@ -296,20 +300,20 @@ if trgtNum
                 trgtPosition = trgCfgInput.trgtPosition(iterateTimeDivision,:, :);
                 previousTargetPosition = trgCfgInput.trgtPosition(max(1,iterateTimeDivision-1),:, :);
                 rotAngle = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
-                parfor trgtId = 1:trgtNum
+                for trgtId = 1:trgtNum
                     % Update centroids position
                     target = trgtPosition(:, :, trgtId);
                     vNode = (nodePaa-previousNodePaaPosition)./ts;
                     vTarget = (target-previousTargetPosition(:,:,trgtId))./ts;
                     
                     % LOS Path generation
-                    [isLos, output] = getLos(CADop, target, nodePaa,...
-                        [], vNode, vTarget, cf, 'rotTx',rotAngle);
+                    [isLos, ~, output] = LOSOutputGenerator(CADop, target, ...
+                        nodePaa, [], vNode, vTarget,0,[],0,cf, ...
+                        'rotTx',rotAngle);
                     
                     % Store MPC
                     if saveVisualOut && isLos
                         mpcLos = [nodePaa, target];
-                        mpcLosParFor{trgtId} = mpcLos;
                         MpcTarget{nodeId,paaId,...
                             trgtId, iterateTimeDivision}{1} = mpcLos;
                     else
@@ -329,15 +333,15 @@ if trgtNum
                         numberOfPlanes = numberOfPlanes - 1;
                         
                         [outputTemporary, multipathTemporary] = ...
-                            multipath(...
+                            multipath(0, ... % 0 delay LOS
                             ArrayOfPlanes, ArrayOfPoints, target, nodePaa, ...
                             CADop, numberOfPlanes, ...
                             MaterialLibrary, arrayOfMaterials, ...
                             switchMaterial, vNode, vTarget, ...
                             isDiffuse, isQD, scenarioName, cf,...
                             diffusePathGainThreshold,...
-                            'rotTx', rotAngle, ...
-                            'reflectionLoss', reflectionLoss);
+                            reflectionLoss, ...
+                            'rotTx', rotAngle);
                         
                         nMpc = size(multipathTemporary,1);
                         %Store MPC
@@ -385,7 +389,7 @@ end
 % QD output
 if isJsonOutput  || keepBothQDOutput
     if trgtNum
-        writeQdOutput(outputPaaTime, trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
+        writeSensOutput(outputPaaTime, trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
     else
         writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
             qdFilesPath);
