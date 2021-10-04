@@ -40,7 +40,7 @@ trgtMpcTime = cell(timeSamples,1);
 
 % if 0
 %% Write Mpc.json
-f = fopen(fullfile(visualizerPath, 'targetMpc.json'), 'w');
+f = fopen(fullfile(visualizerPath, 'TargetMpc.json'), 'w');
 for iterateTx = 1:paraCfgInput.numberOfNodes
     
     for iterateTarget = 1:trgtObjectNum
@@ -50,10 +50,6 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
             
             for txPaaCluster = 1:length(nodeTxCluster)
                 
-                %                 for iteratePaaRx = 1:nPaaCentroids(iterateRx)
-                %                     nodeRxCluster  = nodeCfgInput.paaInfo{iterateRx}.paaInCluster{iteratePaaRx};
-                %
-                %                     for rxPaaCluster = 1:length(nodeRxCluster)
                 for iterateJoint = 1:trgCfgInput.trgtJoints(iterateTarget)
                     
                     
@@ -64,8 +60,6 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
                         [trgtMpcTime{:}] = deal(MpcTarget{iterateTx,iteratePaaTx,iterateJoint+sum(trgCfgInput.trgtJoints(1:iterateTarget-1)),...
                             :});%{reflOrd})
                         trgtMpcTime2 = vertcat(trgtMpcTime{:});
-%                         mpcTmp = squeeze((mpc(iterateTx,iteratePaaTx,...
-%                             iterateRx,iteratePaaRx,reflOrd,:)));
                         mpcTmp = trgtMpcTime2(:,reflOrd);
                         matSize = cell2mat(cellfun(@size ,mpcTmp ,'UniformOutput' ,false));
                         [~, maxId] = max(matSize(:,1));
@@ -78,9 +72,7 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
                     end
                     
                 end
-                
-                %                 end
-                
+                                
             end
             
         end
@@ -89,9 +81,9 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
     
 end
 fclose(f);
-% end
-%% Write NodePositions.json
-filename = sprintf('TargetBasePositions.json');
+
+%% Write TargetPositions.json
+filename = sprintf('TargetPositions.json');
 f = fopen(fullfile(visualizerPath, filename), 'w');
 
 for i = 1:trgtObjectNum
@@ -111,33 +103,6 @@ for i = 1:trgtObjectNum
     end
 end
 fclose(f);
-
-%% Write PAAPosition.json
-if 0
-f = fopen(strcat(visualizerPath, filesep,'TargetJointsPosition.json'), 'w');
-for i = 1:paraCfgInput.numberOfNodes
-    idOrientation = 0;
-    for paaId = 1:nPaaCentroids(i)
-        nodeTxCluster  = nodeCfgInput.paaInfo{i}.paaInCluster{paaId};
-        for paaCentroid = 1:length(nodeTxCluster)
-            idOrientation = idOrientation+1;
-            jsonStruct = struct('Node', i-1, 'PAA',nodeTxCluster(paaCentroid)-1, ...
-                'Centroid', nodeCfgInput.paaInfo{i}.centroids(paaId)-1, ...
-                'Orientation', nodeCfgInput.nodeAntennaOrientation{i}(idOrientation,:) ,...
-                'Position', [reshape(squeeze(nodeCfgInput.paaInfo{i}.centroid_position_rot(:,paaId,:)), [],3); [inf inf inf]]);
-            json = jsonencode(jsonStruct);% Add a temporary inf vector to make sure
-            % more than a single vector will be encoded. Matlab json
-            % encoder loses the square brackets when encoding vectors.
-            str2remove =',[null,null,null]'; %Temporary string to remove
-            rem_ind_start = num2cell(strfind(json, str2remove)); % Find start string to remove
-            index2rm = cell2mat(cellfun(@(x) x:x+length(str2remove)-1,rem_ind_start,'UniformOutput',false)); % Create index of char to remove
-            json(index2rm) = []; % Remove temporary vector.
-            fprintf(f, '%s\n', json);
-        end
-    end
-end
-fclose(f);
-end
 
 end
 

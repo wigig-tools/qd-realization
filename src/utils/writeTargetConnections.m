@@ -66,7 +66,7 @@ connections = [...
 
 if mod(tgtNum,17)==0
     for targetId = 1:(tgtNum/17)
-        writematrix(connections, fullfile(visualizerPath,sprintf('target%dconnection.txt', targetId)))
+        writematrix(connections, fullfile(visualizerPath,sprintf('TargetConnection%d.txt', targetId-1)))
     end
 else
     warning('Define connection for visualizer')
