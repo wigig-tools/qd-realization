@@ -89,8 +89,6 @@ function [qdRay, multipath] =...
 %% Varargin processing 
 p = inputParser;
 addParameter(p,'indStoc',1)
-% addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
-% addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
 addParameter(p,'rotTx',[0 0 0])
 addParameter(p,'rotRx',[0 0 0])
 parse(p, varargin{:});
