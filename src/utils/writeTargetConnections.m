@@ -4,7 +4,8 @@ function writeTargetConnections(tgtNum, visualizerPath)
 %   WRITETARGETCONNECTIONS(T,P) write the files targetConnections in the
 %   visualizer output folder, given the number of T-rays ray traced T and
 %   the path of the visualizer folder. 
-%   It assumes a human target with 17joints. In case the simulated targets
+%   It assumes a human target with 17 joints. In case the simulated targets
+
 %   T are not multiple of 17 the file is not written and a warning is
 %   raised.
 %
