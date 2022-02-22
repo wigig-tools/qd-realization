@@ -145,7 +145,7 @@ for iterateNumberOfNodes = 1:numberOfNodes
    
 end
 
-nodeMobility = ~all(timeSampleNode(:) == 1);
+nodeMobility = ~all(timeSampleNode(:) == 1); %if rotation or position input files have multiple rows, the nodes are moving.
 %% PAA init
 nodePaaInitialPosition = cell(numberOfNodes,1); %PAA vector position w.r.t node center
 nodePaaOrientation     = cell(numberOfNodes,1); 
