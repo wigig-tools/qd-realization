@@ -37,7 +37,7 @@
 clear
 close all
 clc
-t0 = tic;
+t0 = tic; % parallel processing-safe
 addpath('raytracer', 'utils', 'utils/quaternions')
 
 %% Initialization
@@ -53,7 +53,7 @@ end
 
 %% Input
 % Leave empty for default 'ScenarioTest'
-scenarioNameStr = 'examples/LivingRoomTarget';
+scenarioNameStr = 'examples/SensingTwoTargets';
 
 if ~isempty(scenarioNameStr)
     fprintf('Use customized scenario: %s.\n',scenarioNameStr);
