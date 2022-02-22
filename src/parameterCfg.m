@@ -95,6 +95,9 @@ end
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
 para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
+
+% Target ray order of reflection.
+% 0 = Tx-Target- Rx. 1 = Tx-reflection-target-Rx OR Tx-target-reflection-Rx
 para = fieldToNum(para, 'totalNumberOfReflectionsSens', [], 0);
 
 if strcmp(para.switchQDModel,'tgayMeasurements') ...
