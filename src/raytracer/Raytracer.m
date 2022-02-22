@@ -5,8 +5,8 @@ function outputPath = Raytracer(paraCfgInput, nodeCfgInput, varargin)
 % model between nodes in a static environment. paraCfgInput is the
 % simulation struct. nodeCfgInput is the node struct.
 %
-% RAYTRACER(-, 'target', T) generates a realization of the Q-D model in
-% presence of moving targets. T is the target struct.
+% RAYTRACER(-, 'target', TG) generates a realization of the Q-D model in
+% presence of moving targets. TG is the target struct.
 
 
 %--------------------------Software Disclaimer-----------------------------
@@ -108,7 +108,7 @@ MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 [CADop, switchMaterial] = getCadOutput(paraCfgInput.environmentFileName,...
     inputPath, MaterialLibrary, paraCfgInput.referencePoint,...
     paraCfgInput.selectPlanesByDist, paraCfgInput.indoorSwitch);
-% staticCad = CADop;
+
 if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
@@ -118,14 +118,14 @@ end
 
 %% Node-node ray tracing
 if paraCfgInput.nodeMobility
-    T = paraCfgInput.numberOfTimeDivisions;
+    targetUnreleatedSimLength = paraCfgInput.numberOfTimeDivisions; 
 else
-    T = 1;
+    targetUnreleatedSimLength = 1;
 end
 
-for iterateTimeDivision = 1:T
+for iterateTimeDivision = 1:targetUnreleatedSimLength
     if mod(iterateTimeDivision,100)==0 && displayProgress
-        disp([fprintf('%2.2f', iterateTimeDivision/T*100),'%'])
+        fprintf('%2.2f%%\n', iterateTimeDivision/targetUnreleatedSimLength*100)
     end
     
     %% Point rotation
@@ -201,27 +201,26 @@ for iterateTimeDivision = 1:T
                         
                         [outputTemporary, multipathTemporary] = ...
                             multipath(delayLos,...
-                            ArrayOfPlanes, ArrayOfPoints, Rx, Tx, ...
-                            CADop, numberOfPlanes, ...
+                            ArrayOfPlanes, ArrayOfPoints, Rx, Tx,...
+                            CADop, numberOfPlanes,...
                             MaterialLibrary, arrayOfMaterials, ...
-                            switchMaterial, vtx, vrx, ...
+                            switchMaterial, vtx, vrx,...
                             paraCfgInput.switchDiffuseComponent,...
                             paraCfgInput.switchQDModel,...
                             scenarioName,...
                             paraCfgInput.carrierFrequency,...
                             paraCfgInput.diffusePathGainThreshold,...
-							paraCfgInput.reflectionLoss, ...
+							paraCfgInput.reflectionLoss,...
                             'rotTx', QTx.angle, 'rotRx', QRx.angle);
                         
                         nMpc = size(multipathTemporary,1);
                         %Store MPC
-                        if paraCfgInput.switchSaveVisualizerFiles &&...
-                                nMpc > 0
-                            multipath1 = multipathTemporary(:,...
-                                2:end); %Discard reflection order column
+                        if paraCfgInput.switchSaveVisualizerFiles && nMpc > 0
+                            multipath1 = multipathTemporary(:,2:end); %Discard reflection order column
                             Mpc{iterateTx,iteratePaaTx,...
                                 iterateRx,iteratePaaRx, ...
-                                iterateOrderOfReflection+1, iterateTimeDivision+1} =multipath1;
+                                iterateOrderOfReflection+1,...
+                                iterateTimeDivision+1} = multipath1;
                         end
                         
                         %Store QD output
@@ -272,8 +271,7 @@ for iterateTimeDivision = 1:T
     clear outputPAA
 end
 
-if paraCfgInput.nodeMobility
-else
+if ~paraCfgInput.nodeMobility
     outputPaaTime(:,:,2:paraCfgInput.numberOfTimeDivisions) = repmat(outputPaaTime(:,:,1), [1 1 paraCfgInput.numberOfTimeDivisions-1]);
     Mpc(:,:,:,:,:,3:end) = repmat(Mpc(:,:,:,:,:,2), [1 1 1 1 1 paraCfgInput.numberOfTimeDivisions-1]);
 end
@@ -289,13 +287,13 @@ if trgtNum
     reflectionLoss = paraCfgInput.reflectionLoss;
     for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
         if mod(iterateTimeDivision,100)==0 && displayProgress
-            disp([fprintf('%2.2f', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100),'%'])
+            fprintf('%2.2f%%\n', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100)
         end
         
         for nodeId = 1:paraCfgInput.numberOfNodes
             for paaId = 1:nPAA_centroids(nodeId)
-                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(T,iterateTimeDivision),paaId,:)).';
-                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(min(T,iterateTimeDivision)-1,1),paaId,:)).';
+                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(targetUnreleatedSimLength,iterateTimeDivision),paaId,:)).';
+                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(min(targetUnreleatedSimLength,iterateTimeDivision)-1,1),paaId,:)).';
                 mpcParFor = cell(1,trgtNum);
                 trgtPosition = trgCfgInput.trgtPosition(iterateTimeDivision,:, :);
                 previousTargetPosition = trgCfgInput.trgtPosition(max(1,iterateTimeDivision-1),:, :);
@@ -412,7 +410,7 @@ end
 %% Write useful output information.
 writeReportOutput = 0 ; %Set to 0 to allow succeful test.
 if writeReportOutput
-    f = fopen(strcat(outputPath, filesep,'report.dat'), 'w'); %#ok<UNRCH>
+    f = fopen(fullfile(outputPath, 'report.dat'), 'w'); %#ok<UNRCH>
     fprintf(f, 'Device Rotation:\t%d\n', paraCfgInput.isDeviceRotationOn);
     fprintf(f, 'Initial Orientation:\t%d\n', paraCfgInput.isInitialOrientationOn);
     fprintf(f, 'PAA centered:\t%d\n', paraCfgInput.isPaaCentered);
