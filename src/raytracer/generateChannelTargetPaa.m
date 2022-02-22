@@ -1,5 +1,5 @@
 function chOut = generateChannelTargetPaa(chIn,chInRev, infoPAA, trgtFriisFactor)
-%GENERATECHANNEL_PAA returns the QD channel for each PAA_TX - PAA_RX
+%GENERATECHANNELTARGETPAA returns the QD channel for each PAA_TX - PAA_RX
 %combination.
 %
 %   [CH_OUT]  =  GENERATECHANNELPAA(ch_in, info)
