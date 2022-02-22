@@ -3,6 +3,11 @@ function [ch, varargout] = ddir2MIMOtarget(ddirInTxTrg, ddirInTrgRx, info, ptr,t
 % channel matrix assigning phase rotations according with PAA centroids
 % positions and angles of departure/arrival
 %
+% ch = DDIR2MIMOTARGET(TT, TR, I, P, RCS) returns the tx-target-rx MIMO
+% channel given the TT tx-target channel, the TR target-receiver channel,
+% the cell array with PAA information I, the pointer P to the entry of I
+% and the radar cross section RCS.
+%
 
 % NIST-developed software is provided by NIST as a public service. You may
 % use, copy and distribute copies of the software in any medium, provided
