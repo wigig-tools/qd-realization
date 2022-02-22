@@ -1,6 +1,11 @@
-% function writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPaaCentroids, nodePosition, mpc)
-function writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput,  nPaaCentroids, nodePosition,trgCfgInput, MpcTarget)
-%%WRITEVISUALIZERJSONOUTPUT 
+function writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, ...
+    nodeCfgInput,  nPaaCentroids, trgCfgInput, MpcTarget)
+%%WRITEVISUALIZERTARGETJSONOUTPUT Save visualizer JSON files.
+%
+%   WRITEVISUALIZERTARGETJSONOUTPUT(p, CFG, NODECFG, TGTCFG, MPC) save the
+%   MPC in "p/TargetMpc.json" given the input configuration CFG, the node
+%   configuration NODECFG and the target configuration TGTCFG.
+%
 
 % NIST-developed software is provided by NIST as a public service. You may 
 % use, copy and distribute copies of the software in any medium, provided 
@@ -34,11 +39,9 @@ function writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgIn
 % 2019-2020 NIST/CTL (steve.blandino@nist.gov)
 
 trgtObjectNum = size(trgCfgInput.trgtJoints,1);
-trgtJointsNum = size(trgCfgInput.trgtPosition,3);
 timeSamples = paraCfgInput.numberOfTimeDivisions;
 trgtMpcTime = cell(timeSamples,1);
 
-% if 0
 %% Write Mpc.json
 f = fopen(fullfile(visualizerPath, 'TargetMpc.json'), 'w');
 for iterateTx = 1:paraCfgInput.numberOfNodes
@@ -72,7 +75,7 @@ for iterateTx = 1:paraCfgInput.numberOfNodes
                     end
                     
                 end
-                                
+                 
             end
             
         end
