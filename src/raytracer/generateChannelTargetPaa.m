@@ -2,7 +2,7 @@ function chOut = generateChannelTargetPaa(chIn,chInRev, infoPAA, trgtFriisFactor
 %GENERATECHANNELTARGETPAA returns the QD channel for each PAA_TX - PAA_RX
 %combination.
 %
-%   [CH_OUT]  =  GENERATECHANNELPAA(ch_in, info)
+%   [CH_OUT]  =  GENERATECHANNELTARGETPAA(ch_in, info)
 %   **ch_in is the diagonal NxN cell array where N is the number of nodes.
 %   Each cell includes structs with fields:
 %      - channel between PAAs.
