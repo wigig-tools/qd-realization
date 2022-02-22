@@ -1,10 +1,9 @@
-function writeSensOutput(outputComm,outputSens, paaNodes, qdFilesPath)
-%WRITEQDJSONFILEOUTPUT Writes information to QdFile
-%
-% INPUTS:
-% - output: output matrix
-% - paaNodes: vector of PAAs per node
-% - qdFilesPath: path to Output/Ns3/QdFiles
+function writeSensOutput(outputComm, outputSens, paaNodes, qdFilesPath)
+%WRITESENSOUTPUT Writes information to qdOutput.json
+%   
+%   WRITESENSOUTPUT(HTU, HTR, PAA,p) writes the file p/qdOutput.json given
+%   the target unrelated channel output HTU, the target related channel
+%   output HTR and the PAA struct.
 %
 
 % NIST-developed software is provided by NIST as a public service. You may
@@ -49,14 +48,24 @@ for tx = nodeList
     for rx = nodeList(nodeList~=tx)
         for txPaa = 1:paaNodes(tx)
             for rxPaa = 1:paaNodes(rx)
+                % Get Target related MIMO channel
                 mimoCh = squeeze(outputSens(tx,rx,:));
-                %                     mimoCh = cellfun(@(x) appendNan(x,Noutput,paaNodes(tx)*paaNodes(rx)), mimoCh, 'UniformOutput', false);
-                sisoChSens =cell2mat(cellfun(@(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa), mimoCh,'UniformOutput', false));
+                % Get Target related SISO channel
+                sisoChSens =cell2mat(cellfun(...
+                    @(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa),...
+                    mimoCh,'UniformOutput', false));
+                % Get number of target related MPCs per time instance
                 rowDistSens = cellfun(@(x) size(x,1), mimoCh);
+
+                % Get Target unrelated MIMO channel
                 mimoCh = squeeze(outputComm(tx,rx,:));
                 mimoCh = cellfun(@(x) appendNan(x,Noutput,paaNodes(tx)*paaNodes(rx)), mimoCh, 'UniformOutput', false);
+                % Get Target unrelated SISO channel
                 sisoChComm =cell2mat(cellfun(@(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa), mimoCh,'UniformOutput', false));
+                % Get number of target related MPCs per time instance
                 rowDistComm = cellfun(@(x) size(x,1), mimoCh);
+
+                % Build JSON output
                 delaySens = mat2cell(single(sisoChSens(:,8)), rowDistSens);
                 delayComm = mat2cell(single(sisoChComm(:,8)), rowDistComm);
                 gainSens = mat2cell(single(real(sisoChSens(:,9))), rowDistSens);
@@ -85,42 +94,41 @@ for tx = nodeList
                     
                     [delayT, order] = sort([delayCommT; delaySensT], 'ascend');
                     delay{t} = delayT;
-                    gain{t}  = mergeSort(gainComm{t},gainSens{t},order);
-                    phase{t}  = mergeSort(phaseComm{t},phaseSens{t},order);
-                    aodEl{t}  = mergeSort(aodElComm{t},aodElSens{t},order);
-                    aodAz{t}  = mergeSort(aodAzComm{t},aodAzSens{t},order);
-                    aoaEl{t}  = mergeSort(aoaElComm{t},aoaElSens{t},order);
-                    aoaAz{t}  = mergeSort(aoaAzComm{t},aoaAzSens{t},order);
-                    
-                    
+                    gain{t}  = mergeAndSort(gainComm{t},gainSens{t},order);
+                    phase{t}  = mergeAndSort(phaseComm{t},phaseSens{t},order);
+                    aodEl{t}  = mergeAndSort(aodElComm{t},aodElSens{t},order);
+                    aodAz{t}  = mergeAndSort(aodAzComm{t},aodAzSens{t},order);
+                    aoaEl{t}  = mergeAndSort(aoaElComm{t},aoaElSens{t},order);
+                    aoaAz{t}  = mergeAndSort(aoaAzComm{t},aoaAzSens{t},order);
                 end
                 
                 s = struct('tx', tx-1, 'rx', rx-1,...
                     'paaTx', txPaa-1, 'paaRx', rxPaa-1);
-                s.delay = delay;%mat2cell(single(sisoChSens(:,8)), rowDistSens);
-                s.gain  = gain;%mat2cell(single(real(sisoChSens(:,9))), rowDist);
-                s.phase = phase;%mat2cell(single(sisoChSens(:,18)), rowDist);
-                s.aodEl = aodEl;%mat2cell(single(sisoChSens(:,11)), rowDist);
-                s.aodAz = aodAz;%mat2cell(single(sisoChSens(:,10)), rowDist);
-                s.aoaEl = aoaEl;%mat2cell(single(sisoChSens(:,13)), rowDist);
-                s.aoaAz = aoaAz;%mat2cell(single(sisoChSens(:,12)), rowDist);
+                s.delay = delay;
+                s.gain  = gain;
+                s.phase = phase;
+                s.aodEl = aodEl;
+                s.aodAz = aodAz;
+                s.aoaEl = aoaEl;
+                s.aoaAz = aoaAz;
                 json = jsonencode(s);
                 str2remove =',null'; %Temporary string to remove
                 rem_ind_start = num2cell(strfind(json, str2remove)); % Find start string to remove
-                index2rm = cell2mat(cellfun(@(x) x:x+length(str2remove)-1,rem_ind_start,'UniformOutput',false)); % Create index of char to remove
+                index2rm = cell2mat(cellfun(@(x) x:x+length(str2remove)-1,...
+                    rem_ind_start,'UniformOutput',false)); % Create index of char to remove
                 json(index2rm) = [];
                 str2remove ='null';
                 rem_ind_start = num2cell(strfind(json, str2remove)); % Find start string to remove
-                index2rm = cell2mat(cellfun(@(x) x:x+length(str2remove)-1,rem_ind_start,'UniformOutput',false)); % Create index of char to remove
+                index2rm = cell2mat(cellfun(@(x) x:x+length(str2remove)-1,...
+                    rem_ind_start,'UniformOutput',false)); % Create index of char to remove
                 json(index2rm) = [];
                 fprintf(fid, '%s\n', json);
             end
         end
     end
 end
+
 fclose(fid);
-
-
 end
 
 function x = getMat2D(x)
@@ -140,7 +148,7 @@ else
 end
 end
 
-function x = mergeSort(y1,y2,order)
+function x = mergeAndSort(y1,y2,order)
 y = [y1(:); y2(:)];
 x = y(order);
 end
