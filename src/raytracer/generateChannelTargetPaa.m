@@ -61,13 +61,11 @@ paa_comb_struct = {};
 for nt = nodesVector % Loop on tx nodes
     for nr = nodesVector(nodesVector~=nt)% Loop on rx nodes
         chMIMOtx_rx = []; % Channel between one tx and one rx
-%         chMimoCluster = [];
         paaComb = [];
         i = 0;
         for c_t = 1:infoPAA{nt}.nPAA_centroids % Loop on transmitter centroid
             for c_r = 1:infoPAA{nr}.nPAA_centroids % Loop on receiver centroid
                 
-%                 chMimoCentroid = []; % Channel between tx and rx centroid
                     % Pointer struct. Indeces  to retreive PAA
                     % information in infoPAA
                     ptr.nt = nt;    %TX NODE ID
