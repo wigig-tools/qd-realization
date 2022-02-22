@@ -75,6 +75,8 @@ for trgtId = 1:numberOfTargets
             trgtJointsFile));
         assert(trgtTimeSamples == size(trgtJoint{trgtId},1), ...
             'Base and joints need to have the same temporal size')
+        assert(mod(size(trgtJoint{trgtId},2),3)==0, ...
+            'Target joints and base require a 3D config')
         numJoints = size(trgtJoint{trgtId},2)/3;
         trgtJointsMat{trgtId} = reshape(trgtJoint{trgtId}, ...
             trgtTimeSamples, 3, numJoints); % Time x 3 x numJoints
@@ -95,7 +97,7 @@ for trgtId = 1:numberOfTargets
     trgtJointsMat{trgtId} );
 end
 
-if numberOfTargets
+if numberOfTargets > 0
     trgtJointsMat = cat(3, trgtJointsMat{:});
     trgtPositionTime = trgtJointsMat(:, 1:3,:);
     trgtRotationTime = cat(3, trgtBase{:});
