@@ -3,7 +3,7 @@ function R = phaseRotation(theta, phi, centrShift, varargin)
 %%centroid position in a 60GHz channel.
 %        R = phaseRotation(theta,phi, centr_shift)
 %        
-%        **theta, phi are elevation and azimut angles in rad of rays
+%        **theta, phi are elevation and azimut angles in deg of rays
 %        impinging on the array
 %        **centr_shift is the shift wrt the centroid position in which R
 %        needs to be computed
