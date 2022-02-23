@@ -398,7 +398,7 @@ if paraCfgInput.switchSaveVisualizerFiles
     Mpc(:,:,:,:,:,1) = [];
     writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition, Mpc)
     if trgtNum
-        writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition,trgCfgInput,MpcTarget)
+        writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, trgCfgInput,MpcTarget)
         writeTargetConnections(trgtNum, visualizerPath)
     end
 end
