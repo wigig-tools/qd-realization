@@ -170,8 +170,14 @@ else
     warning('Output format set to .txt')
 end
 
-end
+% enablePhaseOutput = 1 writes the mpc phase in output
+% enablePhaseOutput = 0 writes an mpc phase equal to 0 in output
+para = fieldToNum(para, 'enablePhaseOutput', [], 0);
 
+% writeTRayOutput = 1 writes the target related rays in a separate file
+para = fieldToNum(para, 'writeTRayOutput', [], 0);
+
+end
 
 %% Utils
 function para = fieldToNum(para, field, validValues, defaultValue)
