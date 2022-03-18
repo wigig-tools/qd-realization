@@ -56,25 +56,6 @@ else
     trgtNum = size(trgCfgInput.trgtPosition,3);
 end
 
-nodePosition = nodeCfgInput.nodePosition;
-nPAA_centroids = cellfun(@(x) x.nPAA_centroids, nodeCfgInput.paaInfo );
-Mpc = cell(paraCfgInput.numberOfNodes,...
-    max(nPAA_centroids),...
-    paraCfgInput.numberOfNodes,...
-    max(nPAA_centroids),...
-    paraCfgInput.totalNumberOfReflections+1,...
-    paraCfgInput.numberOfTimeDivisions+1 );
-MpcTarget = cell(paraCfgInput.numberOfNodes,...
-    max(nPAA_centroids),...
-    trgtNum,...
-    paraCfgInput.numberOfTimeDivisions);
-
-keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both');
-isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
-displayProgress = 1;
-ts = paraCfgInput.totalTimeDuration/paraCfgInput.numberOfTimeDivisions;
-outputPaa = cell(paraCfgInput.numberOfNodes,paraCfgInput.numberOfNodes);
-
 % List of paths
 inputPath = fullfile(paraCfgInput.inputScenarioName, 'Input');
 outputPath = fullfile(paraCfgInput.inputScenarioName, 'Output');
@@ -83,6 +64,8 @@ qdFilesPath = fullfile(ns3Path, 'QdFiles');
 
 if paraCfgInput.switchSaveVisualizerFiles == 1
     visualizerPath = fullfile(outputPath, 'Visualizer');
+else
+    visualizerPath = [];
 end
 
 % Subfolders creation
@@ -91,17 +74,30 @@ if ~isfolder(qdFilesPath)
 end
 
 % Init output files
+keepBothQDOutput = strcmp(paraCfgInput.outputFormat, 'both');
+isJsonOutput = strcmp(paraCfgInput.outputFormat, 'json');
 if ~isJsonOutput || keepBothQDOutput
     fids = getQdFilesIds(qdFilesPath, paraCfgInput.numberOfNodes,...
         paraCfgInput.useOptimizedOutputToFile);
+else 
+    fids = [];
 end
+writeCfg.isJsonOutput= isJsonOutput;
+writeCfg.keepBothQDOutput = keepBothQDOutput;
+writeCfg.fids = fids;
+writeCfg.inputPath=inputPath;
+writeCfg.outputPath = outputPath;
+writeCfg.ns3Path = ns3Path;
+writeCfg.visualizerPath = visualizerPath;
+writeCfg.qdFilesPath = qdFilesPath;
 
 %% Init
-switchPolarization = 0;
-switchCp = 0;
-polarizationTx = [1, 0];
-[~, scenarioName] = fileparts(paraCfgInput.inputScenarioName);
-
+polarizationCfg.isPol = 0;
+polarizationCfg.isXPol = 0;
+polarizationCfg.txPol = [1,0];
+nPaaCentroids = cellfun(@(x) x.nPAA_centroids, nodeCfgInput.paaInfo);
+printRtStatus = 1;
+%% Get CAD info
 MaterialLibrary = importMaterialLibrary(paraCfgInput.materialLibraryPath);
 
 % Extracting CAD file and storing in an XMl file, CADFile.xml
@@ -113,292 +109,40 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
     % Save output file with room coordinates for visualization
     RoomCoordinates = CADop(:, 1:9);
     csvwrite(fullfile(visualizerPath, 'RoomCoordinates.csv'),...
-        RoomCoordinates);
+        RoomCoordinates); %#ok<CSVWT> 
 end
+
+cadInfo.cad = CADop;
+cadInfo.allMaterialDefined = switchMaterial;
+cadInfo.roomCoordinates = RoomCoordinates;
+cadInfo.materialLibrary = MaterialLibrary;
 
 %% Node-node ray tracing
-if paraCfgInput.nodeMobility
-    targetUnreleatedSimLength = paraCfgInput.numberOfTimeDivisions; 
-else
-    targetUnreleatedSimLength = 1;
-end
+[outputPaaTime, mpc, nodeCfg] = rtTargetUnrelated(nodeCfgInput, paraCfgInput, ...
+    cadInfo, polarizationCfg, writeCfg, 'displayProgress',printRtStatus); 
 
-for iterateTimeDivision = 1:targetUnreleatedSimLength
-    if mod(iterateTimeDivision,100)==0 && displayProgress
-        fprintf('%2.2f%%\n', iterateTimeDivision/targetUnreleatedSimLength*100)
-    end
-    
-    %% Point rotation
-    % PAAs not centered [0,0,0] have a
-    % different position in the global frame if the node rotates. Compute
-    % the new PAAs position as well as the equivalent angle resulting from
-    % successive transformations (initial PAA orientation + rotation of the
-    % node over time)
-    for nodeId = 1:paraCfgInput.numberOfNodes
-        centerRotation = nodePosition(iterateTimeDivision,:, nodeId);
-        nodeRotationEucAngles = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
-        paaInitialPosition = reshape(squeeze(...
-            nodeCfgInput.paaInfo{nodeId}.centroidTimePosition(iterateTimeDivision,:,:)), [], 3);
-        [paaRotatedPosition, nodeEquivalentRotationAngle] = coordinateRotation(paaInitialPosition, ...
-            centerRotation,...
-            nodeRotationEucAngles ...
-            );
-        nodeCfgInput.nodeEquivalentRotationAngle(iterateTimeDivision,:, nodeId) = nodeEquivalentRotationAngle;
-        nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(iterateTimeDivision,:,:) =paaRotatedPosition;
-    end
-    
-    %% Iterates through all the PAA centroids
-    for iterateTx = 1:paraCfgInput.numberOfNodes
-        
-        for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
-            
-            for iteratePaaTx = 1:nPAA_centroids(iterateTx)
-                
-                for iteratePaaRx = 1:nPAA_centroids(iterateRx)
-                    output = [];
-                    
-                    % Update centroids position
-                    Tx = squeeze(nodeCfgInput.paaInfo{iterateTx}.centroid_position_rot(iterateTimeDivision,iteratePaaTx,:)).';
-                    Rx = squeeze(nodeCfgInput.paaInfo{iterateRx}.centroid_position_rot(iterateTimeDivision,iteratePaaRx,:)).';
-                    
-                    % Update rotation Tx struct
-                    QTx.center(1,:) = nodePosition(iterateTimeDivision,:,iterateTx);
-                    QTx.angle(1,:) = nodeCfgInput.nodeRotation(iterateTimeDivision,:, iterateTx);
-                    
-                    % Update rotation Rx struct
-                    QRx.center(1,:) = nodePosition(iterateTimeDivision,:,iterateRx);
-                    QRx.angle(1,:) = nodeCfgInput.nodeRotation(iterateTimeDivision,:, iterateRx);
-                    
-                    % Update node velocity
-                    previousTxPosition =  squeeze(nodeCfgInput.paaInfo{iterateTx}.centroid_position_rot(max(iterateTimeDivision-1,1),iteratePaaTx,:)).';
-                    previousRxPosition =  squeeze(nodeCfgInput.paaInfo{iterateRx}.centroid_position_rot(max(iterateTimeDivision-1,1),iteratePaaRx,:)).';
-                    
-                    vtx = (Tx-previousTxPosition)./ts;
-                    vrx = (Rx-previousRxPosition)./ts;
-                    
-                    % LOS Path generation
-                    [isLos, delayLos, output] = LOSOutputGenerator(CADop, Rx, Tx,...
-                        output, vtx, vrx, switchPolarization, switchCp,...
-                        polarizationTx, paraCfgInput.carrierFrequency, 'rotTx', QTx.angle, 'rotRx', QRx.angle);
-                    
-                    % Store MPC
-                    if paraCfgInput.switchSaveVisualizerFiles && isLos
-                        multipath1 = [Tx, Rx];
-                        Mpc{iterateTx,iteratePaaTx,iterateRx,iteratePaaRx, 1, iterateTimeDivision+1} =multipath1;
-                    end
-                    
-                    % Higher order reflections (Non LOS)
-                    for iterateOrderOfReflection = 1:paraCfgInput.totalNumberOfReflections
-                        numberOfReflections = iterateOrderOfReflection;
-                        
-                        [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
-                            ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
-                            numberOfReflections, numberOfReflections,...
-                            0, 1, 1, 1, Rx, Tx, [], [],...
-                            switchMaterial, [], 1);
-                        
-                        numberOfPlanes = numberOfPlanes - 1;
-                        
-                        [outputTemporary, multipathTemporary] = ...
-                            multipath(delayLos,...
-                            ArrayOfPlanes, ArrayOfPoints, Rx, Tx,...
-                            CADop, numberOfPlanes,...
-                            MaterialLibrary, arrayOfMaterials, ...
-                            switchMaterial, vtx, vrx,...
-                            paraCfgInput.switchDiffuseComponent,...
-                            paraCfgInput.switchQDModel,...
-                            scenarioName,...
-                            paraCfgInput.carrierFrequency,...
-                            paraCfgInput.diffusePathGainThreshold,...
-							paraCfgInput.reflectionLoss,...
-                            'rotTx', QTx.angle, 'rotRx', QRx.angle);
-                        
-                        nMpc = size(multipathTemporary,1);
-                        %Store MPC
-                        if paraCfgInput.switchSaveVisualizerFiles && nMpc > 0
-                            multipath1 = multipathTemporary(:,2:end); %Discard reflection order column
-                            Mpc{iterateTx,iteratePaaTx,...
-                                iterateRx,iteratePaaRx, ...
-                                iterateOrderOfReflection+1,...
-                                iterateTimeDivision+1} = multipath1;
-                        end
-                        
-                        %Store QD output
-                        if size(output) > 0
-                            output = [output;outputTemporary]; %#ok<AGROW>
-                            
-                        elseif size(outputTemporary) > 0
-                            output = outputTemporary;
-                            
-                        end
-                        
-                    end
-                    
-                    % Create outputPAA array of struct. Each entry of the
-                    % array is a struct relative to a NodeTx-NodeRx
-                    % combination. Each struct has the entries
-                    % - paaTxXXpaaRxYY: channel between paaTx XX and paaRx
-                    % YY.
-                    outputPaa{iterateTx, iterateRx}.(sprintf('paaTx%dpaaRx%d', iteratePaaTx-1, iteratePaaRx-1))= output;
-                    outputPaa{iterateRx, iterateTx}.(sprintf('paaTx%dpaaRx%d', iteratePaaRx-1, iteratePaaTx-1))= reverseOutputTxRx(output);
-                    
-                end
-            end
-            
-        end
-        
-        
-    end
-    
-    %% Generate channel for each PAA given the channel of the centroids
-    outputPaaTime(:,:,iterateTimeDivision) = generateChannelPaa(outputPaa, nodeCfgInput.paaInfo);  %#ok<AGROW>
-    
-    %% Write QD output in CSV files
-    if ~isJsonOutput || keepBothQDOutput
-        for iterateTx = 1:paraCfgInput.numberOfNodes
-            for iterateRx = iterateTx+1:paraCfgInput.numberOfNodes
-                writeQdFileOutput(outputPaaTime{iterateTx, iterateRx,iterateTimeDivision},...
-                    paraCfgInput.useOptimizedOutputToFile, fids, iterateTx, iterateRx,...
-                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
-                
-                writeQdFileOutput(outputPaaTime{iterateRx,iterateTx,iterateTimeDivision},...
-                    paraCfgInput.useOptimizedOutputToFile, fids, iterateRx,iterateTx,...
-                    qdFilesPath, paraCfgInput.qdFilesFloatPrecision);
-            end
-        end
-    end
-    
-    clear outputPAA
-end
-
-if ~paraCfgInput.nodeMobility
-    outputPaaTime(:,:,2:paraCfgInput.numberOfTimeDivisions) = repmat(outputPaaTime(:,:,1), [1 1 paraCfgInput.numberOfTimeDivisions-1]);
-    Mpc(:,:,:,:,:,3:end) = repmat(Mpc(:,:,:,:,:,2), [1 1 1 1 1 paraCfgInput.numberOfTimeDivisions-1]);
-end
-
-%% Node-target ray tracing
-if trgtNum
-    cf = paraCfgInput.carrierFrequency;
-    saveVisualOut = paraCfgInput.switchSaveVisualizerFiles;
-    reflectionOrder = paraCfgInput.totalNumberOfReflectionsSens;
-    isDiffuse = paraCfgInput.switchDiffuseComponent;
-    isQD = paraCfgInput.switchQDModel;
-    diffusePathGainThreshold =  paraCfgInput.diffusePathGainThreshold;
-    reflectionLoss = paraCfgInput.reflectionLoss;
-    for iterateTimeDivision = 1:paraCfgInput.numberOfTimeDivisions
-        if mod(iterateTimeDivision,100)==0 && displayProgress
-            fprintf('%2.2f%%\n', iterateTimeDivision/paraCfgInput.numberOfTimeDivisions*100)
-        end
-        
-        for nodeId = 1:paraCfgInput.numberOfNodes
-            for paaId = 1:nPAA_centroids(nodeId)
-                nodePaa = squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(min(targetUnreleatedSimLength,iterateTimeDivision),paaId,:)).';
-                previousNodePaaPosition =  squeeze(nodeCfgInput.paaInfo{nodeId}.centroid_position_rot(max(min(targetUnreleatedSimLength,iterateTimeDivision)-1,1),paaId,:)).';
-                mpcParFor = cell(1,trgtNum);
-                trgtPosition = trgCfgInput.trgtPosition(iterateTimeDivision,:, :);
-                previousTargetPosition = trgCfgInput.trgtPosition(max(1,iterateTimeDivision-1),:, :);
-                rotAngle = nodeCfgInput.nodeRotation(iterateTimeDivision,:, nodeId);
-                for trgtId = 1:trgtNum
-                    % Update centroids position
-                    target = trgtPosition(:, :, trgtId);
-                    vNode = (nodePaa-previousNodePaaPosition)./ts;
-                    vTarget = (target-previousTargetPosition(:,:,trgtId))./ts;
-                    
-                    % LOS Path generation
-                    [isLos, ~, output] = LOSOutputGenerator(CADop, target, ...
-                        nodePaa, [], vNode, vTarget,0,[],0,cf, ...
-                        'rotTx',rotAngle);
-                    
-                    % Store MPC
-                    if saveVisualOut && isLos
-                        mpcLos = [nodePaa, target];
-                        MpcTarget{nodeId,paaId,...
-                            trgtId, iterateTimeDivision}{1} = mpcLos;
-                    else
-                        MpcTarget{nodeId,paaId,...
-                            trgtId, iterateTimeDivision}{1} = [];
-                    end
-                    
-                    for iterateOrderOfReflection = 1:reflectionOrder
-                        numberOfReflections = iterateOrderOfReflection;
-                        
-                        [ArrayOfPoints, ArrayOfPlanes, numberOfPlanes,...
-                            ~, ~, arrayOfMaterials, ~] = treetraversal(CADop,...
-                            numberOfReflections, numberOfReflections,...
-                            0, 1, 1, 1, target, nodePaa, [], [],...
-                            switchMaterial, [], 1);
-                        
-                        numberOfPlanes = numberOfPlanes - 1;
-                        
-                        [outputTemporary, multipathTemporary] = ...
-                            multipath(0, ... % 0 delay LOS
-                            ArrayOfPlanes, ArrayOfPoints, target, nodePaa, ...
-                            CADop, numberOfPlanes, ...
-                            MaterialLibrary, arrayOfMaterials, ...
-                            switchMaterial, vNode, vTarget, ...
-                            isDiffuse, isQD, scenarioName, cf,...
-                            diffusePathGainThreshold,...
-                            reflectionLoss, ...
-                            'rotTx', rotAngle);
-                        
-                        nMpc = size(multipathTemporary,1);
-                        %Store MPC
-                        if saveVisualOut && nMpc > 0
-                            multipath1 = multipathTemporary(:,...
-                                2:end); %Discard reflection order column
-                            mpcParFor{trgtId}{iterateOrderOfReflection} =multipath1;
-                            MpcTarget{nodeId,paaId,...
-                                trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = multipath1;
-                        else
-                            MpcTarget{nodeId,paaId,...
-                                trgtId,iterateTimeDivision}{iterateOrderOfReflection+1} = [];
-                        end
-                        
-                        %Store QD output
-                        if size(output) > 0
-                            output = [output;outputTemporary]; %#ok<AGROW>
-                            
-                        elseif size(outputTemporary) > 0
-                            output = outputTemporary;
-                            
-                        end
-                        
-                    end
-                    
-                    outputPaaTarget{nodeId, trgtId}.(sprintf('paaTx%dTarget%d', paaId-1, trgtId-1))= output;
-                    outputPaaTargetReverse{trgtId, nodeId}.(sprintf('paaTarget%dpaaRx%d', trgtId-1, paaId-1))= reverseOutputTxRx(output);
-                    
-                end
-            end
-        end
-        
-        trgOutChan(:,:,iterateTimeDivision)  = generateChannelTargetPaa(outputPaaTarget, outputPaaTargetReverse,nodeCfgInput.paaInfo, trgCfgInput.trgtFrisCorrection);
-    end
-    MpcTargetMat  = cell(paraCfgInput.numberOfNodes,...
-        max(nPAA_centroids),...
-        trgtNum,reflectionOrder+1, ...
-        paraCfgInput.numberOfTimeDivisions);
-    for  i =1: reflectionOrder+1
-        [MpcTargetMat{:,:,:,i,:}] = deal(MpcTarget{i});
-    end
-end
+%% Node-target-node ray tracing
+[trgOutChan,mpcTarget] = rtTargetRelated(nodeCfg, trgCfgInput, paraCfgInput, ...
+    cadInfo,'displayProgress',printRtStatus);
 
 %% Write output in JSON files
 % QD output
 if isJsonOutput  || keepBothQDOutput
     if trgtNum
-        writeSensOutput(outputPaaTime, trgOutChan, cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo), qdFilesPath)
+        writeSensOutput(outputPaaTime, trgOutChan, cellfun(@(x) x.nPaa,  nodeCfg.paaInfo), qdFilesPath)
+        writeQdJsonTargetOutput(trgOutChan, cellfun(@(x) x.nPaa,  nodeCfg.paaInfo), qdFilesPath, 'index', trgCfgInput.trgtBaseIndex)
+
     else
-        writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfgInput.paaInfo),...
+        writeQdJsonOutput(outputPaaTime,cellfun(@(x) x.nPaa,  nodeCfg.paaInfo),...
             qdFilesPath);
     end
 end
 
 if paraCfgInput.switchSaveVisualizerFiles
-    Mpc(:,:,:,:,:,1) = [];
-    writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, nodePosition, Mpc)
+    mpc(:,:,:,:,:,1) = [];
+    writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfg, nPaaCentroids, mpc)
     if trgtNum
-        writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPAA_centroids, trgCfgInput,MpcTarget)
+        writeVisualizerTargetJsonOutput(visualizerPath, paraCfgInput, nodeCfg, nPaaCentroids, trgCfgInput,mpcTarget)
         writeTargetConnections(trgtNum, visualizerPath)
     end
 end

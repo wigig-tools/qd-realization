@@ -63,9 +63,12 @@ function [isLOS, delayLOS, output] = LOSOutputGenerator(CADoutput, Rx, Tx,...
 p = inputParser;
 addParameter(p,'rotTx',[0 0 0])
 addParameter(p,'rotRx',[0 0 0])
+addParameter(p,'enablePhase',0)
+
 parse(p, varargin{:});
 rotTx = p.Results.rotTx;
 rotRx = p.Results.rotRx;
+enablePhase = p.Results.enablePhase;
 
 % Direction of departure (DoD) is simple the difference of position vectors
 % of Tx and Rx
@@ -117,7 +120,11 @@ if isLOS==1 % if DoA exists
             output1(16:17) = PolarizationTx(2,:);
         end
     end
-    output1(18) = mod(distance/lambda*2*pi,2*pi);
+    if enablePhase
+        output1(18) = mod(distance/lambda*2*pi,2*pi);
+    else
+        output1(18) = 0;
+    end
     % Doppler Factor
     output1(20) = dopplerFactor*frequency;
     output1(21) = 0;

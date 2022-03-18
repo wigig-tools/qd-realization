@@ -1,4 +1,4 @@
-function writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPaaCentroids, nodePosition, mpc)
+function writeVisualizerJsonOutput(visualizerPath, paraCfgInput, nodeCfgInput, nPaaCentroids, mpc)
 %%WRITEVISUALIZERJSONOUTPUT 
 
 % NIST-developed software is provided by NIST as a public service. You may 
@@ -84,7 +84,7 @@ f = fopen(fullfile(visualizerPath, filename), 'w');
 
 for i = 1:paraCfgInput.numberOfNodes
     jsonStruct = struct('Node' , i-1, ...
-        'Position', [nodePosition(:,:,i); [inf inf inf]], ...
+        'Position', [nodeCfgInput.nodePosition(:,:,i); [inf inf inf]], ...
         'Rotation', [nodeCfgInput.nodeEquivalentRotationAngle(:,:,i); [inf inf inf]]);
     json = jsonencode(jsonStruct); % Add a temporary inf vector to make sure
     % more than a single vector will be encoded. Matlab json

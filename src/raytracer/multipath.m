@@ -91,9 +91,12 @@ p = inputParser;
 addParameter(p,'indStoc',1)
 addParameter(p,'rotTx',[0 0 0])
 addParameter(p,'rotRx',[0 0 0])
+addParameter(p,'enablePhase',0)
+
 parse(p, varargin{:});
 rotTx = p.Results.rotTx;
 rotRx = p.Results.rotRx;
+enablePhase = p.Results.enablePhase;
 
 %% Init
 indexMultipath = 1;
@@ -193,7 +196,11 @@ if numberOfRowsArraysOfPlanes>0
             dRay(12) = mod(atan2d(doa(2),doa(1)), 360);
             % Aoa elevation
             dRay(13) = acosd(doa(3) / norm(doa));
-            dRay(18) = orderOfReflection*pi+mod(distance/wavelength*2*pi,2*pi);
+            if enablePhase
+                dRay(18) = mod(orderOfReflection*pi+distance/wavelength*2*pi,2*pi);
+            else
+                dRay(18) = 0;
+            end
             dRay(20) = dopplerFactor * frequency;
             dRay(21) = 0;
             outputQd(indexOutput).dRay = dRay;
