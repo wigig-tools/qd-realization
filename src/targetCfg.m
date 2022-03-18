@@ -98,6 +98,8 @@ for trgtId = 1:numberOfTargets
 end
 
 if numberOfTargets > 0
+    trgtBaseIndex = cumsum([1; cellfun(@(x) size(x,3), trgtJointsMat)]);
+    trgtBaseIndex(end) = [];
     trgtJointsMat = cat(3, trgtJointsMat{:});
     trgtPositionTime = trgtJointsMat(:, 1:3,:);
     trgtRotationTime = cat(3, trgtBase{:});
@@ -110,6 +112,7 @@ if numberOfTargets > 0
     trgCfg.trgtRotation = trgtRotationTime;
     trgCfg.trgtRcs = 8; % Hard coded temporarly. Waiting for measurements
     trgCfg.trgtFrisCorrection = 10*log10(4*pi/((getLightSpeed/paraCfg.carrierFrequency)^2))-trgCfg.trgtRcs;
+    trgCfg.trgtBaseIndex = trgtBaseIndex;
 else
     trgCfg = [];
 end
