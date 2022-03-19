@@ -73,6 +73,7 @@ nodeInitialPosition = zeros( paraCfg.numberOfNodes, 3);
 nodePositionTime = zeros(paraCfg.numberOfTimeDivisions,3, paraCfg.numberOfNodes);
 nodePositionTimeRaw = cell(numberOfNodes,1);
 nodeRotationTimeRaw = cell(numberOfNodes,1);
+timeSampleNode = zeros(numberOfNodes,2); % (:,1) pos (:,2) rot
 
 %% Load NodePositionX.dat and NodeRotationX.dat
 for iterateNumberOfNodes = 1:numberOfNodes
@@ -116,6 +117,7 @@ for iterateNumberOfNodes = 1:numberOfNodes
         
     end
     numberTracePoints = min(timeSamplesFile,paraCfg.numberOfTimeDivisions);
+    timeSampleNode(iterateNumberOfNodes,1) = numberTracePoints;
     nodePositionTime(1:numberTracePoints, :, iterateNumberOfNodes) = ...
         nodePositionTimeTmp(1:numberTracePoints,:);
     nodePositionTime(numberTracePoints+1:end, :, iterateNumberOfNodes) = ...
@@ -125,7 +127,7 @@ for iterateNumberOfNodes = 1:numberOfNodes
     % NodeRotation processing
     nodeRotationTimeTemp = nodeRotationTimeRaw{iterateNumberOfNodes};
     timeSamplesFile = size(nodeRotationTimeTemp,1);
-
+    timeSampleNode(iterateNumberOfNodes,2) = timeSamplesFile;
     % Config file defines fewer rotations in time than the numberOfTimeDivisions
     % defined in paraCfg
     if  timeSamplesFile< paraCfg.numberOfTimeDivisions &&  ...
@@ -143,6 +145,7 @@ for iterateNumberOfNodes = 1:numberOfNodes
    
 end
 
+nodeMobility = ~all(timeSampleNode(:) == 1); %if rotation or position input files have multiple rows, the nodes are moving.
 %% PAA init
 nodePaaInitialPosition = cell(numberOfNodes,1); %PAA vector position w.r.t node center
 nodePaaOrientation     = cell(numberOfNodes,1); 
@@ -182,7 +185,8 @@ for iterateNumberOfNodes = 1:numberOfNodes
 end
 
 %% Process PAA position
-paaInfo  = clusterPaa(nodePositionTime, nodePaaInitialPosition, nodePaaOrientation);
+paaInfo  = clusterPaa(nodePositionTime, nodePaaInitialPosition, nodePaaOrientation, ...
+'fc',paraCfg.carrierFrequency);
 
 %% Output
 % Check Temp Output Folder
@@ -201,6 +205,7 @@ nodeCfg.nodeAntennaOrientation = nodePaaOrientation;
 nodeCfg.nodePosition = reshape(nodePositionTime, [], 3, numberOfNodes);
 nodeCfg.nodeRotation = nodeRotationTime;
 nodeCfg.paaInfo = paaInfo;
+paraCfg.nodeMobility = nodeMobility;
 paraCfg.isInitialOrientationOn = any(cellfun(@(x) any(reshape(x, [],1)), nodePaaOrientation));
 paraCfg.isDeviceRotationOn = any(nodeRotationTime(:));
 paraCfg.isPaaCentered = ~any(cellfun(@(x) any(x(:)), nodePaaInitialPosition));
