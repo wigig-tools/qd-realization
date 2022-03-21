@@ -175,7 +175,7 @@ end
 para = fieldToNum(para, 'enablePhaseOutput', [], 0);
 
 % writeTRayOutput = 1 writes the target related rays in a separate file
-para = fieldToNum(para, 'writeTRayOutput', [], 0);
+para = fieldToNum(para, 'writeTRayOutput', [], 1);
 
 end
 
