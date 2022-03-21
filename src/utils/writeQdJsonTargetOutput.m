@@ -57,7 +57,7 @@ for tx = nodeList
                     % Get MIMO channel per PAA
                     mimoCh = squeeze(output(tx,rx,:));
                     % Extract MIMO channel per target
-                    mimoCh = cellfun(@(x) x(index(nT+1),:), mimoCh, 'UniformOutput', false);
+                    mimoCh = cellfun(@(x) x(index(nT+1),:,:), mimoCh, 'UniformOutput', false);
                     % Add NAN row at the end (To correct matlab behavior when handling a single entry) 
                     mimoCh = cellfun(@(x) appendNan(x,nOutput,paaNodes(tx)*paaNodes(rx)), mimoCh, 'UniformOutput', false);
                     % Get SISO
