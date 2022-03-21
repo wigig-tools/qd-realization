@@ -61,7 +61,6 @@ paa_comb_struct = {};
 for nt = nodesVector % Loop on tx nodes
     for nr = nodesVector(nodesVector~=nt)% Loop on rx nodes
         chMIMOtx_rx = []; % Channel between one tx and one rx
-        paaComb = [];
         i = 0;
         for c_t = 1:infoPAA{nt}.nPAA_centroids % Loop on transmitter centroid
             for c_r = 1:infoPAA{nr}.nPAA_centroids % Loop on receiver centroid
@@ -74,8 +73,6 @@ for nt = nodesVector % Loop on tx nodes
                     ptr.paarx = c_r; %RX PAA centroid pointer
                     ptr.iid_tx = 1; %TX PAA rotated channel pointer
                     ptr.iid_rx = 1; %RX PAA rotated channel pointer
-                    [A,B] = meshgrid(infoPAA{ptr.nt}.paaInCluster{1}, infoPAA{ptr.nr}.paaInCluster{1});
-                    paaComb = [A(:), B(:)];
                     chMimoCluster = {};
                 parfor trgId = 1:numTarget
                     chSisoTxTrg = chIn{nt,trgId}.(sprintf('paaTx%dTarget%d', c_t-1, trgId-1));
@@ -108,12 +105,8 @@ for nt = nodesVector % Loop on tx nodes
             chNanPad= cellfun(@(x) appendNan(x,M,nvar),chMimoCentroid,'UniformOutput',false);
             chMIMOtx_rx = cat(3,chNanPad{:});
         end
-        if ~isempty(paaComb)
-            [~, index_sorted] = sortrows(paaComb,1);
-            chOut{nt, nr} = chMIMOtx_rx(:,:, index_sorted);
-        else
-            chOut{nt, nr} = chMIMOtx_rx;
-        end
+
+        chOut{nt, nr} = chMIMOtx_rx;
         
     end
 end
