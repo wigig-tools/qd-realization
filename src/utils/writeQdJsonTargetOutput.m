@@ -65,8 +65,8 @@ for tx = nodeList
                     % Rows to read in the matrix 
                     rowDist = cellfun(@(x) size(x,1), mimoCh);
                     % JSON struct
-                    s = struct('tx', tx-1, 'rx', rx-1,'target', nT, ...
-                        'paaTx', txPaa-1, 'paaRx', rxPaa-1);
+                    s = struct('tx', tx-1, 'rx', rx-1, ...
+                        'paaTx', txPaa-1, 'paaRx', rxPaa-1, 'target', nT);
                     s.delay = mat2cell(single(sisoCh(:,8)), rowDist);
                     s.gain  = mat2cell(single(real(sisoCh(:,9))), rowDist);
                     s.phase = mat2cell(single(sisoCh(:,18)), rowDist);
