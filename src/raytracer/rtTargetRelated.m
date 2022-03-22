@@ -99,7 +99,7 @@ if trgtNum
                     % LOS Path generation
                     [isLos, ~, output] = LOSOutputGenerator(CADop, target, ...
                         nodePaa, [], vNode, vTarget,0,[],0,cf, ...
-                        'rotTx',rotAngle);
+                        'rotTx',rotAngle, 'enablePhase', paraCfgInput.enablePhaseOutput);
                     
                     % Store MPC
                     if saveVisualOut && isLos
