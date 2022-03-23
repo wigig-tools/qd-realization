@@ -94,7 +94,7 @@ end
 function tab = importCsvMaterialLibrary(path)
 
 if contains(pwd, 'test')
-    path  = fullfile('..\src', path);
+    path  = fullfile('..','src', path);
 end
 
 tab = readtable(path);

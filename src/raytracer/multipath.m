@@ -89,11 +89,14 @@ function [qdRay, multipath] =...
 %% Varargin processing 
 p = inputParser;
 addParameter(p,'indStoc',1)
-addParameter(p,'qTx',struct('center', Tx, 'angle', [0 0 0]))
-addParameter(p,'qRx',struct('center', Rx, 'angle', [0 0 0]))
+addParameter(p,'rotTx',[0 0 0])
+addParameter(p,'rotRx',[0 0 0])
+addParameter(p,'enablePhase',0)
+
 parse(p, varargin{:});
-qTx = p.Results.qTx;
-qRx = p.Results.qRx;
+rotTx = p.Results.rotTx;
+rotRx = p.Results.rotRx;
+enablePhase = p.Results.enablePhase;
 
 %% Init
 indexMultipath = 1;
@@ -134,8 +137,8 @@ if numberOfRowsArraysOfPlanes>0
             multipath,indexMultipath,velocityTx,velocityRx);
         
         % Apply node rotation
-        dod = coordinateRotation(dod,[0 0 0], qTx.angle, 'frame');
-        doa = coordinateRotation(doa,[0 0 0], qRx.angle, 'frame');
+        dod = coordinateRotation(dod,[0 0 0], rotTx, 'frame');
+        doa = coordinateRotation(doa,[0 0 0], rotRx, 'frame');
         
         % Compute reflection loss
         if isMpc == 1
@@ -193,7 +196,11 @@ if numberOfRowsArraysOfPlanes>0
             dRay(12) = mod(atan2d(doa(2),doa(1)), 360);
             % Aoa elevation
             dRay(13) = acosd(doa(3) / norm(doa));
-            dRay(18) = orderOfReflection*pi;
+            if enablePhase
+                dRay(18) = mod(orderOfReflection*pi+distance/wavelength*2*pi,2*pi);
+            else
+                dRay(18) = 0;
+            end
             dRay(20) = dopplerFactor * frequency;
             dRay(21) = 0;
             outputQd(indexOutput).dRay = dRay;

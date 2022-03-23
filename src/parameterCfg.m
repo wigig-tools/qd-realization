@@ -95,6 +95,11 @@ end
 % Order of reflection.
 % 1 = multipath until first order, 2 = multipath until second order (Default)
 para = fieldToNum(para, 'totalNumberOfReflections', [], 2);
+
+% Target ray order of reflection.
+% 0 = Tx-Target- Rx. 1 = Tx-reflection-target-Rx OR Tx-target-reflection-Rx
+para = fieldToNum(para, 'totalNumberOfReflectionsSens', [], 0);
+
 if strcmp(para.switchQDModel,'tgayMeasurements') ...
         && para.totalNumberOfReflections>2
     warning(['totalNumberOfReflections for switchQDModel = tgayMeasurements ',...
@@ -102,17 +107,16 @@ if strcmp(para.switchQDModel,'tgayMeasurements') ...
     para.totalNumberOfReflections = 2;
 end
 
-% t is the time period in seconds. The time period for which the simulation
-% has to run when mobility is ON
+% totalTimeDuration is the simulation time in seconds.
 % = 1 (Default)
 para = fieldToNum(para, 'totalTimeDuration', [], 1);
 
-% Switch to enable or disable csv outputs in Output/Visualizer folder
+% Switch to enable or disable csv outputs in Output folder
 % = 0 (Default)
 para = fieldToNum(para, 'switchSaveVisualizerFiles', [0,1], 0);
 
 % Carrier frequency [Hz]
-% Default: 60 GHz
+% Default: 60e9
 para = fieldToNum(para, 'carrierFrequency', [], 60e9);
 
 % Precision of QdFiles output, used as %.(precision)g
@@ -166,8 +170,14 @@ else
     warning('Output format set to .txt')
 end
 
-end
+% enablePhaseOutput = 1 writes the mpc phase in output
+% enablePhaseOutput = 0 writes an mpc phase equal to 0 in output
+para = fieldToNum(para, 'enablePhaseOutput', [], 0);
 
+% writeTRayOutput = 1 writes the target related rays in a separate file
+para = fieldToNum(para, 'writeTRayOutput', [], 0);
+
+end
 
 %% Utils
 function para = fieldToNum(para, field, validValues, defaultValue)
