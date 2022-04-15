@@ -1,0 +1,9 @@
+ParameterName	ParameterValue
+environmentFileName	LivingRoom.xml
+numberOfTimeDivisions	256
+totalNumberOfReflections	1
+totalNumberOfReflectionsSens	0
+totalTimeDuration	2
+outputFormat	json
+writeTRayOutput	1
+enablePhaseOutput	1

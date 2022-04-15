@@ -110,11 +110,12 @@ if paraCfgInput.switchSaveVisualizerFiles == 1
     RoomCoordinates = CADop(:, 1:9);
     csvwrite(fullfile(visualizerPath, 'RoomCoordinates.csv'),...
         RoomCoordinates); %#ok<CSVWT> 
+cadInfo.roomCoordinates = RoomCoordinates;
+
 end
 
 cadInfo.cad = CADop;
 cadInfo.allMaterialDefined = switchMaterial;
-cadInfo.roomCoordinates = RoomCoordinates;
 cadInfo.materialLibrary = MaterialLibrary;
 
 %% Node-node ray tracing
