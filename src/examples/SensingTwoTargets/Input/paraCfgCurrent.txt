@@ -15,4 +15,6 @@ qdFilesFloatPrecision	6
 useOptimizedOutputToFile	1
 outputFormat	json
 materialLibraryPath	material_libraries/materialLibraryLivingRoom.csv
+
 writeTRayOutput	1
+enablePhaseOutput	1

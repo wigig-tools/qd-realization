@@ -56,9 +56,9 @@ nMpcTrgRx = size(ddirInTrgRx,1);
 orientation.tx = info{ptr.nt}.orientation{ptr.paatx};
 orientation.rx = info{ptr.nr}.orientation{ptr.paarx};
 ddirTxRx = zeros(nMpcTxTrg*nMpcTrgRx,21);
-ch = zeros([size(ddirTxRx),info{ptr.nt}.nPaa*info{ptr.nr}.nPaa]);
 paaTx = info{ptr.nt}.nodePAAInfo{ptr.paatx}.rotated_channel(ptr.iid_tx);
 paaRx = info{ptr.nr}.nodePAAInfo{ptr.paarx}.rotated_channel(ptr.iid_rx);
+ch = zeros([size(ddirTxRx),paaTx*paaRx]);
 
 for pT = 1: paaTx
     for pR = 1: paaRx
