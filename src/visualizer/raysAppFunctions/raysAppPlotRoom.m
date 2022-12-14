@@ -19,6 +19,9 @@ function raysAppPlotRoom(app)
 
 % Delete current room
 delete(app.roomPlotHandle)
+delete(app.targetRaysPlotHandle)
+delete(app.targetsPlotHandle)
+
 
 % Prepare data
 path = sprintf('%s/RoomCoordinates.csv', app.visualizerPath);

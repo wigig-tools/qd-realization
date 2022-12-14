@@ -50,6 +50,9 @@ for tx = nodeList
             for rxPaa = 1:paaNodes(rx)
                 % Get Target related MIMO channel
                 mimoCh = squeeze(outputSens(tx,rx,:));
+                indTarget = cellfun('isempty', mimoCh);
+                mimoCh(indTarget) = {nan(1,21)}; % when target is not present
+                
                 % Get Target related SISO channel
                 sisoChSens =cell2mat(cellfun(...
                     @(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa),...

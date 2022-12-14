@@ -17,15 +17,89 @@ function plotFrame(app)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-% Updated by: Neeraj Varshney <neeraj.varshney@nist.gov> for JSON format, 
-% node rotation and paa orientation
+% 2022-2023 Neeraj Varshney NIST/CTL (neeraj.varshney@nist.gov)
+% Support JSON format, node rotation, paa orientation and target
 
 plotNodes(app)
 plotRays(app)
+if isfile(sprintf('%s/TargetPositions.json',app.visualizerPath)) && ...
+        isfile(sprintf('%s/TargetMpc.json',app.visualizerPath))
+    plotTargets(app)
+    plotTargetRays(app)
+end
 plotQd(app,'aod')
 plotQd(app,'aoa')
 end
 
+function plotTargets(app)
+delete(app.targetsPlotHandle)
+ 
+t = app.currentTimestep;
+targetsPos = app.timestepInfo(t).targetPos;
+targetIndex = app.timestepInfo(t).numTarget;
+
+for iTarget = 1:length(targetIndex)
+    dirFile = [app.visualizerPath,'/TargetConnection',...
+            num2str(targetIndex(iTarget)),'.txt'];
+    if isfile(dirFile) % human target with connections
+    targetConnection = load(dirFile);
+    targetPos = targetsPos((size(targetConnection,1)+1)*iTarget-(size(targetConnection,1)+1)+1 :...
+        (size(targetConnection,1)+1)*(iTarget+1)-(size(targetConnection,1)+1),:); 
+    for i = 1:size(targetConnection,1)
+        app.targetsPlotHandle = [app.targetsPlotHandle; plot3(app.UIAxes,targetPos(targetConnection(i,:)+1,1),...
+            targetPos(targetConnection(i,:)+1,2),...
+            targetPos(targetConnection(i,:)+1,3),'Color','k','LineWidth',3)];
+    end
+    else % point target        
+        app.targetsPlotHandle = scatter3(app.UIAxes,...
+            targetsPos(:,1), targetsPos(:,2), targetsPos(:,3),10,'s',...
+            'm', 'filled');
+    end
+
+end
+end
+
+function plotTargetRays(app)
+delete(app.targetRaysPlotHandle)
+
+refOrder = str2double(app.RefOrderDropdown.Value);
+t = app.currentTimestep;
+tx = app.txIndex;
+rx = app.rxIndex;
+paaTx = app.numPaas(tx);
+paaRx = app.numPaas(rx);
+
+for ipaatx = 1:paaTx
+    for ipaarx = 1:paaRx
+        
+        timestepInfo = app.timestepInfo(t);
+        if isempty(timestepInfo.targetInfo(tx,paaTx).mpcs) || refOrder == 0
+            % no rays
+            return
+        else
+%         [numTargets, numJoints] = size(timestepInfo.targetInfo(tx,paaTx).mpcs(1,:,1)); %size(timestepInfo.targetInfo(tx,paaTx).mpcs);
+        [numTargets, numJoints, ~] = size(timestepInfo.targetInfo(tx,paaTx).mpcs);
+        for iReflection = 1:refOrder
+        coords= [];
+        for iTarget = 1:numTargets
+            for iJoint = 1:numJoints
+                mpcs1 = timestepInfo.targetInfo(tx,paaTx).mpcs{iTarget,iJoint,iReflection};
+                mpcs2 = timestepInfo.targetInfo(rx,paaRx).mpcs{iTarget,iJoint,iReflection};
+                coords = [coords;mpcs1;mpcs2];
+            end
+        end
+        
+        app.targetRaysPlotHandle = [app.targetRaysPlotHandle;...
+            plot3(app.UIAxes,...
+            coords(:,1:3:end)',coords(:,2:3:end)',coords(:,3:3:end)',...
+            '--','Color',[0 1 1],...
+            'LineWidth',0.5)];
+        end
+        end
+    end
+end
+
+end
 
 function plotNodes(app)
 delete(app.nodesPlotHandle)
@@ -102,7 +176,6 @@ for ipaatx = 1:paaTx
 end
 
 end
-
 
 function plotQd(app, direction)
 
