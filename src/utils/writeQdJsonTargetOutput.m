@@ -57,12 +57,14 @@ for tx = nodeList
                     % Get MIMO channel per PAA
                     mimoCh = squeeze(output(tx,rx,:));
                     % Extract MIMO channel per target
+                    indTarget = cellfun('isempty', mimoCh);
+                    mimoCh(indTarget) = {nan(1,21)}; % when target is not present
                     mimoCh = cellfun(@(x) x(index(nT+1),:,:), mimoCh, 'UniformOutput', false);
-                    % Add NAN row at the end (To correct matlab behavior when handling a single entry) 
+                    % Add NAN row at the end (To correct matlab behavior when handling a single entry)
                     mimoCh = cellfun(@(x) appendNan(x,nOutput,paaNodes(tx)*paaNodes(rx)), mimoCh, 'UniformOutput', false);
                     % Get SISO
                     sisoCh =cell2mat(cellfun(@(x) x(:,:,(txPaa-1)*paaNodes(rx)+rxPaa), mimoCh,'UniformOutput', false));
-                    % Rows to read in the matrix 
+                    % Rows to read in the matrix
                     rowDist = cellfun(@(x) size(x,1), mimoCh);
                     % JSON struct
                     s = struct('tx', tx-1, 'rx', rx-1, ...
